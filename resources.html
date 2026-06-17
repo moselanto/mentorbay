@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resources — MentorBay</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48' font-weight='bold' fill='%230B2A4A'%3EM%3C/text%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        navy: { DEFAULT:'#0B2A4A', 700:'#103a63', 600:'#16487a', 50:'#eef3f9' },
+        teal: { DEFAULT:'#1FA2BE', 600:'#178098', 400:'#3bb8d1', 50:'#e9f7fa' },
+      },
+      fontFamily: { sans:['Inter','ui-sans-serif','system-ui'] },
+      boxShadow: { card:'0 4px 20px -6px rgba(11,42,74,0.12)' },
+    }}}
+  </script>
+  <style>html{scroll-behavior:smooth}.cta-gradient{background:linear-gradient(120deg,#0B2A4A 0%,#16487a 60%,#178098 100%)}</style>
+</head>
+<body class="font-sans text-slate-700 bg-slate-50 antialiased">
+
+  <!-- ================= HEADER ================= -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="index.html" class="flex items-center gap-2 shrink-0">
+          <svg viewBox="0 0 64 64" class="h-9 w-9">
+            <circle cx="32" cy="8" r="6" fill="#1FA2BE"/><circle cx="55" cy="20" r="6" fill="#0B2A4A"/>
+            <circle cx="55" cy="44" r="6" fill="#1FA2BE"/><circle cx="32" cy="56" r="6" fill="#0B2A4A"/>
+            <circle cx="9" cy="44" r="6" fill="#1FA2BE"/><circle cx="9" cy="20" r="6" fill="#0B2A4A"/>
+            <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#0B2A4A" font-family="Inter">M</text>
+          </svg>
+          <span class="text-xl font-extrabold text-navy">Mentor<span class="text-teal">Bay</span></span>
+        </a>
+        <nav class="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-600">
+          <a href="mentors.html" class="hover:text-teal transition">Mentors</a>
+          <a href="programs.html" class="hover:text-teal transition">Programs</a>
+          <a href="events.html" class="hover:text-teal transition">Events</a>
+          <a href="success-stories.html" class="hover:text-teal transition">Success Stories</a>
+          <a href="resources.html" class="text-teal font-semibold">Resources</a>
+        </nav>
+        <div class="hidden lg:flex items-center gap-3">
+          <a href="login.html" class="px-4 py-2 text-sm font-semibold text-navy border border-slate-200 rounded-lg hover:border-teal hover:text-teal transition">Login</a>
+          <a href="signup.html" class="px-4 py-2 text-sm font-semibold text-white bg-navy rounded-lg hover:bg-navy-700 transition">Join Now</a>
+        </div>
+        <button id="menuBtn" class="lg:hidden p-2 text-navy" aria-label="Menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="mobileMenu" class="hidden lg:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-1">
+      <a href="mentors.html" class="block py-2 text-slate-700 font-medium">Mentors</a>
+      <a href="programs.html" class="block py-2 text-slate-700 font-medium">Programs</a>
+      <a href="events.html" class="block py-2 text-slate-700 font-medium">Events</a>
+      <a href="success-stories.html" class="block py-2 text-slate-700 font-medium">Success Stories</a>
+      <a href="resources.html" class="block py-2 text-teal font-semibold">Resources</a>
+    </div>
+  </header>
+
+  <!-- ================= PAGE HEADER ================= -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    <nav class="text-sm text-slate-500 mb-3"><a href="index.html" class="hover:text-teal">Home</a> <span class="mx-1">›</span> <span class="text-slate-700 font-medium">Resources</span></nav>
+    <h1 class="text-3xl lg:text-4xl font-extrabold text-navy">Learning Resources</h1>
+    <p class="text-slate-500 mt-2">Free articles, videos, courses, and guides from Africa's top mentors to help you grow.</p>
+
+    <div class="mt-6 flex flex-col lg:flex-row gap-3 lg:items-center">
+      <div class="relative flex-1">
+        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="searchInput" type="text" placeholder="Search resources by title, topic or author..." class="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-200 bg-white focus:ring-2 focus:ring-teal focus:border-teal outline-none" />
+      </div>
+      <div class="flex flex-wrap gap-2" id="typeBar"></div>
+    </div>
+  </div>
+
+  <!-- ================= GRID ================= -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <p class="text-sm text-slate-500 mb-5"><span id="resultCount" class="font-semibold text-navy">0</span> resources</p>
+    <div id="resGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    <div id="emptyState" class="hidden text-center py-20">
+      <p class="font-semibold text-navy">No resources found</p>
+      <p class="text-slate-500 text-sm mt-1">Try a different keyword or type.</p>
+    </div>
+  </div>
+
+  <!-- ================= NEWSLETTER ================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+    <div class="cta-gradient rounded-2xl p-8 md:p-10 text-center text-white">
+      <h3 class="text-2xl font-extrabold">Get growth tips in your inbox</h3>
+      <p class="text-teal-50/90 mt-2">Join 12,000+ learners getting weekly mentor insights, new resources, and event invites.</p>
+      <form class="mt-6 flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onsubmit="this.reset();document.getElementById('subMsg').classList.remove('hidden');return false;">
+        <input type="email" required placeholder="Enter your email" class="flex-1 px-4 py-3 rounded-lg text-slate-700 outline-none" />
+        <button class="px-6 py-3 bg-white text-navy font-semibold rounded-lg hover:bg-slate-100 transition">Subscribe</button>
+      </form>
+      <p id="subMsg" class="hidden text-sm text-teal-50 mt-3">✓ Thanks for subscribing! Check your inbox to confirm.</p>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-navy text-slate-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <svg viewBox="0 0 64 64" class="h-8 w-8">
+            <circle cx="32" cy="8" r="6" fill="#3bb8d1"/><circle cx="55" cy="20" r="6" fill="#fff"/>
+            <circle cx="55" cy="44" r="6" fill="#3bb8d1"/><circle cx="32" cy="56" r="6" fill="#fff"/>
+            <circle cx="9" cy="44" r="6" fill="#3bb8d1"/><circle cx="9" cy="20" r="6" fill="#fff"/>
+            <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#fff" font-family="Inter">M</text>
+          </svg>
+          <span class="text-lg font-extrabold text-white">Mentor<span class="text-teal-400">Bay</span></span>
+        </div>
+        <p class="text-sm text-slate-400 max-w-xs">Connecting ambitious African learners with exceptional mentors.</p>
+      </div>
+      <div><h4 class="text-white font-semibold mb-3">Platform</h4><ul class="space-y-2 text-sm"><li><a href="mentors.html" class="hover:text-teal-400">Browse Mentors</a></li><li><a href="programs.html" class="hover:text-teal-400">Programs</a></li><li><a href="events.html" class="hover:text-teal-400">Events</a></li></ul></div>
+      <div><h4 class="text-white font-semibold mb-3">For Mentors</h4><ul class="space-y-2 text-sm"><li><a href="become-a-mentor.html" class="hover:text-teal-400">Become a Mentor</a></li><li><a href="#" class="hover:text-teal-400">Resources</a></li></ul></div>
+      <div><h4 class="text-white font-semibold mb-3">Support</h4><ul class="space-y-2 text-sm"><li><a href="#" class="hover:text-teal-400">Help Center</a></li><li><a href="#" class="hover:text-teal-400">Contact Us</a></li></ul></div>
+    </div>
+    <div class="border-t border-white/10 py-5 text-center text-sm text-slate-400">© 2026 MentorBay. All rights reserved. Made in Nairobi, Kenya.</div>
+  </footer>
+
+  <!-- ================= SCRIPT ================= -->
+  <script>
+    document.getElementById('menuBtn').addEventListener('click', () => document.getElementById('mobileMenu').classList.toggle('hidden'));
+    const IMG = 'images/';
+    const SCENE = {
+      conf:'sd7fbrdmwf1ba8zryhj7mxhy6188vaw2', workshop:'sd7cw7fxc5jdak3bhrek7g334188tm52',
+      tech:'sd79w96bc0dmwb9qd0rg1h4ek988tdaq', leader:'sd7cxyvmncgt75zcbvkjs66p7s88tgjf',
+      market:'sd7f8shp9xrg8xvwefbhc1peyx88tt44', finance:'sd7etkz00sjcxwh28x3znyxh6s88vj12',
+    };
+    const FACE = { jane:'sd7erhqwt022qcj3zh7r9nt7a188tncb', david:'sd75vfdt7nphcmkepenfdabf9188vzec', mary:'sd723egrf1asak9t0sd16pdyf188vn53', lillian:'sd728rcfrx0j7wrnhaa2zh0ya188vf7q', grace:'sd73mtg2fv8ezekjw91j55w0xs88tmdj', sarah:'sd79aj8r0vdw5tawj8zpnn76dn88tdme', john:'sd7fd2ygetvv1t14epgbhnf31s88vgsk' };
+
+    const TYPE_COLORS = { Article:'bg-teal-50 text-teal-600', Video:'bg-rose-50 text-rose-500', Course:'bg-indigo-50 text-indigo-500', Guide:'bg-amber-50 text-amber-600' };
+
+    const RESOURCES = [
+      { type:'Article', title:'5 Strategies to Accelerate Your Career Growth', author:'Jane Wanjiku', face:FACE.jane, img:SCENE.leader, meta:'8 min read' },
+      { type:'Video', title:'Personal Branding on LinkedIn', author:'David Ochieng', face:FACE.david, img:SCENE.market, meta:'15 min watch' },
+      { type:'Course', title:'Time Management Fundamentals', author:'Mary Achieng', face:FACE.mary, img:SCENE.workshop, meta:'12 lessons' },
+      { type:'Guide', title:'The Complete Job Interview Playbook', author:'Jane Wanjiku', face:FACE.jane, img:SCENE.conf, meta:'PDF · 24 pages' },
+      { type:'Article', title:'How to Build a Powerful Personal Brand', author:'David Ochieng', face:FACE.david, img:SCENE.market, meta:'6 min read' },
+      { type:'Video', title:'Breaking Into Data Science', author:'Lillian Anyango', face:FACE.lillian, img:SCENE.tech, meta:'20 min watch' },
+      { type:'Course', title:'Financial Literacy for Beginners', author:'Grace Wairimu', face:FACE.grace, img:SCENE.finance, meta:'10 lessons' },
+      { type:'Article', title:'Negotiating Your First Salary', author:'Sarah Mwangi', face:FACE.sarah, img:SCENE.conf, meta:'7 min read' },
+      { type:'Guide', title:'Startup Fundraising Checklist', author:'John Kamau', face:FACE.john, img:SCENE.workshop, meta:'PDF · 12 pages' },
+    ];
+
+    const types = ['All','Article','Video','Course','Guide'];
+    let active = 'All';
+    const typeBar = document.getElementById('typeBar');
+    function renderTypes(){
+      typeBar.innerHTML = types.map(t=>`<button data-t="${t}" class="type-btn px-4 py-2.5 text-sm font-semibold rounded-lg ${t===active?'bg-navy text-white':'bg-white text-slate-600 border border-slate-200 hover:border-teal'}">${t}</button>`).join('');
+      typeBar.querySelectorAll('.type-btn').forEach(b=>b.addEventListener('click',()=>{ active=b.dataset.t; renderTypes(); render(); }));
+    }
+    const grid = document.getElementById('resGrid'), empty = document.getElementById('emptyState'), countEl = document.getElementById('resultCount');
+    function render(){
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      const list = RESOURCES.filter(r=>(active==='All'||r.type===active) && (!q || (r.title+' '+r.author+' '+r.type).toLowerCase().includes(q)));
+      countEl.textContent = list.length;
+      grid.innerHTML = list.map(r=>`
+        <a href="#" class="bg-white rounded-2xl shadow-card overflow-hidden hover:-translate-y-1 transition block">
+          <div class="relative">
+            <img src="${IMG}${r.img}.jpg" class="w-full h-40 object-cover" alt="">
+            <span class="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full ${TYPE_COLORS[r.type]}">${r.type}</span>
+          </div>
+          <div class="p-5">
+            <h3 class="font-bold text-navy leading-snug">${r.title}</h3>
+            <div class="flex items-center justify-between mt-4">
+              <div class="flex items-center gap-2">
+                <img src="${IMG}${r.face}.jpg" class="w-7 h-7 rounded-full object-cover" alt="${r.author}">
+                <span class="text-xs text-slate-500">${r.author}</span>
+              </div>
+              <span class="text-xs text-slate-400">${r.meta}</span>
+            </div>
+          </div>
+        </a>`).join('');
+      empty.classList.toggle('hidden', list.length !== 0);
+      grid.classList.toggle('hidden', list.length === 0);
+    }
+    document.getElementById('searchInput').addEventListener('input', render);
+    renderTypes(); render();
+  </script>
+</body>
+</html>

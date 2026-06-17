@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Success Stories — MentorBay</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48' font-weight='bold' fill='%230B2A4A'%3EM%3C/text%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        navy: { DEFAULT:'#0B2A4A', 700:'#103a63', 600:'#16487a', 50:'#eef3f9' },
+        teal: { DEFAULT:'#1FA2BE', 600:'#178098', 400:'#3bb8d1', 50:'#e9f7fa' },
+      },
+      fontFamily: { sans:['Inter','ui-sans-serif','system-ui'] },
+      boxShadow: { card:'0 4px 20px -6px rgba(11,42,74,0.12)' },
+    }}}
+  </script>
+  <style>html{scroll-behavior:smooth}.cta-gradient{background:linear-gradient(120deg,#0B2A4A 0%,#16487a 60%,#178098 100%)}</style>
+</head>
+<body class="font-sans text-slate-700 bg-slate-50 antialiased">
+
+  <!-- ================= HEADER ================= -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="index.html" class="flex items-center gap-2 shrink-0">
+          <svg viewBox="0 0 64 64" class="h-9 w-9">
+            <circle cx="32" cy="8" r="6" fill="#1FA2BE"/><circle cx="55" cy="20" r="6" fill="#0B2A4A"/>
+            <circle cx="55" cy="44" r="6" fill="#1FA2BE"/><circle cx="32" cy="56" r="6" fill="#0B2A4A"/>
+            <circle cx="9" cy="44" r="6" fill="#1FA2BE"/><circle cx="9" cy="20" r="6" fill="#0B2A4A"/>
+            <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#0B2A4A" font-family="Inter">M</text>
+          </svg>
+          <span class="text-xl font-extrabold text-navy">Mentor<span class="text-teal">Bay</span></span>
+        </a>
+        <nav class="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-600">
+          <a href="mentors.html" class="hover:text-teal transition">Mentors</a>
+          <a href="programs.html" class="hover:text-teal transition">Programs</a>
+          <a href="events.html" class="hover:text-teal transition">Events</a>
+          <a href="success-stories.html" class="text-teal font-semibold">Success Stories</a>
+          <a href="resources.html" class="hover:text-teal transition">Resources</a>
+        </nav>
+        <div class="hidden lg:flex items-center gap-3">
+          <a href="login.html" class="px-4 py-2 text-sm font-semibold text-navy border border-slate-200 rounded-lg hover:border-teal hover:text-teal transition">Login</a>
+          <a href="signup.html" class="px-4 py-2 text-sm font-semibold text-white bg-navy rounded-lg hover:bg-navy-700 transition">Join Now</a>
+        </div>
+        <button id="menuBtn" class="lg:hidden p-2 text-navy" aria-label="Menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="mobileMenu" class="hidden lg:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-1">
+      <a href="mentors.html" class="block py-2 text-slate-700 font-medium">Mentors</a>
+      <a href="programs.html" class="block py-2 text-slate-700 font-medium">Programs</a>
+      <a href="events.html" class="block py-2 text-slate-700 font-medium">Events</a>
+      <a href="success-stories.html" class="block py-2 text-teal font-semibold">Success Stories</a>
+      <a href="resources.html" class="block py-2 text-slate-700 font-medium">Resources</a>
+    </div>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <section class="cta-gradient text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 text-center">
+      <nav class="text-sm text-teal-50/80 mb-4"><a href="index.html" class="hover:text-white">Home</a> <span class="mx-1">›</span> <span class="text-white font-medium">Success Stories</span></nav>
+      <h1 class="text-3xl lg:text-4xl font-extrabold">Real People. Real Growth.</h1>
+      <p class="mt-3 text-teal-50/90 max-w-2xl mx-auto">See how mentees across Kenya and Africa transformed their careers with the right mentor on MentorBay.</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 max-w-3xl mx-auto">
+        <div class="bg-white/10 rounded-xl p-4 backdrop-blur"><p class="text-2xl font-extrabold">12,000+</p><p class="text-xs text-teal-50/80">Mentees</p></div>
+        <div class="bg-white/10 rounded-xl p-4 backdrop-blur"><p class="text-2xl font-extrabold">85%</p><p class="text-xs text-teal-50/80">Advanced their careers</p></div>
+        <div class="bg-white/10 rounded-xl p-4 backdrop-blur"><p class="text-2xl font-extrabold">300+</p><p class="text-xs text-teal-50/80">Partner companies</p></div>
+        <div class="bg-white/10 rounded-xl p-4 backdrop-blur"><p class="text-2xl font-extrabold">4.9/5</p><p class="text-xs text-teal-50/80">Avg. mentee rating</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURED STORY ================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
+    <div class="bg-white rounded-2xl shadow-card grid md:grid-cols-2 overflow-hidden">
+      <img src="images/sd76649zdx97w9ve28wfndra6d88vdek.jpg" class="w-full h-full object-cover min-h-64" alt="Esther Wanjiru">
+      <div class="p-8">
+        <span class="text-xs font-semibold text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full">Featured Story</span>
+        <h2 class="text-2xl font-extrabold text-navy mt-4">"MentorBay changed the trajectory of my career."</h2>
+        <p class="text-slate-600 mt-3 leading-relaxed">"I joined as an unemployed graduate with no clear direction. Through the Full-Stack Web Development program and weekly sessions with my mentor, I built real projects, gained confidence, and landed my first developer role within four months."</p>
+        <div class="flex items-center gap-3 mt-6">
+          <img src="images/sd76649zdx97w9ve28wfndra6d88vdek.jpg" class="w-12 h-12 rounded-full object-cover" alt="">
+          <div>
+            <p class="font-bold text-navy">Esther Wanjiru</p>
+            <p class="text-sm text-slate-500">Software Engineer at Andela · Nairobi</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 mt-5 text-xs">
+          <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">Mentor: John Kamau</span>
+          <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">Program: Full-Stack Web Development</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FILTER + GRID ================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex flex-wrap items-center gap-2 mb-8" id="catBar"></div>
+    <div id="storyGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </section>
+
+  <!-- ================= CTA ================= -->
+  <section class="cta-gradient">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+      <h3 class="text-2xl font-extrabold text-white">Your success story starts here</h3>
+      <p class="text-teal-50/90 mt-2">Find a mentor, join a program, and write your own chapter.</p>
+      <div class="flex flex-wrap justify-center gap-3 mt-6">
+        <a href="signup.html" class="px-7 py-3 bg-white text-navy font-semibold rounded-lg hover:bg-slate-100 transition">Get Started Free</a>
+        <a href="mentors.html" class="px-7 py-3 bg-teal text-white font-semibold rounded-lg hover:bg-teal-600 transition">Browse Mentors</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-navy text-slate-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <svg viewBox="0 0 64 64" class="h-8 w-8">
+            <circle cx="32" cy="8" r="6" fill="#3bb8d1"/><circle cx="55" cy="20" r="6" fill="#fff"/>
+            <circle cx="55" cy="44" r="6" fill="#3bb8d1"/><circle cx="32" cy="56" r="6" fill="#fff"/>
+            <circle cx="9" cy="44" r="6" fill="#3bb8d1"/><circle cx="9" cy="20" r="6" fill="#fff"/>
+            <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#fff" font-family="Inter">M</text>
+          </svg>
+          <span class="text-lg font-extrabold text-white">Mentor<span class="text-teal-400">Bay</span></span>
+        </div>
+        <p class="text-sm text-slate-400 max-w-xs">Connecting ambitious African learners with exceptional mentors.</p>
+      </div>
+      <div><h4 class="text-white font-semibold mb-3">Platform</h4><ul class="space-y-2 text-sm"><li><a href="mentors.html" class="hover:text-teal-400">Browse Mentors</a></li><li><a href="programs.html" class="hover:text-teal-400">Programs</a></li><li><a href="events.html" class="hover:text-teal-400">Events</a></li></ul></div>
+      <div><h4 class="text-white font-semibold mb-3">For Mentors</h4><ul class="space-y-2 text-sm"><li><a href="become-a-mentor.html" class="hover:text-teal-400">Become a Mentor</a></li><li><a href="#" class="hover:text-teal-400">Resources</a></li></ul></div>
+      <div><h4 class="text-white font-semibold mb-3">Support</h4><ul class="space-y-2 text-sm"><li><a href="#" class="hover:text-teal-400">Help Center</a></li><li><a href="#" class="hover:text-teal-400">Contact Us</a></li></ul></div>
+    </div>
+    <div class="border-t border-white/10 py-5 text-center text-sm text-slate-400">© 2026 MentorBay. All rights reserved. Made in Nairobi, Kenya.</div>
+  </footer>
+
+  <!-- ================= SCRIPT ================= -->
+  <script>
+    document.getElementById('menuBtn').addEventListener('click', () => document.getElementById('mobileMenu').classList.toggle('hidden'));
+    const IMG = 'images/';
+
+    const STORIES = [
+      { name:'Collins Mutua', cat:'Design', img:'sd75by8ns0j4qabn92ryzmvjp988v394', from:'Support Agent', to:'UX Designer at Twiga', mentor:'Kevin Mwangi', quote:'My mentor helped me build a portfolio that got me hired. The feedback was honest and practical.' },
+      { name:'Faith Kemunto', cat:'Data', img:'sd728rcfrx0j7wrnhaa2zh0ya188vf7q', from:'Secondary Teacher', to:'Data Analyst at Safaricom', mentor:'Lillian Anyango', quote:'I switched careers at 31. The Data Science program and my mentor made it possible.' },
+      { name:'Daniel Kibet', cat:'Business', img:'sd71p21y9dxds7tvxmv5hnq1g988v9nv', from:'Sales Rep', to:'Product Manager', mentor:'Samuel Njoroge', quote:'I learned to think like a PM and lead without authority. Promoted within six months.' },
+      { name:'Aisha Hassan', cat:'Finance', img:'sd73mtg2fv8ezekjw91j55w0xs88tmdj', from:'Intern', to:'Finance Associate at KCB', mentor:'Grace Wairimu', quote:'From confused intern to confident associate. The clarity my mentor gave me was priceless.' },
+      { name:'Brian Otieno', cat:'Tech', img:'sd79gt2ajkr4serddsw8cebepn88v870', from:'Freelance Developer', to:'Engineering Lead', mentor:'John Kamau', quote:'I went from solo freelancer to leading a team of eight. Mentorship made the difference.' },
+      { name:'Mary Achieng', cat:'Business', img:'sd723egrf1asak9t0sd16pdyf188vn53', from:'HR Assistant', to:'People Operations Manager', mentor:'Jane Wanjiku', quote:'The leadership program gave me the confidence to step up and own my career.' },
+    ];
+
+    const cats = ['All','Tech','Business','Design','Data','Finance'];
+    let active = 'All';
+    const catBar = document.getElementById('catBar');
+    function renderCats(){
+      catBar.innerHTML = cats.map(c=>`<button data-c="${c}" class="cat-btn px-4 py-2 text-sm font-semibold rounded-full ${c===active?'bg-navy text-white':'bg-white text-slate-600 border border-slate-200 hover:border-teal'}">${c}</button>`).join('');
+      catBar.querySelectorAll('.cat-btn').forEach(b=>b.addEventListener('click',()=>{ active=b.dataset.c; renderCats(); renderStories(); }));
+    }
+    const grid = document.getElementById('storyGrid');
+    function renderStories(){
+      const list = STORIES.filter(s=>active==='All'||s.cat===active);
+      grid.innerHTML = list.map(s=>`
+        <div class="bg-white rounded-2xl shadow-card p-6">
+          <div class="flex items-center gap-3">
+            <img src="${IMG}${s.img}.jpg" class="w-14 h-14 rounded-full object-cover" alt="${s.name}">
+            <div>
+              <p class="font-bold text-navy">${s.name}</p>
+              <p class="text-xs text-slate-500">${s.cat}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 mt-4 text-sm">
+            <span class="text-slate-500">${s.from}</span>
+            <svg class="w-4 h-4 text-teal" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            <span class="font-semibold text-navy">${s.to}</span>
+          </div>
+          <p class="text-slate-600 text-sm mt-4 leading-relaxed">"${s.quote}"</p>
+          <p class="text-xs text-slate-400 mt-4 pt-4 border-t border-slate-100">Mentored by <span class="font-semibold text-teal-600">${s.mentor}</span></p>
+        </div>`).join('');
+    }
+    renderCats(); renderStories();
+  </script>
+</body>
+</html>
