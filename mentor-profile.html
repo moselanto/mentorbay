@@ -66,12 +66,10 @@
   <!-- ================= PROFILE HERO ================= -->
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-[1fr_340px] gap-6">
-
-      <!-- main profile card -->
       <div class="bg-white rounded-2xl shadow-card p-6 sm:p-8">
         <div class="flex flex-col sm:flex-row gap-6">
           <div class="relative shrink-0 mx-auto sm:mx-0">
-            <img src="https://www.town.com/api/content/image/sd7erhqwt022qcj3zh7r9nt7a188tncb" alt="Jane Wanjiku" class="w-32 h-32 rounded-2xl object-cover">
+            <img src="images/sd7erhqwt022qcj3zh7r9nt7a188tncb.jpg" alt="Jane Wanjiku" class="w-32 h-32 rounded-2xl object-cover">
             <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 text-xs font-semibold bg-teal-50 text-teal-600 px-2.5 py-0.5 rounded-full whitespace-nowrap">● Available</span>
           </div>
           <div class="flex-1 text-center sm:text-left">
@@ -95,7 +93,6 @@
         </div>
       </div>
 
-      <!-- action sidebar -->
       <aside class="space-y-4">
         <div class="bg-white rounded-2xl shadow-card p-6">
           <a href="signup.html" class="block text-center py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">✦ Apply for Mentorship</a>
@@ -122,7 +119,6 @@
       </aside>
     </div>
 
-    <!-- STATS -->
     <div class="bg-white rounded-2xl shadow-card grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-slate-100 mt-6">
       <div class="p-5 text-center"><p class="text-2xl font-extrabold text-navy">124</p><p class="text-sm text-slate-500">Mentees</p></div>
       <div class="p-5 text-center"><p class="text-2xl font-extrabold text-navy">12+</p><p class="text-sm text-slate-500">Years Exp</p></div>
@@ -143,7 +139,6 @@
     </div>
 
     <div class="py-8">
-      <!-- ABOUT -->
       <div data-panel="about" class="tab-panel">
         <div class="bg-white rounded-2xl shadow-card p-6 sm:p-8">
           <h2 class="text-xl font-bold text-navy mb-3">About Jane</h2>
@@ -162,27 +157,18 @@
         </div>
       </div>
 
-      <!-- PROGRAMS -->
       <div data-panel="programs" class="tab-panel hidden">
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="programGrid"></div>
       </div>
-
-      <!-- REVIEWS -->
       <div data-panel="reviews" class="tab-panel hidden">
         <div class="grid sm:grid-cols-2 gap-6" id="reviewGrid"></div>
       </div>
-
-      <!-- MENTEES -->
       <div data-panel="mentees" class="tab-panel hidden">
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="menteeGrid"></div>
       </div>
-
-      <!-- EVENTS -->
       <div data-panel="events" class="tab-panel hidden">
         <div class="space-y-4" id="eventList"></div>
       </div>
-
-      <!-- ARTICLES -->
       <div data-panel="articles" class="tab-panel hidden">
         <div class="grid sm:grid-cols-3 gap-6" id="articleGrid"></div>
       </div>
@@ -226,7 +212,6 @@
   <script>
     document.getElementById('menuBtn').addEventListener('click', () => document.getElementById('mobileMenu').classList.toggle('hidden'));
 
-    // Save toggle
     const saveBtn = document.getElementById('saveBtn'), saveLabel = document.getElementById('saveLabel');
     saveBtn.addEventListener('click', () => {
       const saved = saveLabel.textContent === 'Saved';
@@ -235,7 +220,6 @@
       saveBtn.classList.toggle('border-teal', !saved);
     });
 
-    // Tabs
     const tabs = document.querySelectorAll('.tab-btn'), panels = document.querySelectorAll('.tab-panel');
     tabs.forEach(t => t.addEventListener('click', () => {
       tabs.forEach(x => { x.classList.remove('border-teal','text-teal'); x.classList.add('border-transparent','text-slate-500'); });
@@ -243,10 +227,9 @@
       panels.forEach(p => p.classList.toggle('hidden', p.dataset.panel !== t.dataset.tab));
     }));
 
-    const IMG = 'https://www.town.com/api/content/image/';
-    const WORKSHOP = IMG+'sd7cw7fxc5jdak3bhrek7g334188tm52', CONF = IMG+'sd7fbrdmwf1ba8zryhj7mxhy6188vaw2';
+    const IMG = 'images/'; // bundled images, relative paths
+    const WORKSHOP = IMG+'sd7cw7fxc5jdak3bhrek7g334188tm52.jpg', CONF = IMG+'sd7fbrdmwf1ba8zryhj7mxhy6188vaw2.jpg';
 
-    // Programs
     const programs = [
       { title:'Leadership Mastery Program', desc:'Build confidence and lead with impact.', weeks:'8 Weeks', level:'Beginner', img:WORKSHOP },
       { title:'Career Accelerator Bootcamp', desc:'Fast-track your career in 8 weeks.', weeks:'8 Weeks', level:'Intermediate', img:CONF },
@@ -265,7 +248,6 @@
         </div>
       </a>`).join('');
 
-    // Reviews
     const reviews = [
       { name:'Esther Wanjiru', role:'Product Designer, Nairobi', img:'sd76649zdx97w9ve28wfndra6d88vdek', text:'Jane helped me gain clarity and confidence. Her guidance was exactly what I needed to move forward.' },
       { name:'Collins Mutua', role:'Software Engineer, Kisumu', img:'sd75by8ns0j4qabn92ryzmvjp988v394', text:'Through her program I improved my CV, got multiple interviews, and landed my dream job!' },
@@ -277,12 +259,11 @@
         <div class="text-amber-400 text-sm mb-3">★★★★★</div>
         <p class="text-slate-600 text-sm leading-relaxed">"${r.text}"</p>
         <div class="flex items-center gap-3 mt-5">
-          <img src="${IMG}${r.img}" class="w-10 h-10 rounded-full object-cover" alt="${r.name}">
+          <img src="${IMG}${r.img}.jpg" class="w-10 h-10 rounded-full object-cover" alt="${r.name}">
           <div><p class="font-bold text-navy text-sm">${r.name}</p><p class="text-xs text-slate-500">${r.role}</p></div>
         </div>
       </div>`).join('');
 
-    // Mentees
     const mentees = [
       { name:'Esther Wanjiru', img:'sd76649zdx97w9ve28wfndra6d88vdek', now:'Now: Senior Product Designer' },
       { name:'Collins Mutua', img:'sd75by8ns0j4qabn92ryzmvjp988v394', now:'Now: Tech Lead at Andela' },
@@ -293,11 +274,10 @@
     ];
     document.getElementById('menteeGrid').innerHTML = mentees.map(m=>`
       <div class="bg-white rounded-2xl shadow-card p-5 flex items-center gap-3">
-        <img src="${IMG}${m.img}" class="w-12 h-12 rounded-full object-cover" alt="${m.name}">
+        <img src="${IMG}${m.img}.jpg" class="w-12 h-12 rounded-full object-cover" alt="${m.name}">
         <div><p class="font-bold text-navy text-sm">${m.name}</p><p class="text-xs text-teal-600 mt-0.5">↗ ${m.now}</p></div>
       </div>`).join('');
 
-    // Events
     const events = [
       { title:'Women in Leadership Forum', date:'Jul 10, 2026', time:'9:00 AM', loc:'Online', img:CONF },
       { title:'Career Clarity Masterclass', date:'Jul 24, 2026', time:'2:00 PM', loc:'Nairobi, Kenya', img:WORKSHOP },
@@ -309,7 +289,6 @@
         <span class="text-sm font-semibold text-teal-600">Register →</span>
       </a>`).join('');
 
-    // Articles
     const articles = [
       { title:'5 Strategies to Accelerate Your Career Growth', date:'May 12, 2026', img:WORKSHOP },
       { title:'How to Build a Powerful Personal Brand', date:'Apr 28, 2026', img:CONF },

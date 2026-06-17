@@ -67,7 +67,6 @@
     <h1 class="text-3xl lg:text-4xl font-extrabold text-navy">Browse Mentors</h1>
     <p class="text-slate-500 mt-2">Connect with verified mentors and experts across Kenya and Africa.</p>
 
-    <!-- toolbar -->
     <div class="mt-6 flex flex-col lg:flex-row gap-3 lg:items-center">
       <div class="relative flex-1">
         <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
@@ -92,14 +91,12 @@
   <!-- ================= BODY ================= -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid lg:grid-cols-[280px_1fr] gap-8">
 
-    <!-- FILTER SIDEBAR -->
     <aside id="filterPanel" class="hidden lg:block">
       <div class="bg-white rounded-2xl shadow-card p-6 lg:sticky lg:top-24">
         <div class="flex items-center justify-between mb-5">
           <h2 class="font-bold text-navy text-lg">Filters</h2>
           <button id="clearBtn" class="text-sm font-semibold text-teal-600 hover:underline">Clear all</button>
         </div>
-
         <div class="space-y-5 text-sm">
           <div>
             <label class="block font-semibold text-navy mb-1.5">Industry</label>
@@ -145,7 +142,6 @@
       </div>
     </aside>
 
-    <!-- RESULTS -->
     <section>
       <div class="flex items-center justify-between mb-5">
         <p class="text-sm text-slate-500"><span id="resultCount" class="font-semibold text-navy">0</span> mentors found</p>
@@ -154,7 +150,6 @@
 
       <div id="mentorGrid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
 
-      <!-- empty state -->
       <div id="emptyState" class="hidden text-center py-20">
         <div class="w-16 h-16 mx-auto rounded-full bg-slate-100 grid place-items-center mb-4">
           <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
@@ -164,7 +159,6 @@
         <button onclick="document.getElementById('clearBtn').click()" class="mt-4 px-5 py-2.5 bg-teal text-white font-semibold rounded-lg hover:bg-teal-600 transition">Clear filters</button>
       </div>
 
-      <!-- pagination -->
       <div id="pagination" class="flex items-center justify-center gap-2 mt-10">
         <button class="w-9 h-9 grid place-items-center rounded-lg border border-slate-200 bg-white text-slate-400">‹</button>
         <button class="w-9 h-9 grid place-items-center rounded-lg bg-navy text-white font-semibold">1</button>
@@ -204,8 +198,7 @@
     document.getElementById('menuBtn').addEventListener('click', () => document.getElementById('mobileMenu').classList.toggle('hidden'));
     document.getElementById('filterToggle').addEventListener('click', () => document.getElementById('filterPanel').classList.toggle('hidden'));
 
-    const IMG = 'https://www.town.com/api/content/image/';
-    // Mentor data — replaced by Supabase queries in production
+    const IMG = 'images/'; // bundled images, relative paths
     const MENTORS = [
       { name:'Jane Wanjiku', role:'Career & Leadership Coach', industry:'Business', country:'Kenya', city:'Nairobi', avail:'Available', langs:['English','Swahili'], exp:12, rating:4.9, reviews:120, mentees:124, skills:['Leadership','Career Growth','Personal Branding'], img:'sd7erhqwt022qcj3zh7r9nt7a188tncb' },
       { name:'John Kamau', role:'Tech Entrepreneur', industry:'Technology', country:'Kenya', city:'Nairobi', avail:'Available', langs:['English','Swahili'], exp:10, rating:4.8, reviews:98, mentees:98, skills:['Startups','Product Strategy','Fundraising'], img:'sd7fd2ygetvv1t14epgbhnf31s88vgsk' },
@@ -233,7 +226,7 @@
       return `
       <div class="bg-white rounded-2xl shadow-card overflow-hidden hover:-translate-y-1 transition">
         <div class="relative">
-          <img src="${IMG}${m.img}" alt="${m.name}" class="w-full h-44 object-cover object-center">
+          <img src="${IMG}${m.img}.jpg" alt="${m.name}" class="w-full h-44 object-cover object-center">
           ${badge}
           <button class="absolute top-3 right-3 w-8 h-8 grid place-items-center rounded-lg bg-white/90 text-slate-500 hover:text-teal" aria-label="Save">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
@@ -282,7 +275,7 @@
         if (f.country && m.country !== f.country) return false;
         if (f.avail && m.avail !== f.avail) return false;
         if (f.lang && !m.langs.includes(f.lang)) return false;
-        if (f.price === 'Paid') return false; // all free during launch
+        if (f.price === 'Paid') return false;
         if (m.exp < f.exp) return false;
         return true;
       });
@@ -303,14 +296,14 @@
       el.addEventListener('input', apply);
       el.addEventListener('change', apply);
     });
-    $('applyBtn').addEventListener('click', () => { apply(); document.getElementById('filterPanel').classList.add('lg:block'); });
+    $('applyBtn').addEventListener('click', () => { apply(); });
     $('clearBtn').addEventListener('click', () => {
       ['searchInput','fIndustry','fCountry','fAvail','fLang','fPrice'].forEach(id=>$(id).value='');
       $('fExp').value = 0; $('sortSelect').value = 'popular';
       apply();
     });
 
-    apply(); // initial render
+    apply();
   </script>
 </body>
 </html>

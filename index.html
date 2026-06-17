@@ -5,23 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MentorBay — Connect. Grow. Succeed.</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48' font-weight='bold' fill='%230B2A4A'%3EM%3C/text%3E%3C/svg%3E" />
-
-  <!-- Tailwind CSS (CDN for design phase; in production we use the Tailwind that ships with Next.js) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script>
-    // MentorBay brand design tokens — these become tailwind.config.ts in the Next.js build
     tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            navy:   { DEFAULT: '#0B2A4A', 700: '#103a63', 600: '#16487a', 50: '#eef3f9' },
-            teal:   { DEFAULT: '#1FA2BE', 600: '#178098', 400: '#3bb8d1', 50: '#e9f7fa' },
-          },
-          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
-          boxShadow: { card: '0 4px 20px -6px rgba(11,42,74,0.12)' },
-        }
-      }
+      theme: { extend: {
+        colors: {
+          navy: { DEFAULT:'#0B2A4A', 700:'#103a63', 600:'#16487a', 50:'#eef3f9' },
+          teal: { DEFAULT:'#1FA2BE', 600:'#178098', 400:'#3bb8d1', 50:'#e9f7fa' },
+        },
+        fontFamily: { sans:['Inter','ui-sans-serif','system-ui'] },
+        boxShadow: { card:'0 4px 20px -6px rgba(11,42,74,0.12)' },
+      }}
     }
   </script>
   <style>
@@ -36,22 +31,15 @@
   <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
-
-        <!-- Logo -->
         <a href="index.html" class="flex items-center gap-2 shrink-0">
           <svg viewBox="0 0 64 64" class="h-9 w-9">
-            <circle cx="32" cy="8"  r="6" fill="#1FA2BE"/>
-            <circle cx="55" cy="20" r="6" fill="#0B2A4A"/>
-            <circle cx="55" cy="44" r="6" fill="#1FA2BE"/>
-            <circle cx="32" cy="56" r="6" fill="#0B2A4A"/>
-            <circle cx="9"  cy="44" r="6" fill="#1FA2BE"/>
-            <circle cx="9"  cy="20" r="6" fill="#0B2A4A"/>
+            <circle cx="32" cy="8"  r="6" fill="#1FA2BE"/><circle cx="55" cy="20" r="6" fill="#0B2A4A"/>
+            <circle cx="55" cy="44" r="6" fill="#1FA2BE"/><circle cx="32" cy="56" r="6" fill="#0B2A4A"/>
+            <circle cx="9"  cy="44" r="6" fill="#1FA2BE"/><circle cx="9"  cy="20" r="6" fill="#0B2A4A"/>
             <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#0B2A4A" font-family="Inter">M</text>
           </svg>
           <span class="text-xl font-extrabold text-navy">Mentor<span class="text-teal">Bay</span></span>
         </a>
-
-        <!-- Desktop nav -->
         <nav class="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-600">
           <a href="mentors.html" class="hover:text-teal transition">Mentors</a>
           <a href="programs.html" class="hover:text-teal transition">Programs</a>
@@ -59,24 +47,15 @@
           <a href="success-stories.html" class="hover:text-teal transition">Success Stories</a>
           <a href="resources.html" class="hover:text-teal transition">Resources</a>
         </nav>
-
-        <!-- Actions -->
         <div class="hidden lg:flex items-center gap-3">
-          <button class="p-2 text-slate-500 hover:text-teal transition" aria-label="Search">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-          </button>
           <a href="login.html" class="px-4 py-2 text-sm font-semibold text-navy border border-slate-200 rounded-lg hover:border-teal hover:text-teal transition">Login</a>
           <a href="signup.html" class="px-4 py-2 text-sm font-semibold text-white bg-navy rounded-lg hover:bg-navy-700 transition">Join Now</a>
         </div>
-
-        <!-- Mobile toggle -->
         <button id="menuBtn" class="lg:hidden p-2 text-navy" aria-label="Menu">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
       </div>
     </div>
-
-    <!-- Mobile menu -->
     <div id="mobileMenu" class="hidden lg:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-1">
       <a href="mentors.html" class="block py-2 text-slate-700 font-medium">Mentors</a>
       <a href="programs.html" class="block py-2 text-slate-700 font-medium">Programs</a>
@@ -104,8 +83,6 @@
         <p class="mt-5 text-lg text-slate-600 max-w-lg">
           Connect with experienced mentors across Kenya and Africa, join life-changing programs, and attend exclusive events that transform careers.
         </p>
-
-        <!-- Search -->
         <form class="mt-8 flex flex-col sm:flex-row gap-3 max-w-lg" onsubmit="return false;">
           <div class="relative flex-1">
             <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
@@ -113,21 +90,15 @@
           </div>
           <button class="px-6 py-3 bg-teal text-white font-semibold rounded-lg hover:bg-teal-600 transition">Search</button>
         </form>
-
         <div class="mt-5 flex flex-wrap gap-3">
           <a href="mentors.html" class="px-6 py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">Browse Mentors</a>
           <a href="become-a-mentor.html" class="px-6 py-3 bg-white text-navy font-semibold rounded-lg border border-slate-200 hover:border-teal transition">Become a Mentor</a>
         </div>
       </div>
-
-      <!-- Hero visual -->
       <div class="relative">
         <div class="rounded-2xl overflow-hidden shadow-card bg-white">
-          <img src="https://www.town.com/api/content/image/sd72apqakrkwgzn4m445fmh1g588v0mg"
-               alt="African mentor and mentee in Nairobi" class="w-full h-80 object-cover"
-               onerror="this.parentElement.classList.add('cta-gradient');this.style.display='none';" />
+          <img src="images/sd72apqakrkwgzn4m445fmh1g588v0mg.jpg" alt="African mentor and mentee in Nairobi" class="w-full h-80 object-cover" />
         </div>
-        <!-- floating badges -->
         <div class="absolute -top-4 -left-4 bg-white rounded-xl shadow-card px-4 py-3 flex items-center gap-3">
           <span class="w-9 h-9 rounded-lg bg-teal-50 text-teal grid place-items-center"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg></span>
           <div><p class="text-sm font-bold text-navy">Expert Guidance</p><p class="text-xs text-slate-500">Learn from industry leaders</p></div>
@@ -160,15 +131,12 @@
       </div>
       <a href="mentors.html" class="text-teal-600 font-semibold text-sm hover:underline whitespace-nowrap">View all mentors →</a>
     </div>
-
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6" id="mentorGrid"></div>
   </section>
 
   <!-- ================= EVENTS + PROGRAMS ================= -->
   <section class="bg-slate-50 py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12">
-
-      <!-- Upcoming Events -->
       <div>
         <div class="flex items-end justify-between mb-6">
           <h2 class="text-2xl font-extrabold text-navy">Upcoming Events</h2>
@@ -176,8 +144,6 @@
         </div>
         <div class="space-y-4" id="eventList"></div>
       </div>
-
-      <!-- Popular Programs -->
       <div>
         <div class="flex items-end justify-between mb-6">
           <h2 class="text-2xl font-extrabold text-navy">Popular Programs</h2>
@@ -261,26 +227,24 @@
 
   <!-- ================= SCRIPTS ================= -->
   <script>
-    // Mobile menu toggle
     document.getElementById('menuBtn').addEventListener('click', () => {
       document.getElementById('mobileMenu').classList.toggle('hidden');
     });
 
-    // ---- MentorBay African image library (hosted in your Content Library) ----
-    // In production these URLs are replaced by image fields coming from Supabase.
-    const IMG = 'https://www.town.com/api/content/image/';
+    // ---- MentorBay image library (bundled in /images, relative paths) ----
+    // In production these are replaced by image fields coming from Supabase.
+    const IMG = 'images/';
     const PORTRAITS = {
-      careerCoach:  IMG + 'sd7erhqwt022qcj3zh7r9nt7a188tncb',
-      techFounder:  IMG + 'sd7fd2ygetvv1t14epgbhnf31s88vgsk',
-      strategist:   IMG + 'sd79aj8r0vdw5tawj8zpnn76dn88tdme',
-      marketer:     IMG + 'sd75vfdt7nphcmkepenfdabf9188vzec',
-      engineer:     IMG + 'sd76649zdx97w9ve28wfndra6d88vdek',
-      financeMan:   IMG + 'sd7cb0223na4m9xntwvezwxyz588veqn',
+      careerCoach:  IMG + 'sd7erhqwt022qcj3zh7r9nt7a188tncb.jpg',
+      techFounder:  IMG + 'sd7fd2ygetvv1t14epgbhnf31s88vgsk.jpg',
+      strategist:   IMG + 'sd79aj8r0vdw5tawj8zpnn76dn88tdme.jpg',
+      marketer:     IMG + 'sd75vfdt7nphcmkepenfdabf9188vzec.jpg',
+      engineer:     IMG + 'sd76649zdx97w9ve28wfndra6d88vdek.jpg',
+      financeMan:   IMG + 'sd7cb0223na4m9xntwvezwxyz588veqn.jpg',
     };
-    const SCENE_WORKSHOP   = IMG + 'sd7cw7fxc5jdak3bhrek7g334188tm52';
-    const SCENE_CONFERENCE = IMG + 'sd7fbrdmwf1ba8zryhj7mxhy6188vaw2';
+    const SCENE_WORKSHOP   = IMG + 'sd7cw7fxc5jdak3bhrek7g334188tm52.jpg';
+    const SCENE_CONFERENCE = IMG + 'sd7fbrdmwf1ba8zryhj7mxhy6188vaw2.jpg';
 
-    // ---- Demo data (this will come from Supabase later) ----
     const mentors = [
       { name:'Jane Wanjiku', role:'Career & Leadership Coach', tag:'Leadership', rating:'4.9', reviews:120, exp:'12+', img:PORTRAITS.careerCoach },
       { name:'John Kamau', role:'Tech Entrepreneur', tag:'Technology', rating:'4.8', reviews:98, exp:'10+', img:PORTRAITS.techFounder },
