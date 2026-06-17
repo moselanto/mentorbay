@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Programs — MentorBay</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48' font-weight='bold' fill='%230B2A4A'%3EM%3C/text%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        navy: { DEFAULT:'#0B2A4A', 700:'#103a63', 600:'#16487a', 50:'#eef3f9' },
+        teal: { DEFAULT:'#1FA2BE', 600:'#178098', 400:'#3bb8d1', 50:'#e9f7fa' },
+      },
+      fontFamily: { sans:['Inter','ui-sans-serif','system-ui'] },
+      boxShadow: { card:'0 4px 20px -6px rgba(11,42,74,0.12)' },
+    }}}
+  </script>
+  <style>html{scroll-behavior:smooth}</style>
+</head>
+<body class="font-sans text-slate-700 bg-slate-50 antialiased">
+
+  <!-- ================= HEADER ================= -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="index.html" class="flex items-center gap-2 shrink-0">
+          <svg viewBox="0 0 64 64" class="h-9 w-9">
+            <circle cx="32" cy="8" r="6" fill="#1FA2BE"/><circle cx="55" cy="20" r="6" fill="#0B2A4A"/>
+            <circle cx="55" cy="44" r="6" fill="#1FA2BE"/><circle cx="32" cy="56" r="6" fill="#0B2A4A"/>
+            <circle cx="9" cy="44" r="6" fill="#1FA2BE"/><circle cx="9" cy="20" r="6" fill="#0B2A4A"/>
+            <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#0B2A4A" font-family="Inter">M</text>
+          </svg>
+          <span class="text-xl font-extrabold text-navy">Mentor<span class="text-teal">Bay</span></span>
+        </a>
+        <nav class="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-600">
+          <a href="mentors.html" class="hover:text-teal transition">Mentors</a>
+          <a href="programs.html" class="text-teal font-semibold">Programs</a>
+          <a href="events.html" class="hover:text-teal transition">Events</a>
+          <a href="success-stories.html" class="hover:text-teal transition">Success Stories</a>
+          <a href="resources.html" class="hover:text-teal transition">Resources</a>
+        </nav>
+        <div class="hidden lg:flex items-center gap-3">
+          <a href="login.html" class="px-4 py-2 text-sm font-semibold text-navy border border-slate-200 rounded-lg hover:border-teal hover:text-teal transition">Login</a>
+          <a href="signup.html" class="px-4 py-2 text-sm font-semibold text-white bg-navy rounded-lg hover:bg-navy-700 transition">Join Now</a>
+        </div>
+        <button id="menuBtn" class="lg:hidden p-2 text-navy" aria-label="Menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="mobileMenu" class="hidden lg:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-1">
+      <a href="mentors.html" class="block py-2 text-slate-700 font-medium">Mentors</a>
+      <a href="programs.html" class="block py-2 text-teal font-semibold">Programs</a>
+      <a href="events.html" class="block py-2 text-slate-700 font-medium">Events</a>
+      <a href="success-stories.html" class="block py-2 text-slate-700 font-medium">Success Stories</a>
+      <a href="resources.html" class="block py-2 text-slate-700 font-medium">Resources</a>
+    </div>
+  </header>
+
+  <!-- ================= PAGE HEADER ================= -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    <nav class="text-sm text-slate-500 mb-3"><a href="index.html" class="hover:text-teal">Home</a> <span class="mx-1">›</span> <span class="text-slate-700 font-medium">Programs</span></nav>
+    <h1 class="text-3xl lg:text-4xl font-extrabold text-navy">Mentorship Programs</h1>
+    <p class="text-slate-500 mt-2">Structured programs led by Africa's top mentors. Learn, practice, and grow - free during launch.</p>
+
+    <div class="mt-6 flex flex-col lg:flex-row gap-3 lg:items-center">
+      <div class="relative flex-1">
+        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="searchInput" type="text" placeholder="Search programs by title, topic or mentor..." class="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-200 bg-white focus:ring-2 focus:ring-teal focus:border-teal outline-none" />
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="filterToggle" class="lg:hidden px-4 py-3 rounded-lg border border-slate-200 bg-white font-semibold text-navy flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></svg> Filters
+        </button>
+        <div class="flex items-center gap-2 text-sm">
+          <span class="text-slate-500 whitespace-nowrap">Sort by</span>
+          <select id="sortSelect" class="px-3 py-3 rounded-lg border border-slate-200 bg-white font-medium text-navy focus:ring-2 focus:ring-teal outline-none">
+            <option value="popular">Most Popular</option>
+            <option value="rating">Highest Rated</option>
+            <option value="newest">Newest</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= BODY ================= -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid lg:grid-cols-[260px_1fr] gap-8">
+    <aside id="filterPanel" class="hidden lg:block">
+      <div class="bg-white rounded-2xl shadow-card p-6 lg:sticky lg:top-24">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="font-bold text-navy text-lg">Filters</h2>
+          <button id="clearBtn" class="text-sm font-semibold text-teal-600 hover:underline">Clear all</button>
+        </div>
+        <div class="space-y-5 text-sm">
+          <div>
+            <label class="block font-semibold text-navy mb-1.5">Category</label>
+            <select id="fCat" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none">
+              <option value="">All Categories</option>
+              <option>Technology</option><option>Business</option><option>Marketing</option>
+              <option>Finance</option><option>Design</option><option>Data</option><option>Leadership</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-navy mb-1.5">Level</label>
+            <select id="fLevel" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none">
+              <option value="">All Levels</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-navy mb-1.5">Duration</label>
+            <select id="fDur" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none">
+              <option value="">Any duration</option>
+              <option value="short">1-4 weeks</option>
+              <option value="mid">5-8 weeks</option>
+              <option value="long">9+ weeks</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-navy mb-1.5">Price</label>
+            <select id="fPrice" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none">
+              <option value="">Any</option><option>Free</option><option>Paid</option>
+            </select>
+            <p class="text-xs text-slate-400 mt-1">All programs are free during launch.</p>
+          </div>
+          <button id="applyBtn" class="w-full py-2.5 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">Apply Filters</button>
+        </div>
+      </div>
+    </aside>
+
+    <section>
+      <div class="flex items-center justify-between mb-5">
+        <p class="text-sm text-slate-500"><span id="resultCount" class="font-semibold text-navy">0</span> programs found</p>
+        <div id="activeChips" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <div id="programGrid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+
+      <div id="emptyState" class="hidden text-center py-20">
+        <div class="w-16 h-16 mx-auto rounded-full bg-slate-100 grid place-items-center mb-4">
+          <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </div>
+        <p class="font-semibold text-navy">No programs match your filters</p>
+        <p class="text-slate-500 text-sm mt-1">Try clearing some filters or searching a different keyword.</p>
+        <button onclick="document.getElementById('clearBtn').click()" class="mt-4 px-5 py-2.5 bg-teal text-white font-semibold rounded-lg hover:bg-teal-600 transition">Clear filters</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-navy text-slate-300 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <svg viewBox="0 0 64 64" class="h-8 w-8">
+            <circle cx="32" cy="8" r="6" fill="#3bb8d1"/><circle cx="55" cy="20" r="6" fill="#fff"/>
+            <circle cx="55" cy="44" r="6" fill="#3bb8d1"/><circle cx="32" cy="56" r="6" fill="#fff"/>
+            <circle cx="9" cy="44" r="6" fill="#3bb8d1"/><circle cx="9" cy="20" r="6" fill="#fff"/>
+            <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#fff" font-family="Inter">M</text>
+          </svg>
+          <span class="text-lg font-extrabold text-white">Mentor<span class="text-teal-400">Bay</span></span>
+        </div>
+        <p class="text-sm text-slate-400 max-w-xs">Connecting ambitious African learners with exceptional mentors.</p>
+      </div>
+      <div><h4 class="text-white font-semibold mb-3">Platform</h4><ul class="space-y-2 text-sm"><li><a href="mentors.html" class="hover:text-teal-400">Browse Mentors</a></li><li><a href="programs.html" class="hover:text-teal-400">Programs</a></li><li><a href="events.html" class="hover:text-teal-400">Events</a></li></ul></div>
+      <div><h4 class="text-white font-semibold mb-3">For Mentors</h4><ul class="space-y-2 text-sm"><li><a href="become-a-mentor.html" class="hover:text-teal-400">Become a Mentor</a></li><li><a href="#" class="hover:text-teal-400">Resources</a></li></ul></div>
+      <div><h4 class="text-white font-semibold mb-3">Support</h4><ul class="space-y-2 text-sm"><li><a href="#" class="hover:text-teal-400">Help Center</a></li><li><a href="#" class="hover:text-teal-400">Contact Us</a></li></ul></div>
+    </div>
+    <div class="border-t border-white/10 py-5 text-center text-sm text-slate-400">© 2026 MentorBay. All rights reserved. Made in Nairobi, Kenya.</div>
+  </footer>
+
+  <!-- ================= SCRIPT ================= -->
+  <script>
+    document.getElementById('menuBtn').addEventListener('click', () => document.getElementById('mobileMenu').classList.toggle('hidden'));
+    document.getElementById('filterToggle').addEventListener('click', () => document.getElementById('filterPanel').classList.toggle('hidden'));
+
+    const IMG = 'images/';
+    const SCENE = {
+      workshop: IMG+'sd7cw7fxc5jdak3bhrek7g334188tm52.jpg',
+      conf:     IMG+'sd7fbrdmwf1ba8zryhj7mxhy6188vaw2.jpg',
+      tech:     IMG+'sd79w96bc0dmwb9qd0rg1h4ek988tdaq.jpg',
+      leader:   IMG+'sd7cxyvmncgt75zcbvkjs66p7s88tgjf.jpg',
+      market:   IMG+'sd7f8shp9xrg8xvwefbhc1peyx88tt44.jpg',
+      finance:  IMG+'sd7etkz00sjcxwh28x3znyxh6s88vj12.jpg',
+    };
+    const FACE = {
+      jane: IMG+'sd7erhqwt022qcj3zh7r9nt7a188tncb.jpg',
+      john: IMG+'sd7fd2ygetvv1t14epgbhnf31s88vgsk.jpg',
+      david: IMG+'sd75vfdt7nphcmkepenfdabf9188vzec.jpg',
+      lillian: IMG+'sd728rcfrx0j7wrnhaa2zh0ya188vf7q.jpg',
+      grace: IMG+'sd73mtg2fv8ezekjw91j55w0xs88tmdj.jpg',
+      kevin: IMG+'sd75by8ns0j4qabn92ryzmvjp988v394.jpg',
+      brian: IMG+'sd79gt2ajkr4serddsw8cebepn88v870.jpg',
+      samuel: IMG+'sd71p21y9dxds7tvxmv5hnq1g988v9nv.jpg',
+    };
+
+    // Program data — replaced by Supabase queries in production
+    const PROGRAMS = [
+      { title:'Leadership Mastery Program', cat:'Leadership', level:'Beginner', weeks:8, lessons:24, mentor:'Jane Wanjiku', face:FACE.jane, img:SCENE.leader, rating:4.9, enrolled:1240, badge:'Bestseller' },
+      { title:'Career Accelerator Bootcamp', cat:'Business', level:'Intermediate', weeks:6, lessons:18, mentor:'Jane Wanjiku', face:FACE.jane, img:SCENE.conf, rating:4.8, enrolled:980, badge:'Popular' },
+      { title:'Startup Founder Bootcamp', cat:'Business', level:'Intermediate', weeks:10, lessons:30, mentor:'John Kamau', face:FACE.john, img:SCENE.workshop, rating:4.8, enrolled:760, badge:'' },
+      { title:'Full-Stack Web Development', cat:'Technology', level:'Beginner', weeks:12, lessons:48, mentor:'Brian Otieno', face:FACE.brian, img:SCENE.tech, rating:4.9, enrolled:1530, badge:'New' },
+      { title:'Data Science Fundamentals', cat:'Data', level:'Intermediate', weeks:8, lessons:32, mentor:'Lillian Anyango', face:FACE.lillian, img:SCENE.tech, rating:4.9, enrolled:870, badge:'' },
+      { title:'Digital Marketing Mastery', cat:'Marketing', level:'Beginner', weeks:6, lessons:20, mentor:'David Ochieng', face:FACE.david, img:SCENE.market, rating:4.7, enrolled:1100, badge:'' },
+      { title:'Personal Finance & Investing', cat:'Finance', level:'Beginner', weeks:4, lessons:12, mentor:'Grace Wairimu', face:FACE.grace, img:SCENE.finance, rating:4.8, enrolled:640, badge:'' },
+      { title:'UX Design Essentials', cat:'Design', level:'Beginner', weeks:8, lessons:26, mentor:'Kevin Mwangi', face:FACE.kevin, img:SCENE.market, rating:4.9, enrolled:720, badge:'' },
+      { title:'Product Management 101', cat:'Technology', level:'Intermediate', weeks:8, lessons:24, mentor:'Samuel Njoroge', face:FACE.samuel, img:SCENE.conf, rating:4.8, enrolled:590, badge:'' },
+    ];
+    PROGRAMS.forEach((p,i)=>p.order=i); // for "newest" sort
+
+    const grid = document.getElementById('programGrid');
+    const empty = document.getElementById('emptyState');
+    const countEl = document.getElementById('resultCount');
+    const $ = id => document.getElementById(id);
+
+    function cardHTML(p){
+      return `
+      <a href="program-detail.html" class="bg-white rounded-2xl shadow-card overflow-hidden hover:-translate-y-1 transition block">
+        <div class="relative">
+          <img src="${p.img}" class="w-full h-40 object-cover" alt="">
+          <span class="absolute top-3 left-3 text-xs font-semibold bg-white/90 text-navy px-2.5 py-1 rounded-full">${p.cat}</span>
+          ${p.badge ? `<span class="absolute top-3 right-3 text-xs font-semibold bg-teal text-white px-2.5 py-1 rounded-full">${p.badge}</span>` : ''}
+        </div>
+        <div class="p-5">
+          <h3 class="font-bold text-navy leading-snug">${p.title}</h3>
+          <div class="flex items-center gap-2 mt-3">
+            <img src="${p.face}" class="w-7 h-7 rounded-full object-cover" alt="${p.mentor}">
+            <span class="text-xs text-slate-500">by ${p.mentor}</span>
+          </div>
+          <div class="flex items-center gap-3 mt-4 text-xs text-slate-500">
+            <span>🗓 ${p.weeks} weeks</span><span>📚 ${p.lessons} lessons</span><span class="font-medium text-slate-600">${p.level}</span>
+          </div>
+          <div class="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
+            <span class="flex items-center gap-1 text-sm"><span class="text-amber-400">★</span><span class="font-semibold text-navy">${p.rating}</span><span class="text-slate-400">· ${p.enrolled.toLocaleString()} enrolled</span></span>
+            <span class="text-sm font-bold text-teal-600">Free</span>
+          </div>
+        </div>
+      </a>`;
+    }
+
+    function activeChips(f){
+      const chips = [];
+      if (f.q) chips.push('"'+f.q+'"');
+      if (f.cat) chips.push(f.cat);
+      if (f.level) chips.push(f.level);
+      if (f.dur) chips.push({short:'1-4 wks',mid:'5-8 wks',long:'9+ wks'}[f.dur]);
+      if (f.price) chips.push(f.price);
+      $('activeChips').innerHTML = chips.map(c=>`<span class="text-xs font-medium bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">${c}</span>`).join('');
+    }
+
+    function apply(){
+      const f = { q:$('searchInput').value.trim().toLowerCase(), cat:$('fCat').value, level:$('fLevel').value, dur:$('fDur').value, price:$('fPrice').value, sort:$('sortSelect').value };
+      let list = PROGRAMS.filter(p=>{
+        if (f.q && !(p.title+' '+p.cat+' '+p.mentor).toLowerCase().includes(f.q)) return false;
+        if (f.cat && p.cat !== f.cat) return false;
+        if (f.level && p.level !== f.level) return false;
+        if (f.dur === 'short' && p.weeks > 4) return false;
+        if (f.dur === 'mid' && (p.weeks < 5 || p.weeks > 8)) return false;
+        if (f.dur === 'long' && p.weeks < 9) return false;
+        if (f.price === 'Paid') return false;
+        return true;
+      });
+      if (f.sort === 'rating') list.sort((a,b)=>b.rating-a.rating);
+      else if (f.sort === 'newest') list.sort((a,b)=>b.order-a.order);
+      else list.sort((a,b)=>b.enrolled-a.enrolled);
+
+      countEl.textContent = list.length;
+      grid.innerHTML = list.map(cardHTML).join('');
+      empty.classList.toggle('hidden', list.length !== 0);
+      grid.classList.toggle('hidden', list.length === 0);
+      activeChips(f);
+    }
+
+    ['searchInput','fCat','fLevel','fDur','fPrice','sortSelect'].forEach(id=>{
+      const el=$(id); el.addEventListener('input', apply); el.addEventListener('change', apply);
+    });
+    $('applyBtn').addEventListener('click', apply);
+    $('clearBtn').addEventListener('click', ()=>{
+      ['searchInput','fCat','fLevel','fDur','fPrice'].forEach(id=>$(id).value='');
+      $('sortSelect').value='popular'; apply();
+    });
+    apply();
+  </script>
+</body>
+</html>

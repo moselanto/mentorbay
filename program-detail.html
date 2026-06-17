@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leadership Mastery Program — MentorBay</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48' font-weight='bold' fill='%230B2A4A'%3EM%3C/text%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        navy: { DEFAULT:'#0B2A4A', 700:'#103a63', 600:'#16487a', 50:'#eef3f9' },
+        teal: { DEFAULT:'#1FA2BE', 600:'#178098', 400:'#3bb8d1', 50:'#e9f7fa' },
+      },
+      fontFamily: { sans:['Inter','ui-sans-serif','system-ui'] },
+      boxShadow: { card:'0 4px 20px -6px rgba(11,42,74,0.12)' },
+    }}}
+  </script>
+  <style>html{scroll-behavior:smooth}.cta-gradient{background:linear-gradient(120deg,#0B2A4A 0%,#16487a 60%,#178098 100%)}</style>
+</head>
+<body class="font-sans text-slate-700 bg-slate-50 antialiased">
+
+  <!-- ================= HEADER ================= -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="index.html" class="flex items-center gap-2 shrink-0">
+          <svg viewBox="0 0 64 64" class="h-9 w-9">
+            <circle cx="32" cy="8" r="6" fill="#1FA2BE"/><circle cx="55" cy="20" r="6" fill="#0B2A4A"/>
+            <circle cx="55" cy="44" r="6" fill="#1FA2BE"/><circle cx="32" cy="56" r="6" fill="#0B2A4A"/>
+            <circle cx="9" cy="44" r="6" fill="#1FA2BE"/><circle cx="9" cy="20" r="6" fill="#0B2A4A"/>
+            <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#0B2A4A" font-family="Inter">M</text>
+          </svg>
+          <span class="text-xl font-extrabold text-navy">Mentor<span class="text-teal">Bay</span></span>
+        </a>
+        <nav class="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-600">
+          <a href="mentors.html" class="hover:text-teal transition">Mentors</a>
+          <a href="programs.html" class="text-teal font-semibold">Programs</a>
+          <a href="events.html" class="hover:text-teal transition">Events</a>
+          <a href="success-stories.html" class="hover:text-teal transition">Success Stories</a>
+          <a href="resources.html" class="hover:text-teal transition">Resources</a>
+        </nav>
+        <div class="hidden lg:flex items-center gap-3">
+          <a href="login.html" class="px-4 py-2 text-sm font-semibold text-navy border border-slate-200 rounded-lg hover:border-teal hover:text-teal transition">Login</a>
+          <a href="signup.html" class="px-4 py-2 text-sm font-semibold text-white bg-navy rounded-lg hover:bg-navy-700 transition">Join Now</a>
+        </div>
+        <button id="menuBtn" class="lg:hidden p-2 text-navy" aria-label="Menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="mobileMenu" class="hidden lg:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-1">
+      <a href="mentors.html" class="block py-2 text-slate-700 font-medium">Mentors</a>
+      <a href="programs.html" class="block py-2 text-teal font-semibold">Programs</a>
+      <a href="events.html" class="block py-2 text-slate-700 font-medium">Events</a>
+      <a href="success-stories.html" class="block py-2 text-slate-700 font-medium">Success Stories</a>
+      <a href="resources.html" class="block py-2 text-slate-700 font-medium">Resources</a>
+    </div>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <section class="cta-gradient">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <nav class="text-sm text-teal-50/80 mb-4"><a href="index.html" class="hover:text-white">Home</a> <span class="mx-1">›</span> <a href="programs.html" class="hover:text-white">Programs</a> <span class="mx-1">›</span> <span class="text-white font-medium">Leadership Mastery Program</span></nav>
+      <div class="grid lg:grid-cols-3 gap-8 items-start">
+        <div class="lg:col-span-2 text-white">
+          <div class="flex flex-wrap gap-2 mb-3">
+            <span class="text-xs font-semibold bg-white/15 px-2.5 py-1 rounded-full">Leadership</span>
+            <span class="text-xs font-semibold bg-white/15 px-2.5 py-1 rounded-full">Beginner</span>
+            <span class="text-xs font-semibold bg-teal px-2.5 py-1 rounded-full">Bestseller</span>
+          </div>
+          <h1 class="text-3xl lg:text-4xl font-extrabold leading-tight">Leadership Mastery Program</h1>
+          <p class="mt-3 text-teal-50/90 max-w-2xl">Build the confidence, clarity, and skills to lead teams and projects with impact. A practical, mentor-led program designed for emerging African leaders.</p>
+          <div class="flex flex-wrap items-center gap-5 mt-5 text-sm">
+            <span class="flex items-center gap-2"><img src="images/sd7erhqwt022qcj3zh7r9nt7a188tncb.jpg" class="w-8 h-8 rounded-full object-cover" alt="Jane Wanjiku"> by <a href="mentor-profile.html" class="font-semibold text-white hover:underline">Jane Wanjiku</a></span>
+            <span class="flex items-center gap-1"><span class="text-amber-300">★</span> 4.9 (320 ratings)</span>
+            <span>👥 1,240 enrolled</span>
+            <span>🗓 8 weeks</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BODY ================= -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid lg:grid-cols-3 gap-8 items-start">
+
+    <!-- MAIN -->
+    <div class="lg:col-span-2 space-y-6">
+      <img src="images/sd7cxyvmncgt75zcbvkjs66p7s88tgjf.jpg" class="w-full h-64 object-cover rounded-2xl shadow-card" alt="Leadership Mastery Program">
+
+      <div class="bg-white rounded-2xl shadow-card p-6 sm:p-8">
+        <h2 class="text-xl font-bold text-navy mb-3">About this program</h2>
+        <p class="text-slate-600 leading-relaxed">The Leadership Mastery Program is an 8-week, mentor-led journey that turns capable professionals into confident leaders. Through weekly live sessions, practical assignments, and one-on-one feedback from Jane Wanjiku, you'll develop the mindset and toolkit to lead people and drive results in any organisation.</p>
+        <p class="text-slate-600 leading-relaxed mt-3">Designed with the African workplace in mind, the program blends global leadership frameworks with real, local case studies from Nairobi to Lagos.</p>
+
+        <h3 class="text-lg font-bold text-navy mt-7 mb-4">What you'll learn</h3>
+        <div class="grid sm:grid-cols-2 gap-3" id="learnGrid"></div>
+      </div>
+
+      <!-- Curriculum accordion -->
+      <div class="bg-white rounded-2xl shadow-card p-6 sm:p-8">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-bold text-navy">Curriculum</h3>
+          <span class="text-sm text-slate-500">8 modules · 24 lessons</span>
+        </div>
+        <div class="space-y-3" id="curriculum"></div>
+      </div>
+
+      <!-- Requirements -->
+      <div class="bg-white rounded-2xl shadow-card p-6 sm:p-8">
+        <h3 class="text-lg font-bold text-navy mb-3">Requirements</h3>
+        <ul class="space-y-2 text-slate-600 text-sm list-disc pl-5">
+          <li>A laptop or smartphone with a stable internet connection.</li>
+          <li>2-3 hours per week for sessions and assignments.</li>
+          <li>Willingness to participate actively and apply lessons at work.</li>
+          <li>No prior leadership experience required.</li>
+        </ul>
+      </div>
+
+      <!-- Mentor -->
+      <div class="bg-white rounded-2xl shadow-card p-6 sm:p-8">
+        <h3 class="text-lg font-bold text-navy mb-4">Your Mentor</h3>
+        <div class="flex items-center gap-4">
+          <img src="images/sd7erhqwt022qcj3zh7r9nt7a188tncb.jpg" class="w-16 h-16 rounded-full object-cover" alt="Jane Wanjiku">
+          <div>
+            <p class="font-bold text-navy">Jane Wanjiku</p>
+            <p class="text-sm text-slate-500">Career & Leadership Coach · Nairobi, Kenya</p>
+            <p class="text-xs text-slate-400 mt-1">★ 4.9 · 124 mentees · 12+ years experience</p>
+          </div>
+        </div>
+        <p class="text-slate-600 text-sm mt-4 leading-relaxed">Jane is a certified leadership coach and former HR executive who has helped hundreds of professionals across Africa step into leadership with confidence.</p>
+        <a href="mentor-profile.html" class="inline-block mt-4 text-sm font-semibold text-teal-600 hover:underline">View full profile →</a>
+      </div>
+
+      <!-- Reviews -->
+      <div class="bg-white rounded-2xl shadow-card p-6 sm:p-8">
+        <h3 class="text-lg font-bold text-navy mb-4">Learner Reviews</h3>
+        <div class="grid sm:grid-cols-2 gap-5" id="reviewGrid"></div>
+      </div>
+    </div>
+
+    <!-- ENROLL SIDEBAR -->
+    <aside class="lg:sticky lg:top-24 space-y-4">
+      <div class="bg-white rounded-2xl shadow-card overflow-hidden">
+        <img src="images/sd7cxyvmncgt75zcbvkjs66p7s88tgjf.jpg" class="w-full h-36 object-cover" alt="">
+        <div class="p-6">
+          <div class="flex items-end gap-2">
+            <span class="text-3xl font-extrabold text-navy">Free</span>
+            <span class="text-sm text-slate-400 line-through mb-1">KES 15,000</span>
+          </div>
+          <p class="text-xs text-teal-600 font-medium mt-1">Free during launch - limited time</p>
+          <button id="enrollBtn" class="w-full mt-4 py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">Enroll Now</button>
+          <button class="w-full mt-3 py-3 border border-slate-200 text-navy font-semibold rounded-lg hover:border-teal hover:text-teal transition">Add to Wishlist</button>
+          <ul class="mt-5 pt-5 border-t border-slate-100 space-y-3 text-sm">
+            <li class="flex justify-between"><span class="text-slate-500">Duration</span><span class="font-semibold text-navy">8 weeks</span></li>
+            <li class="flex justify-between"><span class="text-slate-500">Lessons</span><span class="font-semibold text-navy">24 lessons</span></li>
+            <li class="flex justify-between"><span class="text-slate-500">Level</span><span class="font-semibold text-navy">Beginner</span></li>
+            <li class="flex justify-between"><span class="text-slate-500">Language</span><span class="font-semibold text-navy">English, Swahili</span></li>
+            <li class="flex justify-between"><span class="text-slate-500">Certificate</span><span class="font-semibold text-navy">Yes, on completion</span></li>
+            <li class="flex justify-between"><span class="text-slate-500">Capacity</span><span class="font-semibold text-navy">50 mentees</span></li>
+          </ul>
+          <p class="text-xs text-slate-400 mt-4 text-center">Sessions via Zoom & Google Meet</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- RELATED -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+    <h3 class="text-xl font-bold text-navy mb-5">Related Programs</h3>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="relatedGrid"></div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-navy text-slate-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <svg viewBox="0 0 64 64" class="h-8 w-8">
+            <circle cx="32" cy="8" r="6" fill="#3bb8d1"/><circle cx="55" cy="20" r="6" fill="#fff"/>
+            <circle cx="55" cy="44" r="6" fill="#3bb8d1"/><circle cx="32" cy="56" r="6" fill="#fff"/>
+            <circle cx="9" cy="44" r="6" fill="#3bb8d1"/><circle cx="9" cy="20" r="6" fill="#fff"/>
+            <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#fff" font-family="Inter">M</text>
+          </svg>
+          <span class="text-lg font-extrabold text-white">Mentor<span class="text-teal-400">Bay</span></span>
+        </div>
+        <p class="text-sm text-slate-400 max-w-xs">Connecting ambitious African learners with exceptional mentors.</p>
+      </div>
+      <div><h4 class="text-white font-semibold mb-3">Platform</h4><ul class="space-y-2 text-sm"><li><a href="mentors.html" class="hover:text-teal-400">Browse Mentors</a></li><li><a href="programs.html" class="hover:text-teal-400">Programs</a></li><li><a href="events.html" class="hover:text-teal-400">Events</a></li></ul></div>
+      <div><h4 class="text-white font-semibold mb-3">For Mentors</h4><ul class="space-y-2 text-sm"><li><a href="become-a-mentor.html" class="hover:text-teal-400">Become a Mentor</a></li><li><a href="#" class="hover:text-teal-400">Resources</a></li></ul></div>
+      <div><h4 class="text-white font-semibold mb-3">Support</h4><ul class="space-y-2 text-sm"><li><a href="#" class="hover:text-teal-400">Help Center</a></li><li><a href="#" class="hover:text-teal-400">Contact Us</a></li></ul></div>
+    </div>
+    <div class="border-t border-white/10 py-5 text-center text-sm text-slate-400">© 2026 MentorBay. All rights reserved. Made in Nairobi, Kenya.</div>
+  </footer>
+
+  <!-- ================= SCRIPT ================= -->
+  <script>
+    document.getElementById('menuBtn').addEventListener('click', () => document.getElementById('mobileMenu').classList.toggle('hidden'));
+
+    // Enroll toggle
+    const enrollBtn = document.getElementById('enrollBtn');
+    enrollBtn.addEventListener('click', () => {
+      const on = enrollBtn.textContent.trim() === 'Enrolled ✓';
+      enrollBtn.textContent = on ? 'Enroll Now' : 'Enrolled ✓';
+      enrollBtn.classList.toggle('bg-teal', !on);
+      enrollBtn.classList.toggle('bg-navy', on);
+    });
+
+    const IMG = 'images/';
+
+    // What you'll learn
+    const learn = ['Lead with clarity and confidence','Communicate and influence effectively','Build and motivate high-performing teams','Give and receive constructive feedback','Make sound decisions under pressure','Develop your personal leadership brand'];
+    document.getElementById('learnGrid').innerHTML = learn.map(l=>`
+      <div class="flex items-start gap-2 text-sm text-slate-600">
+        <svg class="w-5 h-5 text-teal shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+        <span>${l}</span>
+      </div>`).join('');
+
+    // Curriculum accordion
+    const modules = [
+      { t:'Module 1 - Foundations of Leadership', l:['What makes a great leader','Leadership styles','Self-awareness assessment'] },
+      { t:'Module 2 - Communication & Influence', l:['Active listening','Persuasion & storytelling','Difficult conversations'] },
+      { t:'Module 3 - Building & Leading Teams', l:['Trust and psychological safety','Delegation','Motivating your team'] },
+      { t:'Module 4 - Decision Making', l:['Frameworks for decisions','Managing risk','Leading through change'] },
+      { t:'Module 5 - Emotional Intelligence', l:['Self-regulation','Empathy in leadership','Conflict resolution'] },
+      { t:'Module 6 - Personal Leadership Brand', l:['Your values & vision','Executive presence','Networking with purpose'] },
+      { t:'Module 7 - Coaching & Feedback', l:['The GROW model','Giving feedback','Developing others'] },
+      { t:'Module 8 - Capstone Project', l:['Leadership action plan','Peer presentation','Certification'] },
+    ];
+    document.getElementById('curriculum').innerHTML = modules.map((m,i)=>`
+      <div class="border border-slate-200 rounded-xl overflow-hidden">
+        <button class="acc-btn w-full flex items-center justify-between px-4 py-3 text-left font-semibold text-navy hover:bg-slate-50" data-i="${i}">
+          <span>${m.t}</span>
+          <svg class="acc-icon w-5 h-5 text-slate-400 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="acc-body hidden px-4 pb-4">
+          <ul class="space-y-2 text-sm text-slate-600">
+            ${m.l.map(x=>`<li class="flex items-center gap-2"><svg class="w-4 h-4 text-teal" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>${x}</li>`).join('')}
+          </ul>
+        </div>
+      </div>`).join('');
+    document.querySelectorAll('.acc-btn').forEach(btn=>btn.addEventListener('click',()=>{
+      const body = btn.nextElementSibling, icon = btn.querySelector('.acc-icon');
+      body.classList.toggle('hidden'); icon.classList.toggle('rotate-180');
+    }));
+
+    // Reviews
+    const reviews = [
+      { name:'Esther Wanjiru', role:'Team Lead, Nairobi', img:'sd76649zdx97w9ve28wfndra6d88vdek', text:'This program changed how I lead. I was promoted within three months of finishing.' },
+      { name:'Brian Otieno', role:'Operations Manager, Kisumu', img:'sd79gt2ajkr4serddsw8cebepn88v870', text:'Practical, local, and powerful. Jane is an exceptional mentor.' },
+    ];
+    document.getElementById('reviewGrid').innerHTML = reviews.map(r=>`
+      <div class="border border-slate-100 rounded-xl p-5">
+        <div class="text-amber-400 text-sm mb-2">★★★★★</div>
+        <p class="text-slate-600 text-sm leading-relaxed">"${r.text}"</p>
+        <div class="flex items-center gap-3 mt-4">
+          <img src="${IMG}${r.img}.jpg" class="w-9 h-9 rounded-full object-cover" alt="${r.name}">
+          <div><p class="font-bold text-navy text-sm">${r.name}</p><p class="text-xs text-slate-500">${r.role}</p></div>
+        </div>
+      </div>`).join('');
+
+    // Related
+    const related = [
+      { title:'Career Accelerator Bootcamp', mentor:'Jane Wanjiku', img:'sd7fbrdmwf1ba8zryhj7mxhy6188vaw2', weeks:6, level:'Intermediate' },
+      { title:'Startup Founder Bootcamp', mentor:'John Kamau', img:'sd7cw7fxc5jdak3bhrek7g334188tm52', weeks:10, level:'Intermediate' },
+      { title:'Digital Marketing Mastery', mentor:'David Ochieng', img:'sd7f8shp9xrg8xvwefbhc1peyx88tt44', weeks:6, level:'Beginner' },
+    ];
+    document.getElementById('relatedGrid').innerHTML = related.map(p=>`
+      <a href="program-detail.html" class="bg-white rounded-2xl shadow-card overflow-hidden hover:-translate-y-1 transition block">
+        <img src="${IMG}${p.img}.jpg" class="w-full h-32 object-cover" alt="">
+        <div class="p-5">
+          <p class="font-bold text-navy text-sm leading-snug">${p.title}</p>
+          <p class="text-xs text-slate-500 mt-2">by ${p.mentor}</p>
+          <div class="flex items-center justify-between mt-3 text-xs">
+            <span class="text-slate-500">${p.weeks} weeks · ${p.level}</span>
+            <span class="font-semibold text-teal-600">Free</span>
+          </div>
+        </div>
+      </a>`).join('');
+  </script>
+</body>
+</html>
