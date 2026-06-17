@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Become a Mentor — MentorBay</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48' font-weight='bold' fill='%230B2A4A'%3EM%3C/text%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: { navy:{DEFAULT:'#0B2A4A',700:'#103a63',600:'#16487a',50:'#eef3f9'}, teal:{DEFAULT:'#1FA2BE',600:'#178098',400:'#3bb8d1',50:'#e9f7fa'} },
+      fontFamily:{ sans:['Inter','ui-sans-serif','system-ui'] }, boxShadow:{ card:'0 4px 20px -6px rgba(11,42,74,0.12)' },
+    }}}
+  </script>
+</head>
+<body class="font-sans text-slate-700 bg-slate-50 antialiased">
+  <div class="min-h-screen flex flex-col">
+    <header class="bg-white border-b border-slate-100">
+      <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-2">
+          <svg viewBox="0 0 64 64" class="h-8 w-8"><circle cx="32" cy="8" r="6" fill="#1FA2BE"/><circle cx="55" cy="20" r="6" fill="#0B2A4A"/><circle cx="55" cy="44" r="6" fill="#1FA2BE"/><circle cx="32" cy="56" r="6" fill="#0B2A4A"/><circle cx="9" cy="44" r="6" fill="#1FA2BE"/><circle cx="9" cy="20" r="6" fill="#0B2A4A"/><text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#0B2A4A">M</text></svg>
+          <span class="text-lg font-extrabold text-navy">Mentor<span class="text-teal">Bay</span></span>
+        </a>
+        <a href="index.html" class="text-sm text-slate-400 hover:text-slate-600">Save & exit</a>
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-10">
+      <div class="mb-8">
+        <div class="flex justify-between text-xs font-semibold text-slate-500 mb-2">
+          <span>Step <span id="stepNum">1</span> of 3 · Mentor Application</span>
+          <span id="stepName">Professional details</span>
+        </div>
+        <div class="h-2 bg-slate-200 rounded-full overflow-hidden"><div id="bar" class="h-full bg-teal transition-all" style="width:33%"></div></div>
+      </div>
+
+      <!-- STEP 1 -->
+      <section class="step bg-white rounded-2xl shadow-card p-6 sm:p-8" data-step="1">
+        <h1 class="text-2xl font-extrabold text-navy">Professional details</h1>
+        <p class="text-slate-500 mt-1">Tell us about your professional background.</p>
+        <div class="grid sm:grid-cols-2 gap-4 mt-6">
+          <div class="sm:col-span-2"><label class="block text-sm font-semibold text-navy mb-1">Professional title</label><input type="text" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="e.g. Senior Software Engineer" /></div>
+          <div><label class="block text-sm font-semibold text-navy mb-1">Current company</label><input type="text" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="e.g. Safaricom" /></div>
+          <div><label class="block text-sm font-semibold text-navy mb-1">Years of experience</label><select class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none"><option>3-5 years</option><option>6-10 years</option><option>11-15 years</option><option>15+ years</option></select></div>
+          <div><label class="block text-sm font-semibold text-navy mb-1">Location</label><input type="text" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="e.g. Nairobi, Kenya" /></div>
+          <div><label class="block text-sm font-semibold text-navy mb-1">Languages</label><input type="text" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="e.g. English, Swahili" /></div>
+        </div>
+      </section>
+
+      <!-- STEP 2 -->
+      <section class="step hidden bg-white rounded-2xl shadow-card p-6 sm:p-8" data-step="2">
+        <h1 class="text-2xl font-extrabold text-navy">Your expertise</h1>
+        <p class="text-slate-500 mt-1">Select your areas of expertise and introduce yourself.</p>
+        <div class="flex flex-wrap gap-2 mt-6" id="expertise"></div>
+        <div class="mt-6"><label class="block text-sm font-semibold text-navy mb-1">Short bio</label>
+          <textarea rows="5" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="Tell mentees about your experience, approach, and what you can help them achieve..."></textarea></div>
+      </section>
+
+      <!-- STEP 3 -->
+      <section class="step hidden bg-white rounded-2xl shadow-card p-6 sm:p-8" data-step="3">
+        <h1 class="text-2xl font-extrabold text-navy">Credentials & links</h1>
+        <p class="text-slate-500 mt-1">Help us verify your profile (used for review only).</p>
+        <div class="space-y-4 mt-6">
+          <div><label class="block text-sm font-semibold text-navy mb-1">LinkedIn profile</label><input type="url" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="https://linkedin.com/in/..." /></div>
+          <div><label class="block text-sm font-semibold text-navy mb-1">Portfolio / website (optional)</label><input type="url" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="https://..." /></div>
+          <div><label class="block text-sm font-semibold text-navy mb-1">Certifications (optional)</label><input type="text" class="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="e.g. Certified Professional Coach (ICF)" /></div>
+          <label class="flex items-start gap-2 text-sm text-slate-600"><input type="checkbox" required class="mt-1 accent-teal" /><span>I confirm the information provided is accurate and agree to the <a href="#" class="text-teal-600 font-medium hover:underline">Mentor Guidelines</a>.</span></label>
+        </div>
+      </section>
+
+      <!-- DONE -->
+      <section id="done" class="hidden bg-white rounded-2xl shadow-card p-8 text-center">
+        <div class="w-16 h-16 mx-auto rounded-full bg-teal-50 grid place-items-center mb-4">
+          <svg class="w-8 h-8 text-teal" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+        </div>
+        <h1 class="text-2xl font-extrabold text-navy">Application submitted!</h1>
+        <p class="text-slate-500 mt-2 max-w-md mx-auto">Thanks for applying to mentor on MentorBay. Our team reviews applications within 48 hours - we'll email you once your profile is approved and live.</p>
+        <a href="index.html" class="inline-block mt-6 px-7 py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">Back to Home</a>
+      </section>
+
+      <div id="nav" class="flex items-center justify-between mt-8">
+        <button id="backBtn" class="px-5 py-2.5 text-slate-500 font-semibold rounded-lg hover:bg-slate-100 transition invisible">← Back</button>
+        <button id="nextBtn" class="px-7 py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">Continue</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const expertise = ['Technology','Software Engineering','Product','Data Science','Business Strategy','Marketing','Finance','Design','Leadership','Entrepreneurship','HR & People','Sales'];
+    document.getElementById('expertise').innerHTML = expertise.map(e=>`<button type="button" class="chip px-4 py-2 rounded-full border border-slate-200 text-sm font-medium text-slate-600 hover:border-teal transition">${e}</button>`).join('');
+    document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{ c.classList.toggle('bg-teal'); c.classList.toggle('text-white'); c.classList.toggle('border-teal'); c.classList.toggle('text-slate-600'); }));
+
+    let step = 1; const names = {1:'Professional details',2:'Your expertise',3:'Credentials & links'};
+    const bar = document.getElementById('bar'), backBtn = document.getElementById('backBtn'), nextBtn = document.getElementById('nextBtn');
+    function show(){
+      document.querySelectorAll('.step').forEach(s=>s.classList.toggle('hidden', +s.dataset.step !== step));
+      document.getElementById('stepNum').textContent = step;
+      document.getElementById('stepName').textContent = names[step];
+      bar.style.width = (step*33.33)+'%';
+      backBtn.classList.toggle('invisible', step===1);
+      nextBtn.textContent = step===3 ? 'Submit Application' : 'Continue';
+    }
+    nextBtn.addEventListener('click',()=>{
+      if(step<3){ step++; show(); }
+      else { document.querySelectorAll('.step').forEach(s=>s.classList.add('hidden')); document.getElementById('nav').classList.add('hidden'); document.getElementById('done').classList.remove('hidden'); bar.style.width='100%'; }
+    });
+    backBtn.addEventListener('click',()=>{ if(step>1){ step--; show(); } });
+    show();
+  </script>
+</body>
+</html>
