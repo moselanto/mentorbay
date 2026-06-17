@@ -1,17 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getProgram, PROGRAMS } from "@/lib/data";
+import { getProgram, getPrograms } from "@/lib/programs";
 import Accordion, { type Module } from "@/components/Accordion";
 import EnrollButton from "@/components/EnrollButton";
 import ProgramCard from "@/components/ProgramCard";
 
-export function generateStaticParams() {
-  return PROGRAMS.map((p) => ({ id: p.id }));
-}
-
-export function generateMetadata({ params }: { params: { id: string } }): Metadata {
-  const p = getProgram(params.id);
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const p = await getProgram(params.id);
   return { title: p ? `${p.title} — MentorBay` : "Program — MentorBay" };
 }
 
@@ -32,14 +28,14 @@ const CURRICULUM: Module[] = [
   { title: "Module 5 - Capstone Project", lessons: ["Action plan", "Peer presentation", "Certification"] },
 ];
 
-export default function ProgramDetailPage({ params }: { params: { id: string } }) {
-  const p = getProgram(params.id);
+export default async function ProgramDetailPage({ params }: { params: { id: string } }) {
+  const p = await getProgram(params.id);
   if (!p) notFound();
-  const related = PROGRAMS.filter((x) => x.id !== p.id).slice(0, 3);
+  const all = await getPrograms();
+  const related = all.filter((x) => x.id !== p.id).slice(0, 3);
 
   return (
     <div className="bg-slate-50">
-      {/* HERO */}
       <section className="cta-gradient">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-white">
           <nav className="text-sm text-teal-50/80 mb-4">
@@ -67,7 +63,6 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
         </div>
       </section>
 
-      {/* BODY */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-2 space-y-6">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -109,7 +104,6 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
           </div>
         </div>
 
-        {/* ENROLL SIDEBAR */}
         <aside className="lg:sticky lg:top-24 space-y-4">
           <div className="bg-white rounded-2xl shadow-card overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -132,7 +126,6 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
         </aside>
       </div>
 
-      {/* RELATED */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         <h3 className="text-xl font-bold text-navy mb-5">Related Programs</h3>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">

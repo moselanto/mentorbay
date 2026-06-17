@@ -1,16 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getEvent, EVENTS, MENTORS } from "@/lib/data";
+import { getEvent, getEvents } from "@/lib/events";
+import { MENTORS } from "@/lib/data";
 import EventRegister from "@/components/EventRegister";
 import EventCard from "@/components/EventCard";
 
-export function generateStaticParams() {
-  return EVENTS.map((e) => ({ id: e.id }));
-}
-
-export function generateMetadata({ params }: { params: { id: string } }): Metadata {
-  const e = getEvent(params.id);
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const e = await getEvent(params.id);
   return { title: e ? `${e.title} — MentorBay` : "Event — MentorBay" };
 }
 
@@ -33,8 +30,8 @@ const AGENDA = [
   { t: "4:30 PM", title: "Closing & networking" },
 ];
 
-export default function EventDetailPage({ params }: { params: { id: string } }) {
-  const e = getEvent(params.id);
+export default async function EventDetailPage({ params }: { params: { id: string } }) {
+  const e = await getEvent(params.id);
   if (!e) notFound();
 
   const speakers = [
@@ -42,7 +39,8 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
     { name: MENTORS[1].name, role: MENTORS[1].role, img: MENTORS[1].img },
     { name: MENTORS[0].name, role: MENTORS[0].role, img: MENTORS[0].img },
   ];
-  const related = EVENTS.filter((x) => x.id !== e.id && x.when === "upcoming").slice(0, 3);
+  const all = await getEvents();
+  const related = all.filter((x) => x.id !== e.id && x.when === "upcoming").slice(0, 3);
 
   return (
     <div className="bg-slate-50">

@@ -1,23 +1,20 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getMentor, MENTORS, PROGRAMS } from "@/lib/data";
+import { getMentorBySlug } from "@/lib/mentors";
+import { getProgramsByMentor } from "@/lib/programs";
 import SaveMentorButton from "@/components/SaveMentorButton";
 import MentorProfileTabs from "./MentorProfileTabs";
 
-export function generateStaticParams() {
-  return MENTORS.map((m) => ({ id: m.id }));
-}
-
-export function generateMetadata({ params }: { params: { id: string } }): Metadata {
-  const m = getMentor(params.id);
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const m = await getMentorBySlug(params.id);
   return { title: m ? `${m.name} — Mentor Profile | MentorBay` : "Mentor — MentorBay" };
 }
 
-export default function MentorProfilePage({ params }: { params: { id: string } }) {
-  const m = getMentor(params.id);
+export default async function MentorProfilePage({ params }: { params: { id: string } }) {
+  const m = await getMentorBySlug(params.id);
   if (!m) notFound();
-  const programs = PROGRAMS.filter((p) => p.mentorId === m.id);
+  const programs = await getProgramsByMentor(m.id);
 
   return (
     <div className="bg-slate-50">
@@ -31,7 +28,6 @@ export default function MentorProfilePage({ params }: { params: { id: string } }
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-[1fr_340px] gap-6">
-          {/* profile card */}
           <div className="bg-white rounded-2xl shadow-card p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row gap-6">
               <div className="relative shrink-0 mx-auto sm:mx-0">
@@ -59,7 +55,6 @@ export default function MentorProfilePage({ params }: { params: { id: string } }
             </div>
           </div>
 
-          {/* action sidebar */}
           <aside className="space-y-4">
             <div className="bg-white rounded-2xl shadow-card p-6">
               <Link href="/signup" className="block text-center py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">✦ Apply for Mentorship</Link>
@@ -74,7 +69,6 @@ export default function MentorProfilePage({ params }: { params: { id: string } }
           </aside>
         </div>
 
-        {/* stats */}
         <div className="bg-white rounded-2xl shadow-card grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-slate-100 mt-6">
           {[[m.mentees, "Mentees"], [`${m.exp}+`, "Years Exp"], ["98%", "Success Rate"], ["5", "Countries"]].map(([n, l]) => (
             <div key={l as string} className="p-5 text-center"><p className="text-2xl font-extrabold text-navy">{n}</p><p className="text-sm text-slate-500">{l}</p></div>
@@ -84,7 +78,6 @@ export default function MentorProfilePage({ params }: { params: { id: string } }
 
       <MentorProfileTabs mentor={m} programs={programs} />
 
-      {/* CTA */}
       <section className="cta-gradient mt-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-center md:text-left">

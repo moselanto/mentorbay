@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EVENTS } from "@/lib/data";
+import { getEvents } from "@/lib/events";
 import EventBrowser from "./EventBrowser";
 
 export const metadata: Metadata = { title: "Events — MentorBay" };
 
-export default function EventsPage() {
+export default async function EventsPage() {
+  const events = await getEvents();
   return (
     <div className="bg-slate-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
@@ -17,7 +18,7 @@ export default function EventsPage() {
         <h1 className="text-3xl lg:text-4xl font-extrabold text-navy">Events</h1>
         <p className="text-slate-500 mt-2">Workshops, summits, and masterclasses with Africa&apos;s leading mentors - online and across Kenya.</p>
       </div>
-      <EventBrowser events={EVENTS} />
+      <EventBrowser events={events} />
     </div>
   );
 }
