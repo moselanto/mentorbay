@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Brand gradients reused across pages */
+.hero-gradient {
+  background: linear-gradient(135deg, #eef3f9 0%, #e9f7fa 100%);
+}
+.cta-gradient {
+  background: linear-gradient(120deg, #0b2a4a 0%, #16487a 60%, #178098 100%);
+}
