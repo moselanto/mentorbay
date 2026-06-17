@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Content Moderation — MentorBay Admin</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48' font-weight='bold' fill='%230B2A4A'%3EM%3C/text%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>tailwind.config={theme:{extend:{colors:{navy:{DEFAULT:'#0B2A4A',700:'#103a63',600:'#16487a',50:'#eef3f9'},teal:{DEFAULT:'#1FA2BE',600:'#178098',400:'#3bb8d1',50:'#e9f7fa'}},fontFamily:{sans:['Inter','ui-sans-serif','system-ui']},boxShadow:{card:'0 4px 20px -6px rgba(11,42,74,0.12)'}}}}</script>
+</head>
+<body class="font-sans text-slate-700 bg-slate-50 antialiased">
+<div class="flex min-h-screen">
+  <aside id="sidebar" class="fixed lg:sticky top-0 inset-y-0 left-0 z-40 w-64 h-screen bg-navy text-slate-300 flex flex-col -translate-x-full lg:translate-x-0 transition-transform">
+    <div class="p-5 border-b border-white/10"><a href="index.html" class="flex items-center gap-2"><svg viewBox="0 0 64 64" class="h-8 w-8"><circle cx="32" cy="8" r="6" fill="#3bb8d1"/><circle cx="55" cy="20" r="6" fill="#fff"/><circle cx="55" cy="44" r="6" fill="#3bb8d1"/><circle cx="32" cy="56" r="6" fill="#fff"/><circle cx="9" cy="44" r="6" fill="#3bb8d1"/><circle cx="9" cy="20" r="6" fill="#fff"/><text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#fff">M</text></svg><span class="text-lg font-extrabold text-white">Mentor<span class="text-teal-400">Bay</span></span></a><p class="text-[10px] font-semibold text-teal-400 mt-1 ml-10 -mt-1">ADMIN</p></div>
+    <nav class="flex-1 overflow-y-auto p-3 space-y-1 text-sm font-medium">
+      <a href="admin-dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>Dashboard</a>
+      <a href="admin-approvals.html" class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/5"><span class="flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></svg>Mentor Approvals</span><span class="text-xs bg-teal text-white rounded-full px-2 py-0.5">5</span></a>
+      <a href="admin-users.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>Users</a>
+      <a href="admin-moderation.html" class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-white/10 text-white"><span class="flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Content</span><span class="text-xs bg-rose-500 text-white rounded-full px-2 py-0.5" id="badge">2</span></a>
+      <a href="admin-reports.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8"/><rect x="12" y="6" width="3" height="12"/><rect x="17" y="13" width="3" height="5"/></svg>Reports</a>
+      <a href="admin-settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6 19 19M19 5l-1.4 1.4M6.4 17.6 5 19"/></svg>Settings</a>
+    </nav>
+  </aside>
+  <div id="overlay" class="fixed inset-0 bg-black/30 z-30 hidden lg:hidden"></div>
+
+  <div class="flex-1 flex flex-col min-w-0">
+    <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-100"><div class="flex items-center gap-4 px-4 sm:px-6 h-16"><button id="menuBtn" class="lg:hidden p-2 text-navy"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h1 class="font-bold text-navy">Content Moderation</h1></div></header>
+
+    <main class="p-4 sm:p-6 lg:p-8 max-w-4xl">
+      <p class="text-slate-500 mb-6">Review flagged programs, articles, and reviews. Approve to keep, or remove from the platform.</p>
+      <div class="space-y-4" id="queue"></div>
+      <div id="empty" class="hidden text-center py-16"><div class="w-12 h-12 mx-auto rounded-full bg-teal-50 grid place-items-center mb-3"><svg class="w-6 h-6 text-teal" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div><p class="font-semibold text-navy">Queue is clear</p><p class="text-slate-500 text-sm mt-1">No content awaiting moderation.</p></div>
+    </main>
+  </div>
+</div>
+<script>
+  const menuBtn=document.getElementById('menuBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('overlay');
+  menuBtn.addEventListener('click',()=>{sidebar.classList.remove('-translate-x-full');overlay.classList.remove('hidden');});
+  overlay.addEventListener('click',()=>{sidebar.classList.add('-translate-x-full');overlay.classList.add('hidden');});
+  const Q=[
+    {id:1,type:'Program',title:'Quick Rich Trading Bootcamp',by:'user #5521',reason:'Reported as misleading / get-rich-quick',excerpt:'"Guaranteed 300% returns in 30 days with zero risk..."',state:'pending'},
+    {id:2,type:'Review',title:'Review on John Kamau',by:'user #4821',reason:'Reported as spam',excerpt:'"Check out my site cheap-followers dot com for..."',state:'pending'},
+    {id:3,type:'Article',title:'10 Productivity Hacks',by:'Jane Wanjiku',reason:'Auto-flagged: external links',excerpt:'"A practical guide to staying focused while working remotely..."',state:'pending'},
+  ];
+  const wrap=document.getElementById('queue'),empty=document.getElementById('empty'),badge=document.getElementById('badge');
+  function render(){
+    const pending=Q.filter(q=>q.state==='pending');badge.textContent=pending.length;badge.style.display=pending.length?'':'none';
+    empty.classList.toggle('hidden',pending.length!==0);
+    wrap.innerHTML=Q.map(q=>{
+      let b='';if(q.state==='approved')b='<div class="mb-3 text-xs font-semibold text-teal-600 bg-teal-50 px-3 py-1.5 rounded-lg inline-block">✓ Approved - content kept</div>';if(q.state==='removed')b='<div class="mb-3 text-xs font-semibold text-rose-500 bg-rose-50 px-3 py-1.5 rounded-lg inline-block">Removed from platform</div>';
+      return `<div class="bg-white rounded-2xl shadow-card p-6 ${q.state!=='pending'?'opacity-70':''}">${b}
+        <div class="flex items-start gap-3">
+          <span class="text-xs font-semibold ${q.type==='Program'?'text-indigo-500 bg-indigo-50':q.type==='Review'?'text-amber-600 bg-amber-50':'text-teal-600 bg-teal-50'} px-2.5 py-1 rounded-full shrink-0">${q.type}</span>
+          <div class="flex-1">
+            <p class="font-bold text-navy">${q.title}</p>
+            <p class="text-xs text-slate-400">by ${q.by}</p>
+            <p class="text-sm text-rose-500 font-medium mt-2">⚑ ${q.reason}</p>
+            <p class="text-sm text-slate-500 italic mt-2 bg-slate-50 rounded-lg p-3">${q.excerpt}</p>
+            ${q.state==='pending'?`<div class="flex gap-2 mt-4"><button onclick="act(${q.id},'approved')" class="px-5 py-2 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">Keep</button><button onclick="act(${q.id},'removed')" class="px-5 py-2 bg-rose-500 text-white text-sm font-semibold rounded-lg hover:bg-rose-600 transition">Remove</button></div>`:''}
+          </div>
+        </div></div>`;
+    }).join('');
+  }
+  function act(id,s){const q=Q.find(x=>x.id===id);if(q)q.state=s;render();}
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — MentorBay</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48' font-weight='bold' fill='%230B2A4A'%3EM%3C/text%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>tailwind.config={theme:{extend:{colors:{navy:{DEFAULT:'#0B2A4A',700:'#103a63',600:'#16487a',50:'#eef3f9'},teal:{DEFAULT:'#1FA2BE',600:'#178098',400:'#3bb8d1',50:'#e9f7fa'}},fontFamily:{sans:['Inter','ui-sans-serif','system-ui']},boxShadow:{card:'0 4px 20px -6px rgba(11,42,74,0.12)'}}}}</script>
+</head>
+<body class="font-sans text-slate-700 bg-slate-50 antialiased">
+<div class="flex min-h-screen">
+  <aside id="sidebar" class="fixed lg:sticky top-0 inset-y-0 left-0 z-40 w-64 h-screen bg-navy text-slate-300 flex flex-col -translate-x-full lg:translate-x-0 transition-transform">
+    <div class="p-5 border-b border-white/10"><a href="index.html" class="flex items-center gap-2"><svg viewBox="0 0 64 64" class="h-8 w-8"><circle cx="32" cy="8" r="6" fill="#3bb8d1"/><circle cx="55" cy="20" r="6" fill="#fff"/><circle cx="55" cy="44" r="6" fill="#3bb8d1"/><circle cx="32" cy="56" r="6" fill="#fff"/><circle cx="9" cy="44" r="6" fill="#3bb8d1"/><circle cx="9" cy="20" r="6" fill="#fff"/><text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#fff">M</text></svg><span class="text-lg font-extrabold text-white">Mentor<span class="text-teal-400">Bay</span></span></a><p class="text-[10px] font-semibold text-teal-400 mt-1 ml-10 -mt-1">ADMIN</p></div>
+    <nav class="flex-1 overflow-y-auto p-3 space-y-1 text-sm font-medium">
+      <a href="admin-dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/10 text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>Dashboard</a>
+      <a href="admin-approvals.html" class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/5"><span class="flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></svg>Mentor Approvals</span><span class="text-xs bg-teal text-white rounded-full px-2 py-0.5">5</span></a>
+      <a href="admin-users.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>Users</a>
+      <a href="admin-moderation.html" class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/5"><span class="flex items-center gap-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Content</span><span class="text-xs bg-rose-500 text-white rounded-full px-2 py-0.5">2</span></a>
+      <a href="admin-reports.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8"/><rect x="12" y="6" width="3" height="12"/><rect x="17" y="13" width="3" height="5"/></svg>Reports</a>
+      <a href="admin-settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6 19 19M19 5l-1.4 1.4M6.4 17.6 5 19"/></svg>Settings</a>
+    </nav>
+    <div class="p-3 border-t border-white/10"><a href="index.html" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-400 hover:text-white"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>Log out</a></div>
+  </aside>
+  <div id="overlay" class="fixed inset-0 bg-black/30 z-30 hidden lg:hidden"></div>
+
+  <div class="flex-1 flex flex-col min-w-0">
+    <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-100"><div class="flex items-center gap-4 px-4 sm:px-6 h-16"><button id="menuBtn" class="lg:hidden p-2 text-navy"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h1 class="font-bold text-navy">Admin Overview</h1><div class="flex items-center gap-2 ml-auto"><img src="images/sd7cb0223na4m9xntwvezwxyz588veqn.jpg" class="w-9 h-9 rounded-full object-cover" alt="Admin"><div class="hidden sm:block leading-tight"><p class="text-sm font-bold text-navy">Peter Kamau</p><p class="text-xs text-slate-400">Administrator</p></div></div></div></header>
+
+    <main class="p-4 sm:p-6 lg:p-8">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl shadow-card p-5"><p class="text-xs text-slate-400 font-medium">Total Users</p><p class="text-2xl font-extrabold text-navy mt-1">14,512</p><p class="text-xs text-teal-600 mt-1">+312 this week</p></div>
+        <div class="bg-white rounded-2xl shadow-card p-5"><p class="text-xs text-slate-400 font-medium">Mentors</p><p class="text-2xl font-extrabold text-navy mt-1">2,512</p><p class="text-xs text-teal-600 mt-1">+18 this week</p></div>
+        <div class="bg-white rounded-2xl shadow-card p-5"><p class="text-xs text-slate-400 font-medium">Programs</p><p class="text-2xl font-extrabold text-navy mt-1">154</p><p class="text-xs text-slate-400 mt-1">12 pending review</p></div>
+        <div class="bg-white rounded-2xl shadow-card p-5"><p class="text-xs text-slate-400 font-medium">Events</p><p class="text-2xl font-extrabold text-navy mt-1">312</p><p class="text-xs text-slate-400 mt-1">8 upcoming</p></div>
+      </div>
+
+      <div class="grid lg:grid-cols-3 gap-6 mt-6">
+        <div class="lg:col-span-2 bg-white rounded-2xl shadow-card p-6">
+          <div class="flex items-center justify-between mb-5"><h2 class="font-bold text-navy">User Growth</h2><span class="text-xs text-slate-400">Last 7 months</span></div>
+          <div class="flex items-end gap-3 h-48" id="chart"></div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card p-6">
+          <div class="flex items-center justify-between mb-4"><h2 class="font-bold text-navy">Pending Approvals</h2><a href="admin-approvals.html" class="text-sm text-teal-600 font-semibold">All →</a></div>
+          <div class="space-y-3" id="approvals"></div>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-6 mt-6">
+        <div class="bg-white rounded-2xl shadow-card p-6">
+          <div class="flex items-center justify-between mb-4"><h2 class="font-bold text-navy">Flagged Content</h2><a href="admin-moderation.html" class="text-sm text-teal-600 font-semibold">Review →</a></div>
+          <div class="space-y-3" id="flags"></div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card p-6">
+          <h2 class="font-bold text-navy mb-4">Recent Activity</h2>
+          <div class="space-y-3" id="activity"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+  const menuBtn=document.getElementById('menuBtn'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('overlay');
+  menuBtn.addEventListener('click',()=>{sidebar.classList.remove('-translate-x-full');overlay.classList.remove('hidden');});
+  overlay.addEventListener('click',()=>{sidebar.classList.add('-translate-x-full');overlay.classList.add('hidden');});
+  const IMG='images/';
+  const data=[[ 'Dec',40],['Jan',55],['Feb',62],['Mar',70],['Apr',82],['May',91],['Jun',100]];
+  document.getElementById('chart').innerHTML=data.map(([m,h])=>`<div class="flex-1 flex flex-col items-center gap-2"><div class="w-full bg-teal rounded-t-lg" style="height:${h}%"></div><span class="text-xs text-slate-400">${m}</span></div>`).join('');
+  document.getElementById('approvals').innerHTML=[['Samuel Njoroge','Tech Mentor','sd71p21y9dxds7tvxmv5hnq1g988v9nv'],['Grace Wairimu','Finance Mentor','sd73mtg2fv8ezekjw91j55w0xs88tmdj'],['Kevin Mwangi','Design Mentor','sd75by8ns0j4qabn92ryzmvjp988v394']].map(([n,r,img])=>`
+    <div class="flex items-center gap-3"><img src="${IMG}${img}.jpg" class="w-9 h-9 rounded-full object-cover" alt=""><div class="flex-1 min-w-0"><p class="text-sm font-semibold text-navy truncate">${n}</p><p class="text-xs text-slate-400">${r}</p></div><a href="admin-approvals.html" class="text-xs font-semibold text-teal-600">Review</a></div>`).join('');
+  document.getElementById('flags').innerHTML=[['Program: "Quick Rich Trading"','Flagged as misleading'],['Review by user #4821','Reported as spam']].map(([t,r])=>`
+    <div class="flex items-center gap-3 p-3 rounded-xl bg-rose-50"><span class="w-8 h-8 rounded-lg bg-rose-100 text-rose-500 grid place-items-center shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></span><div class="flex-1"><p class="text-sm font-semibold text-navy">${t}</p><p class="text-xs text-slate-500">${r}</p></div></div>`).join('');
+  document.getElementById('activity').innerHTML=[['Approved mentor: Brian Otieno','2 hours ago'],['Suspended user #3201 for spam','5 hours ago'],['Featured event: Future of Work Conf','Yesterday'],['New program published: Data Science','Yesterday']].map(([a,d])=>`
+    <div class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-teal shrink-0"></span><p class="text-sm text-slate-600 flex-1">${a}</p><span class="text-xs text-slate-400">${d}</span></div>`).join('');
+</script>
+</body>
+</html>
