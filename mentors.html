@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browse Mentors — MentorBay</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48' font-weight='bold' fill='%230B2A4A'%3EM%3C/text%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        colors: {
+          navy: { DEFAULT:'#0B2A4A', 700:'#103a63', 600:'#16487a', 50:'#eef3f9' },
+          teal: { DEFAULT:'#1FA2BE', 600:'#178098', 400:'#3bb8d1', 50:'#e9f7fa' },
+        },
+        fontFamily: { sans:['Inter','ui-sans-serif','system-ui'] },
+        boxShadow: { card:'0 4px 20px -6px rgba(11,42,74,0.12)' },
+      }}
+    }
+  </script>
+  <style>html{scroll-behavior:smooth}</style>
+</head>
+<body class="font-sans text-slate-700 bg-slate-50 antialiased">
+
+  <!-- ================= HEADER ================= -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="index.html" class="flex items-center gap-2 shrink-0">
+          <svg viewBox="0 0 64 64" class="h-9 w-9">
+            <circle cx="32" cy="8" r="6" fill="#1FA2BE"/><circle cx="55" cy="20" r="6" fill="#0B2A4A"/>
+            <circle cx="55" cy="44" r="6" fill="#1FA2BE"/><circle cx="32" cy="56" r="6" fill="#0B2A4A"/>
+            <circle cx="9" cy="44" r="6" fill="#1FA2BE"/><circle cx="9" cy="20" r="6" fill="#0B2A4A"/>
+            <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#0B2A4A" font-family="Inter">M</text>
+          </svg>
+          <span class="text-xl font-extrabold text-navy">Mentor<span class="text-teal">Bay</span></span>
+        </a>
+        <nav class="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-600">
+          <a href="mentors.html" class="text-teal font-semibold">Mentors</a>
+          <a href="programs.html" class="hover:text-teal transition">Programs</a>
+          <a href="events.html" class="hover:text-teal transition">Events</a>
+          <a href="success-stories.html" class="hover:text-teal transition">Success Stories</a>
+          <a href="resources.html" class="hover:text-teal transition">Resources</a>
+        </nav>
+        <div class="hidden lg:flex items-center gap-3">
+          <a href="login.html" class="px-4 py-2 text-sm font-semibold text-navy border border-slate-200 rounded-lg hover:border-teal hover:text-teal transition">Login</a>
+          <a href="signup.html" class="px-4 py-2 text-sm font-semibold text-white bg-navy rounded-lg hover:bg-navy-700 transition">Join Now</a>
+        </div>
+        <button id="menuBtn" class="lg:hidden p-2 text-navy" aria-label="Menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="mobileMenu" class="hidden lg:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-1">
+      <a href="mentors.html" class="block py-2 text-teal font-semibold">Mentors</a>
+      <a href="programs.html" class="block py-2 text-slate-700 font-medium">Programs</a>
+      <a href="events.html" class="block py-2 text-slate-700 font-medium">Events</a>
+      <a href="success-stories.html" class="block py-2 text-slate-700 font-medium">Success Stories</a>
+      <a href="resources.html" class="block py-2 text-slate-700 font-medium">Resources</a>
+    </div>
+  </header>
+
+  <!-- ================= PAGE HEADER ================= -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    <nav class="text-sm text-slate-500 mb-3"><a href="index.html" class="hover:text-teal">Home</a> <span class="mx-1">›</span> <span class="text-slate-700 font-medium">Mentors</span></nav>
+    <h1 class="text-3xl lg:text-4xl font-extrabold text-navy">Browse Mentors</h1>
+    <p class="text-slate-500 mt-2">Connect with verified mentors and experts across Kenya and Africa.</p>
+
+    <!-- toolbar -->
+    <div class="mt-6 flex flex-col lg:flex-row gap-3 lg:items-center">
+      <div class="relative flex-1">
+        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="searchInput" type="text" placeholder="Search mentors by name, expertise or keyword..." class="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-200 bg-white focus:ring-2 focus:ring-teal focus:border-teal outline-none" />
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="filterToggle" class="lg:hidden px-4 py-3 rounded-lg border border-slate-200 bg-white font-semibold text-navy flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></svg> Filters
+        </button>
+        <div class="flex items-center gap-2 text-sm">
+          <span class="text-slate-500 whitespace-nowrap">Sort by</span>
+          <select id="sortSelect" class="px-3 py-3 rounded-lg border border-slate-200 bg-white font-medium text-navy focus:ring-2 focus:ring-teal outline-none">
+            <option value="popular">Most Popular</option>
+            <option value="rating">Highest Rated</option>
+            <option value="experience">Most Experienced</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= BODY ================= -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid lg:grid-cols-[280px_1fr] gap-8">
+
+    <!-- FILTER SIDEBAR -->
+    <aside id="filterPanel" class="hidden lg:block">
+      <div class="bg-white rounded-2xl shadow-card p-6 lg:sticky lg:top-24">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="font-bold text-navy text-lg">Filters</h2>
+          <button id="clearBtn" class="text-sm font-semibold text-teal-600 hover:underline">Clear all</button>
+        </div>
+
+        <div class="space-y-5 text-sm">
+          <div>
+            <label class="block font-semibold text-navy mb-1.5">Industry</label>
+            <select id="fIndustry" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none">
+              <option value="">All Industries</option>
+              <option>Technology</option><option>Business</option><option>Marketing</option>
+              <option>Finance</option><option>Design</option><option>Human Resources</option><option>Data</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-navy mb-1.5">Country</label>
+            <select id="fCountry" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none">
+              <option value="">All Countries</option>
+              <option>Kenya</option><option>Nigeria</option><option>Uganda</option><option>Ghana</option><option>South Africa</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-navy mb-1.5">Availability</label>
+            <select id="fAvail" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none">
+              <option value="">Anytime</option><option>Available</option><option>Busy</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-navy mb-1.5">Language</label>
+            <select id="fLang" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none">
+              <option value="">All Languages</option><option>English</option><option>Swahili</option><option>French</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-navy mb-1.5">Pricing</label>
+            <select id="fPrice" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none">
+              <option value="">Any</option><option>Free</option><option>Paid</option>
+            </select>
+            <p class="text-xs text-slate-400 mt-1">All mentorship is free during launch.</p>
+          </div>
+          <div>
+            <label class="block font-semibold text-navy mb-1.5">Minimum Experience: <span id="expVal" class="text-teal-600">0</span> yrs</label>
+            <input id="fExp" type="range" min="0" max="20" value="0" class="w-full accent-teal" />
+            <div class="flex justify-between text-xs text-slate-400"><span>0 yrs</span><span>20+ yrs</span></div>
+          </div>
+          <button id="applyBtn" class="w-full py-2.5 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">Apply Filters</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RESULTS -->
+    <section>
+      <div class="flex items-center justify-between mb-5">
+        <p class="text-sm text-slate-500"><span id="resultCount" class="font-semibold text-navy">0</span> mentors found</p>
+        <div id="activeChips" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <div id="mentorGrid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+
+      <!-- empty state -->
+      <div id="emptyState" class="hidden text-center py-20">
+        <div class="w-16 h-16 mx-auto rounded-full bg-slate-100 grid place-items-center mb-4">
+          <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+        <p class="font-semibold text-navy">No mentors match your filters</p>
+        <p class="text-slate-500 text-sm mt-1">Try clearing some filters or searching a different keyword.</p>
+        <button onclick="document.getElementById('clearBtn').click()" class="mt-4 px-5 py-2.5 bg-teal text-white font-semibold rounded-lg hover:bg-teal-600 transition">Clear filters</button>
+      </div>
+
+      <!-- pagination -->
+      <div id="pagination" class="flex items-center justify-center gap-2 mt-10">
+        <button class="w-9 h-9 grid place-items-center rounded-lg border border-slate-200 bg-white text-slate-400">‹</button>
+        <button class="w-9 h-9 grid place-items-center rounded-lg bg-navy text-white font-semibold">1</button>
+        <button class="w-9 h-9 grid place-items-center rounded-lg border border-slate-200 bg-white hover:border-teal">2</button>
+        <button class="w-9 h-9 grid place-items-center rounded-lg border border-slate-200 bg-white hover:border-teal">3</button>
+        <span class="px-1 text-slate-400">…</span>
+        <button class="w-9 h-9 grid place-items-center rounded-lg border border-slate-200 bg-white hover:border-teal">21</button>
+        <button class="w-9 h-9 grid place-items-center rounded-lg border border-slate-200 bg-white hover:border-teal">›</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-navy text-slate-300 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <svg viewBox="0 0 64 64" class="h-8 w-8">
+            <circle cx="32" cy="8" r="6" fill="#3bb8d1"/><circle cx="55" cy="20" r="6" fill="#fff"/>
+            <circle cx="55" cy="44" r="6" fill="#3bb8d1"/><circle cx="32" cy="56" r="6" fill="#fff"/>
+            <circle cx="9" cy="44" r="6" fill="#3bb8d1"/><circle cx="9" cy="20" r="6" fill="#fff"/>
+            <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#fff" font-family="Inter">M</text>
+          </svg>
+          <span class="text-lg font-extrabold text-white">Mentor<span class="text-teal-400">Bay</span></span>
+        </div>
+        <p class="text-sm text-slate-400 max-w-xs">Connecting ambitious African learners with exceptional mentors.</p>
+      </div>
+      <div><h4 class="text-white font-semibold mb-3">Platform</h4><ul class="space-y-2 text-sm"><li><a href="mentors.html" class="hover:text-teal-400">Browse Mentors</a></li><li><a href="programs.html" class="hover:text-teal-400">Programs</a></li><li><a href="events.html" class="hover:text-teal-400">Events</a></li></ul></div>
+      <div><h4 class="text-white font-semibold mb-3">For Mentors</h4><ul class="space-y-2 text-sm"><li><a href="become-a-mentor.html" class="hover:text-teal-400">Become a Mentor</a></li><li><a href="#" class="hover:text-teal-400">Resources</a></li></ul></div>
+      <div><h4 class="text-white font-semibold mb-3">Support</h4><ul class="space-y-2 text-sm"><li><a href="#" class="hover:text-teal-400">Help Center</a></li><li><a href="#" class="hover:text-teal-400">Contact Us</a></li></ul></div>
+    </div>
+    <div class="border-t border-white/10 py-5 text-center text-sm text-slate-400">© 2026 MentorBay. All rights reserved. Made in Nairobi, Kenya.</div>
+  </footer>
+
+  <!-- ================= SCRIPT ================= -->
+  <script>
+    document.getElementById('menuBtn').addEventListener('click', () => document.getElementById('mobileMenu').classList.toggle('hidden'));
+    document.getElementById('filterToggle').addEventListener('click', () => document.getElementById('filterPanel').classList.toggle('hidden'));
+
+    const IMG = 'https://www.town.com/api/content/image/';
+    // Mentor data — replaced by Supabase queries in production
+    const MENTORS = [
+      { name:'Jane Wanjiku', role:'Career & Leadership Coach', industry:'Business', country:'Kenya', city:'Nairobi', avail:'Available', langs:['English','Swahili'], exp:12, rating:4.9, reviews:120, mentees:124, skills:['Leadership','Career Growth','Personal Branding'], img:'sd7erhqwt022qcj3zh7r9nt7a188tncb' },
+      { name:'John Kamau', role:'Tech Entrepreneur', industry:'Technology', country:'Kenya', city:'Nairobi', avail:'Available', langs:['English','Swahili'], exp:10, rating:4.8, reviews:98, mentees:98, skills:['Startups','Product Strategy','Fundraising'], img:'sd7fd2ygetvv1t14epgbhnf31s88vgsk' },
+      { name:'Sarah Mwangi', role:'Business Strategist', industry:'Business', country:'Nigeria', city:'Lagos', avail:'Busy', langs:['English'], exp:15, rating:4.9, reviews:150, mentees:150, skills:['Business Strategy','Marketing','Sales'], img:'sd79aj8r0vdw5tawj8zpnn76dn88tdme' },
+      { name:'David Ochieng', role:'Digital Marketing Expert', industry:'Marketing', country:'Kenya', city:'Nairobi', avail:'Available', langs:['English','Swahili'], exp:8, rating:4.7, reviews:86, mentees:86, skills:['Digital Marketing','SEO','Growth Hacking'], img:'sd75vfdt7nphcmkepenfdabf9188vzec' },
+      { name:'Mary Achieng', role:'HR & People Coach', industry:'Human Resources', country:'Kenya', city:'Nairobi', avail:'Busy', langs:['English','Swahili'], exp:11, rating:4.9, reviews:110, mentees:110, skills:['HR Strategy','Talent Management','Coaching'], img:'sd723egrf1asak9t0sd16pdyf188vn53' },
+      { name:'Samuel Njoroge', role:'Product Manager', industry:'Technology', country:'Kenya', city:'Mombasa', avail:'Available', langs:['English'], exp:9, rating:4.8, reviews:74, mentees:74, skills:['Product Management','Agile','UX Strategy'], img:'sd71p21y9dxds7tvxmv5hnq1g988v9nv' },
+      { name:'Lillian Anyango', role:'Data Scientist', industry:'Data', country:'Kenya', city:'Kisumu', avail:'Available', langs:['English','Swahili'], exp:7, rating:4.9, reviews:130, mentees:130, skills:['Data Science','AI/ML','Analytics'], img:'sd728rcfrx0j7wrnhaa2zh0ya188vf7q' },
+      { name:'Brian Otieno', role:'Engineering Lead', industry:'Technology', country:'Kenya', city:'Nairobi', avail:'Available', langs:['English'], exp:10, rating:4.8, reviews:95, mentees:95, skills:['Software Engineering','Cloud','System Design'], img:'sd79gt2ajkr4serddsw8cebepn88v870' },
+      { name:'Grace Wairimu', role:'Finance & Investment Advisor', industry:'Finance', country:'Kenya', city:'Nakuru', avail:'Available', langs:['English','Swahili'], exp:9, rating:4.7, reviews:68, mentees:68, skills:['Finance','Investing','Wealth Management'], img:'sd73mtg2fv8ezekjw91j55w0xs88tmdj' },
+      { name:'Kevin Mwangi', role:'UX & Design Lead', industry:'Design', country:'Kenya', city:'Nairobi', avail:'Busy', langs:['English'], exp:6, rating:4.9, reviews:88, mentees:88, skills:['UX Design','Product Design','Branding'], img:'sd75by8ns0j4qabn92ryzmvjp988v394' },
+      { name:'Aisha Hassan', role:'Software Engineer', industry:'Technology', country:'Kenya', city:'Mombasa', avail:'Available', langs:['English','Swahili'], exp:5, rating:4.8, reviews:54, mentees:54, skills:['Web Development','JavaScript','React'], img:'sd76649zdx97w9ve28wfndra6d88vdek' },
+      { name:'Daniel Kiprop', role:'Financial Advisor', industry:'Finance', country:'Kenya', city:'Eldoret', avail:'Available', langs:['English','Swahili'], exp:14, rating:4.8, reviews:95, mentees:95, skills:['Financial Planning','Investing','Budgeting'], img:'sd7cb0223na4m9xntwvezwxyz588veqn' },
+    ];
+
+    const grid = document.getElementById('mentorGrid');
+    const empty = document.getElementById('emptyState');
+    const countEl = document.getElementById('resultCount');
+    const $ = id => document.getElementById(id);
+
+    function cardHTML(m){
+      const badge = m.avail === 'Available'
+        ? '<span class="absolute top-3 left-3 text-xs font-semibold bg-teal-50 text-teal-600 px-2.5 py-1 rounded-full">● Available</span>'
+        : '<span class="absolute top-3 left-3 text-xs font-semibold bg-amber-50 text-amber-600 px-2.5 py-1 rounded-full">● Busy</span>';
+      return `
+      <div class="bg-white rounded-2xl shadow-card overflow-hidden hover:-translate-y-1 transition">
+        <div class="relative">
+          <img src="${IMG}${m.img}" alt="${m.name}" class="w-full h-44 object-cover object-center">
+          ${badge}
+          <button class="absolute top-3 right-3 w-8 h-8 grid place-items-center rounded-lg bg-white/90 text-slate-500 hover:text-teal" aria-label="Save">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          </button>
+        </div>
+        <div class="p-5">
+          <h3 class="font-bold text-navy">${m.name}</h3>
+          <p class="text-sm text-slate-500">${m.role}</p>
+          <div class="flex flex-wrap gap-1.5 mt-3">
+            ${m.skills.slice(0,3).map(s=>`<span class="text-xs font-medium text-teal-600 bg-teal-50 px-2 py-0.5 rounded">${s}</span>`).join('')}
+          </div>
+          <div class="flex items-center gap-3 mt-4 text-sm text-slate-600">
+            <span class="flex items-center gap-1"><span class="text-amber-400">★</span> <span class="font-semibold text-navy">${m.rating}</span> <span class="text-slate-400">(${m.reviews})</span></span>
+            <span class="text-slate-300">|</span>
+            <span>${m.mentees} mentees</span>
+          </div>
+          <div class="flex items-center justify-between mt-3 text-xs text-slate-400">
+            <span>${m.exp}+ yrs · ${m.city}, ${m.country}</span>
+            <span class="font-semibold text-teal-600">Free</span>
+          </div>
+          <a href="mentor-profile.html" class="block text-center mt-4 py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">View Profile</a>
+        </div>
+      </div>`;
+    }
+
+    function activeChips(f){
+      const chips = [];
+      if (f.q) chips.push('"'+f.q+'"');
+      ['industry','country','avail','lang','price'].forEach(k => { if (f[k]) chips.push(f[k]); });
+      if (f.exp > 0) chips.push(f.exp+'+ yrs');
+      document.getElementById('activeChips').innerHTML = chips.map(c=>`<span class="text-xs font-medium bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">${c}</span>`).join('');
+    }
+
+    function apply(){
+      const f = {
+        q: $('searchInput').value.trim().toLowerCase(),
+        industry: $('fIndustry').value, country: $('fCountry').value,
+        avail: $('fAvail').value, lang: $('fLang').value, price: $('fPrice').value,
+        exp: +$('fExp').value, sort: $('sortSelect').value,
+      };
+      $('expVal').textContent = f.exp;
+
+      let list = MENTORS.filter(m => {
+        if (f.q && !(m.name+' '+m.role+' '+m.skills.join(' ')).toLowerCase().includes(f.q)) return false;
+        if (f.industry && m.industry !== f.industry) return false;
+        if (f.country && m.country !== f.country) return false;
+        if (f.avail && m.avail !== f.avail) return false;
+        if (f.lang && !m.langs.includes(f.lang)) return false;
+        if (f.price === 'Paid') return false; // all free during launch
+        if (m.exp < f.exp) return false;
+        return true;
+      });
+
+      if (f.sort === 'rating') list.sort((a,b)=>b.rating-a.rating);
+      else if (f.sort === 'experience') list.sort((a,b)=>b.exp-a.exp);
+      else list.sort((a,b)=>b.mentees-a.mentees);
+
+      countEl.textContent = list.length;
+      grid.innerHTML = list.map(cardHTML).join('');
+      empty.classList.toggle('hidden', list.length !== 0);
+      grid.classList.toggle('hidden', list.length === 0);
+      activeChips(f);
+    }
+
+    ['searchInput','fIndustry','fCountry','fAvail','fLang','fPrice','fExp','sortSelect'].forEach(id => {
+      const el = $(id);
+      el.addEventListener('input', apply);
+      el.addEventListener('change', apply);
+    });
+    $('applyBtn').addEventListener('click', () => { apply(); document.getElementById('filterPanel').classList.add('lg:block'); });
+    $('clearBtn').addEventListener('click', () => {
+      ['searchInput','fIndustry','fCountry','fAvail','fLang','fPrice'].forEach(id=>$(id).value='');
+      $('fExp').value = 0; $('sortSelect').value = 'popular';
+      apply();
+    });
+
+    apply(); // initial render
+  </script>
+</body>
+</html>

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MentorBay — Connect. Grow. Succeed.</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48' font-weight='bold' fill='%230B2A4A'%3EM%3C/text%3E%3C/svg%3E" />
+
+  <!-- Tailwind CSS (CDN for design phase; in production we use the Tailwind that ships with Next.js) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    // MentorBay brand design tokens — these become tailwind.config.ts in the Next.js build
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy:   { DEFAULT: '#0B2A4A', 700: '#103a63', 600: '#16487a', 50: '#eef3f9' },
+            teal:   { DEFAULT: '#1FA2BE', 600: '#178098', 400: '#3bb8d1', 50: '#e9f7fa' },
+          },
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
+          boxShadow: { card: '0 4px 20px -6px rgba(11,42,74,0.12)' },
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .hero-gradient { background: linear-gradient(135deg, #eef3f9 0%, #e9f7fa 100%); }
+    .cta-gradient  { background: linear-gradient(120deg, #0B2A4A 0%, #16487a 60%, #178098 100%); }
+  </style>
+</head>
+<body class="font-sans text-slate-700 bg-white antialiased">
+
+  <!-- ================= HEADER ================= -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Logo -->
+        <a href="index.html" class="flex items-center gap-2 shrink-0">
+          <svg viewBox="0 0 64 64" class="h-9 w-9">
+            <circle cx="32" cy="8"  r="6" fill="#1FA2BE"/>
+            <circle cx="55" cy="20" r="6" fill="#0B2A4A"/>
+            <circle cx="55" cy="44" r="6" fill="#1FA2BE"/>
+            <circle cx="32" cy="56" r="6" fill="#0B2A4A"/>
+            <circle cx="9"  cy="44" r="6" fill="#1FA2BE"/>
+            <circle cx="9"  cy="20" r="6" fill="#0B2A4A"/>
+            <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#0B2A4A" font-family="Inter">M</text>
+          </svg>
+          <span class="text-xl font-extrabold text-navy">Mentor<span class="text-teal">Bay</span></span>
+        </a>
+
+        <!-- Desktop nav -->
+        <nav class="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-600">
+          <a href="mentors.html" class="hover:text-teal transition">Mentors</a>
+          <a href="programs.html" class="hover:text-teal transition">Programs</a>
+          <a href="events.html" class="hover:text-teal transition">Events</a>
+          <a href="success-stories.html" class="hover:text-teal transition">Success Stories</a>
+          <a href="resources.html" class="hover:text-teal transition">Resources</a>
+        </nav>
+
+        <!-- Actions -->
+        <div class="hidden lg:flex items-center gap-3">
+          <button class="p-2 text-slate-500 hover:text-teal transition" aria-label="Search">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          </button>
+          <a href="login.html" class="px-4 py-2 text-sm font-semibold text-navy border border-slate-200 rounded-lg hover:border-teal hover:text-teal transition">Login</a>
+          <a href="signup.html" class="px-4 py-2 text-sm font-semibold text-white bg-navy rounded-lg hover:bg-navy-700 transition">Join Now</a>
+        </div>
+
+        <!-- Mobile toggle -->
+        <button id="menuBtn" class="lg:hidden p-2 text-navy" aria-label="Menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="hidden lg:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-1">
+      <a href="mentors.html" class="block py-2 text-slate-700 font-medium">Mentors</a>
+      <a href="programs.html" class="block py-2 text-slate-700 font-medium">Programs</a>
+      <a href="events.html" class="block py-2 text-slate-700 font-medium">Events</a>
+      <a href="success-stories.html" class="block py-2 text-slate-700 font-medium">Success Stories</a>
+      <a href="resources.html" class="block py-2 text-slate-700 font-medium">Resources</a>
+      <div class="flex gap-3 pt-3">
+        <a href="login.html" class="flex-1 text-center px-4 py-2 text-sm font-semibold text-navy border border-slate-200 rounded-lg">Login</a>
+        <a href="signup.html" class="flex-1 text-center px-4 py-2 text-sm font-semibold text-white bg-navy rounded-lg">Join Now</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <section class="hero-gradient">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 grid lg:grid-cols-2 gap-12 items-center">
+      <div>
+        <span class="inline-flex items-center gap-2 text-teal-600 font-semibold text-sm mb-4">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Learn. Connect. Grow.
+        </span>
+        <h1 class="text-4xl lg:text-5xl font-extrabold text-navy leading-tight">
+          Find the Right Mentor to <span class="text-teal">Accelerate Your Growth</span>
+        </h1>
+        <p class="mt-5 text-lg text-slate-600 max-w-lg">
+          Connect with experienced mentors across Kenya and Africa, join life-changing programs, and attend exclusive events that transform careers.
+        </p>
+
+        <!-- Search -->
+        <form class="mt-8 flex flex-col sm:flex-row gap-3 max-w-lg" onsubmit="return false;">
+          <div class="relative flex-1">
+            <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" placeholder="Search mentors, programs or topics..." class="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal focus:border-teal outline-none" />
+          </div>
+          <button class="px-6 py-3 bg-teal text-white font-semibold rounded-lg hover:bg-teal-600 transition">Search</button>
+        </form>
+
+        <div class="mt-5 flex flex-wrap gap-3">
+          <a href="mentors.html" class="px-6 py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">Browse Mentors</a>
+          <a href="become-a-mentor.html" class="px-6 py-3 bg-white text-navy font-semibold rounded-lg border border-slate-200 hover:border-teal transition">Become a Mentor</a>
+        </div>
+      </div>
+
+      <!-- Hero visual -->
+      <div class="relative">
+        <div class="rounded-2xl overflow-hidden shadow-card bg-white">
+          <img src="https://www.town.com/api/content/image/sd72apqakrkwgzn4m445fmh1g588v0mg"
+               alt="African mentor and mentee in Nairobi" class="w-full h-80 object-cover"
+               onerror="this.parentElement.classList.add('cta-gradient');this.style.display='none';" />
+        </div>
+        <!-- floating badges -->
+        <div class="absolute -top-4 -left-4 bg-white rounded-xl shadow-card px-4 py-3 flex items-center gap-3">
+          <span class="w-9 h-9 rounded-lg bg-teal-50 text-teal grid place-items-center"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg></span>
+          <div><p class="text-sm font-bold text-navy">Expert Guidance</p><p class="text-xs text-slate-500">Learn from industry leaders</p></div>
+        </div>
+        <div class="absolute -bottom-4 -right-4 bg-white rounded-xl shadow-card px-4 py-3 flex items-center gap-3">
+          <span class="w-9 h-9 rounded-lg bg-navy-50 text-navy grid place-items-center"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span>
+          <div><p class="text-sm font-bold text-navy">Track Progress</p><p class="text-xs text-slate-500">Achieve your goals</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= STATS ================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
+    <div class="bg-white rounded-2xl shadow-card grid grid-cols-2 md:grid-cols-5 divide-x divide-slate-100">
+      <div class="p-6 text-center"><p class="text-2xl font-extrabold text-navy">2,500+</p><p class="text-sm text-slate-500">Mentors</p></div>
+      <div class="p-6 text-center"><p class="text-2xl font-extrabold text-navy">12,000+</p><p class="text-sm text-slate-500">Mentees</p></div>
+      <div class="p-6 text-center"><p class="text-2xl font-extrabold text-navy">150+</p><p class="text-sm text-slate-500">Programs</p></div>
+      <div class="p-6 text-center"><p class="text-2xl font-extrabold text-navy">300+</p><p class="text-sm text-slate-500">Events</p></div>
+      <div class="p-6 text-center col-span-2 md:col-span-1"><p class="text-2xl font-extrabold text-navy">50+</p><p class="text-sm text-slate-500">Counties & Countries</p></div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURED MENTORS ================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="flex items-end justify-between mb-8">
+      <div>
+        <h2 class="text-2xl lg:text-3xl font-extrabold text-navy">Featured Mentors</h2>
+        <p class="text-slate-500 mt-1">Connect with verified mentors and experts across Africa.</p>
+      </div>
+      <a href="mentors.html" class="text-teal-600 font-semibold text-sm hover:underline whitespace-nowrap">View all mentors →</a>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6" id="mentorGrid"></div>
+  </section>
+
+  <!-- ================= EVENTS + PROGRAMS ================= -->
+  <section class="bg-slate-50 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12">
+
+      <!-- Upcoming Events -->
+      <div>
+        <div class="flex items-end justify-between mb-6">
+          <h2 class="text-2xl font-extrabold text-navy">Upcoming Events</h2>
+          <a href="events.html" class="text-teal-600 font-semibold text-sm hover:underline">View all events →</a>
+        </div>
+        <div class="space-y-4" id="eventList"></div>
+      </div>
+
+      <!-- Popular Programs -->
+      <div>
+        <div class="flex items-end justify-between mb-6">
+          <h2 class="text-2xl font-extrabold text-navy">Popular Programs</h2>
+          <a href="programs.html" class="text-teal-600 font-semibold text-sm hover:underline">View all programs →</a>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-5" id="programGrid"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SUCCESS STORIES ================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      <h2 class="text-2xl lg:text-3xl font-extrabold text-navy">Success Stories</h2>
+      <p class="text-slate-500 mt-2">Real people, real growth. See how MentorBay transformed careers across Kenya.</p>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6" id="storyGrid"></div>
+  </section>
+
+  <!-- ================= CTA BAND ================= -->
+  <section class="cta-gradient">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 grid md:grid-cols-2 gap-8">
+      <div class="bg-white/10 rounded-2xl p-8 backdrop-blur">
+        <h3 class="text-2xl font-extrabold text-white">Join as a Mentee</h3>
+        <p class="text-teal-50/90 mt-2">Find a mentor, set goals, and track your growth.</p>
+        <a href="signup.html" class="inline-block mt-5 px-6 py-3 bg-white text-navy font-semibold rounded-lg hover:bg-slate-100 transition">Get Started Free</a>
+      </div>
+      <div class="bg-white/10 rounded-2xl p-8 backdrop-blur">
+        <h3 class="text-2xl font-extrabold text-white">Become a Mentor</h3>
+        <p class="text-teal-50/90 mt-2">Share your expertise, build programs, grow your impact.</p>
+        <a href="become-a-mentor.html" class="inline-block mt-5 px-6 py-3 bg-teal text-white font-semibold rounded-lg hover:bg-teal-600 transition">Apply to Mentor</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-navy text-slate-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 grid md:grid-cols-2 lg:grid-cols-5 gap-8">
+      <div class="lg:col-span-2">
+        <div class="flex items-center gap-2 mb-4">
+          <svg viewBox="0 0 64 64" class="h-9 w-9">
+            <circle cx="32" cy="8" r="6" fill="#3bb8d1"/><circle cx="55" cy="20" r="6" fill="#fff"/>
+            <circle cx="55" cy="44" r="6" fill="#3bb8d1"/><circle cx="32" cy="56" r="6" fill="#fff"/>
+            <circle cx="9" cy="44" r="6" fill="#3bb8d1"/><circle cx="9" cy="20" r="6" fill="#fff"/>
+            <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#fff" font-family="Inter">M</text>
+          </svg>
+          <span class="text-xl font-extrabold text-white">Mentor<span class="text-teal-400">Bay</span></span>
+        </div>
+        <p class="text-sm text-slate-400 max-w-xs">Connecting ambitious African learners with exceptional mentors to build a better future.</p>
+        <p class="text-sm font-semibold text-teal-400 mt-3">Connect · Grow · Succeed</p>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-3">Platform</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="mentors.html" class="hover:text-teal-400">Browse Mentors</a></li>
+          <li><a href="programs.html" class="hover:text-teal-400">Programs</a></li>
+          <li><a href="events.html" class="hover:text-teal-400">Events</a></li>
+          <li><a href="success-stories.html" class="hover:text-teal-400">Success Stories</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-3">For Mentors</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="become-a-mentor.html" class="hover:text-teal-400">Become a Mentor</a></li>
+          <li><a href="#" class="hover:text-teal-400">Mentor Resources</a></li>
+          <li><a href="#" class="hover:text-teal-400">Mentor Dashboard</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-3">Support</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#" class="hover:text-teal-400">Help Center</a></li>
+          <li><a href="#" class="hover:text-teal-400">Contact Us</a></li>
+          <li><a href="#" class="hover:text-teal-400">Terms of Service</a></li>
+          <li><a href="#" class="hover:text-teal-400">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-white/10 py-5 text-center text-sm text-slate-400">© 2026 MentorBay. All rights reserved. Made in Nairobi, Kenya.</div>
+  </footer>
+
+  <!-- ================= SCRIPTS ================= -->
+  <script>
+    // Mobile menu toggle
+    document.getElementById('menuBtn').addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    });
+
+    // ---- MentorBay African image library (hosted in your Content Library) ----
+    // In production these URLs are replaced by image fields coming from Supabase.
+    const IMG = 'https://www.town.com/api/content/image/';
+    const PORTRAITS = {
+      careerCoach:  IMG + 'sd7erhqwt022qcj3zh7r9nt7a188tncb',
+      techFounder:  IMG + 'sd7fd2ygetvv1t14epgbhnf31s88vgsk',
+      strategist:   IMG + 'sd79aj8r0vdw5tawj8zpnn76dn88tdme',
+      marketer:     IMG + 'sd75vfdt7nphcmkepenfdabf9188vzec',
+      engineer:     IMG + 'sd76649zdx97w9ve28wfndra6d88vdek',
+      financeMan:   IMG + 'sd7cb0223na4m9xntwvezwxyz588veqn',
+    };
+    const SCENE_WORKSHOP   = IMG + 'sd7cw7fxc5jdak3bhrek7g334188tm52';
+    const SCENE_CONFERENCE = IMG + 'sd7fbrdmwf1ba8zryhj7mxhy6188vaw2';
+
+    // ---- Demo data (this will come from Supabase later) ----
+    const mentors = [
+      { name:'Jane Wanjiku', role:'Career & Leadership Coach', tag:'Leadership', rating:'4.9', reviews:120, exp:'12+', img:PORTRAITS.careerCoach },
+      { name:'John Kamau', role:'Tech Entrepreneur', tag:'Technology', rating:'4.8', reviews:98, exp:'10+', img:PORTRAITS.techFounder },
+      { name:'Sarah Mwangi', role:'Business Strategist', tag:'Entrepreneurship', rating:'4.9', reviews:150, exp:'15+', img:PORTRAITS.strategist },
+      { name:'David Ochieng', role:'Marketing Expert', tag:'Marketing', rating:'4.7', reviews:86, exp:'8+', img:PORTRAITS.marketer },
+    ];
+    document.getElementById('mentorGrid').innerHTML = mentors.map(m => `
+      <a href="mentor-profile.html" class="bg-white rounded-2xl shadow-card p-5 hover:-translate-y-1 transition block">
+        <div class="flex items-center gap-3">
+          <img src="${m.img}" class="w-14 h-14 rounded-full object-cover" alt="${m.name}">
+          <div><p class="font-bold text-navy">${m.name}</p><p class="text-xs text-slate-500">${m.role}</p></div>
+        </div>
+        <div class="flex items-center gap-1 mt-4 text-sm">
+          <span class="text-amber-400">★</span><span class="font-semibold text-navy">${m.rating}</span>
+          <span class="text-slate-400">(${m.reviews})</span>
+        </div>
+        <span class="inline-block mt-3 text-xs font-medium text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full">${m.tag}</span>
+        <p class="text-xs text-slate-400 mt-3">${m.exp} Years Experience · Nairobi, Kenya</p>
+      </a>`).join('');
+
+    const events = [
+      { title:'Future of Work Conference', date:'Jun 25, 2026', time:'9:00 AM', loc:'Nairobi, Kenya', going:'120+', img:SCENE_CONFERENCE },
+      { title:'Women in Tech Summit', date:'Jul 10, 2026', time:'9:00 AM', loc:'Online', going:'80+', img:SCENE_CONFERENCE },
+      { title:'Startup Growth Masterclass', date:'Jul 30, 2026', time:'2:00 PM', loc:'Mombasa, Kenya', going:'60+', img:SCENE_WORKSHOP },
+    ];
+    document.getElementById('eventList').innerHTML = events.map(e => `
+      <a href="event-detail.html" class="bg-white rounded-xl shadow-card p-4 flex items-center gap-4 hover:shadow-lg transition">
+        <img src="${e.img}" class="w-16 h-16 rounded-lg object-cover" alt="">
+        <div class="flex-1">
+          <p class="font-bold text-navy">${e.title}</p>
+          <p class="text-xs text-slate-500 mt-1">📅 ${e.date} · 🕘 ${e.time} · 📍 ${e.loc}</p>
+        </div>
+        <span class="text-xs font-semibold text-teal-600 whitespace-nowrap">${e.going} Attending</span>
+      </a>`).join('');
+
+    const programs = [
+      { title:'Leadership Mastery Program', weeks:'8 Weeks', level:'Beginner', badge:'Bestseller', img:SCENE_WORKSHOP },
+      { title:'Career Accelerator Bootcamp', weeks:'6 Weeks', level:'Intermediate', badge:'Popular', img:SCENE_CONFERENCE },
+      { title:'Entrepreneurship Blueprint', weeks:'10 Weeks', level:'All Levels', badge:'New', img:SCENE_WORKSHOP },
+      { title:'Data Science Mentorship', weeks:'8 Weeks', level:'Intermediate', badge:'', img:SCENE_CONFERENCE },
+    ];
+    document.getElementById('programGrid').innerHTML = programs.map(p => `
+      <a href="program-detail.html" class="bg-white rounded-xl shadow-card overflow-hidden hover:shadow-lg transition block">
+        <div class="relative">
+          <img src="${p.img}" class="w-full h-28 object-cover" alt="">
+          ${p.badge ? `<span class="absolute top-2 left-2 text-xs font-semibold bg-teal text-white px-2 py-0.5 rounded">${p.badge}</span>` : ''}
+        </div>
+        <div class="p-4">
+          <p class="font-bold text-navy text-sm leading-snug">${p.title}</p>
+          <p class="text-xs text-slate-500 mt-2">${p.weeks} · ${p.level}</p>
+          <div class="flex items-center justify-between mt-3">
+            <span class="text-xs font-semibold text-teal-600 bg-teal-50 px-2 py-0.5 rounded">Free</span>
+            <span class="text-xs font-semibold text-navy hover:underline">Enroll →</span>
+          </div>
+        </div>
+      </a>`).join('');
+
+    const stories = [
+      { name:'Esther W.', role:'Product Designer, Nairobi', quote:'My mentor helped me gain clarity and confidence. The guidance was exactly what I needed.', img:PORTRAITS.engineer },
+      { name:'Collins M.', role:'Software Engineer, Kisumu', quote:'Through the program I improved my CV, got multiple interviews, and landed my dream job!', img:PORTRAITS.financeMan },
+      { name:'Faith K.', role:'Team Lead, Mombasa', quote:'The leadership sessions were practical and life-changing. Highly recommend MentorBay.', img:PORTRAITS.strategist },
+    ];
+    document.getElementById('storyGrid').innerHTML = stories.map(s => `
+      <div class="bg-white rounded-2xl shadow-card p-6 border border-slate-50">
+        <div class="text-amber-400 text-sm mb-3">★★★★★</div>
+        <p class="text-slate-600 text-sm leading-relaxed">"${s.quote}"</p>
+        <div class="flex items-center gap-3 mt-5">
+          <img src="${s.img}" class="w-10 h-10 rounded-full object-cover" alt="${s.name}">
+          <div><p class="font-bold text-navy text-sm">${s.name}</p><p class="text-xs text-slate-500">${s.role}</p></div>
+        </div>
+      </div>`).join('');
+  </script>
+</body>
+</html>
