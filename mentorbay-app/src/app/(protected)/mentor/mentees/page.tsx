@@ -1,37 +1,29 @@
-import { MENTEES } from "@/lib/mentor-demo";
+import { getAcceptedMentees } from "@/lib/applications";
 
-export default function MentorMenteesPage() {
+export default async function MentorMenteesPage() {
+  const mentees = await getAcceptedMentees();
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-extrabold text-navy">My Mentees</h1>
-        <span className="text-sm text-slate-500">{MENTEES.length} active</span>
+        <span className="text-sm text-slate-500">{mentees.length} active</span>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-card overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-slate-500 text-left">
-            <tr><th className="px-5 py-3 font-semibold">Mentee</th><th className="px-5 py-3 font-semibold hidden sm:table-cell">Program</th><th className="px-5 py-3 font-semibold">Progress</th><th className="px-5 py-3 font-semibold">Status</th></tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {MENTEES.map((m) => (
-              <tr key={m.name}>
-                <td className="px-5 py-4">
-                  <div className="flex items-center gap-3">
-                    <span className="w-9 h-9 rounded-full bg-teal-50 text-teal-700 grid place-items-center font-bold">{m.name[0]}</span>
-                    <div><p className="font-semibold text-navy">{m.name}</p><p className="text-xs text-slate-400">{m.goal}</p></div>
-                  </div>
-                </td>
-                <td className="px-5 py-4 text-slate-600 hidden sm:table-cell">{m.program}</td>
-                <td className="px-5 py-4">
-                  <div className="flex items-center gap-2"><div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-teal" style={{ width: `${m.pct}%` }} /></div><span className="text-xs text-slate-500">{m.pct}%</span></div>
-                </td>
-                <td className="px-5 py-4"><span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${m.status === "New" ? "bg-amber-50 text-amber-600" : "bg-teal-50 text-teal-700"}`}>{m.status}</span></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {mentees.length === 0 ? (
+        <div className="bg-white rounded-2xl shadow-card p-10 text-center text-slate-500">
+          You don&apos;t have any mentees yet. Accepted applications will appear here.
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl shadow-card divide-y divide-slate-100">
+          {mentees.map((m) => (
+            <div key={m.id} className="flex items-center gap-4 p-4">
+              <span className="w-10 h-10 rounded-full bg-teal-50 text-teal-700 grid place-items-center font-bold">{m.name[0]}</span>
+              <div className="flex-1 min-w-0"><p className="font-semibold text-navy">{m.name}</p><p className="text-xs text-slate-400 truncate">{m.note}</p></div>
+              <button className="text-sm font-semibold text-teal-600 hover:underline">Message</button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
