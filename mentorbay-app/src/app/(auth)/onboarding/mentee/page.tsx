@@ -30,7 +30,7 @@ export default function MenteeOnboarding() {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (user) await supabase.from("profiles").update({ onboarded: true }).eq("id", user.id);
-    router.push("/account");
+    router.push("/mentee");
     router.refresh();
   }
 

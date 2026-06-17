@@ -43,7 +43,7 @@ export default function MentorOnboarding() {
             </div>
             <h1 className="text-2xl font-extrabold text-navy">Application submitted!</h1>
             <p className="text-slate-500 mt-2 max-w-md mx-auto">Thanks for applying to mentor on MentorBay. Our team reviews applications within 48 hours - we&apos;ll email you once your profile is approved and live.</p>
-            <Link href="/account" className="inline-block mt-6 px-7 py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">Go to my account</Link>
+            <Link href="/mentor" className="inline-block mt-6 px-7 py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">Go to my dashboard</Link>
           </div>
         ) : (
           <form onSubmit={submit} className="space-y-6">

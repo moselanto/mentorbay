@@ -24,7 +24,13 @@ export default function LoginPage() {
       setLoading(false);
       return;
     }
-    router.push("/account");
+    const { data: { user } } = await supabase.auth.getUser();
+    let dest = "/account";
+    if (user) {
+      const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+      if (profile?.role) dest = `/${profile.role}`;
+    }
+    router.push(dest);
     router.refresh();
   }
 
