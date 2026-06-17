@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Future of Work Conference 2026 — MentorBay</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48' font-weight='bold' fill='%230B2A4A'%3EM%3C/text%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        navy: { DEFAULT:'#0B2A4A', 700:'#103a63', 600:'#16487a', 50:'#eef3f9' },
+        teal: { DEFAULT:'#1FA2BE', 600:'#178098', 400:'#3bb8d1', 50:'#e9f7fa' },
+      },
+      fontFamily: { sans:['Inter','ui-sans-serif','system-ui'] },
+      boxShadow: { card:'0 4px 20px -6px rgba(11,42,74,0.12)' },
+    }}}
+  </script>
+  <style>html{scroll-behavior:smooth}.cta-gradient{background:linear-gradient(120deg,#0B2A4A 0%,#16487a 60%,#178098 100%)}</style>
+</head>
+<body class="font-sans text-slate-700 bg-slate-50 antialiased">
+
+  <!-- ================= HEADER ================= -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="index.html" class="flex items-center gap-2 shrink-0">
+          <svg viewBox="0 0 64 64" class="h-9 w-9">
+            <circle cx="32" cy="8" r="6" fill="#1FA2BE"/><circle cx="55" cy="20" r="6" fill="#0B2A4A"/>
+            <circle cx="55" cy="44" r="6" fill="#1FA2BE"/><circle cx="32" cy="56" r="6" fill="#0B2A4A"/>
+            <circle cx="9" cy="44" r="6" fill="#1FA2BE"/><circle cx="9" cy="20" r="6" fill="#0B2A4A"/>
+            <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#0B2A4A" font-family="Inter">M</text>
+          </svg>
+          <span class="text-xl font-extrabold text-navy">Mentor<span class="text-teal">Bay</span></span>
+        </a>
+        <nav class="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-600">
+          <a href="mentors.html" class="hover:text-teal transition">Mentors</a>
+          <a href="programs.html" class="hover:text-teal transition">Programs</a>
+          <a href="events.html" class="text-teal font-semibold">Events</a>
+          <a href="success-stories.html" class="hover:text-teal transition">Success Stories</a>
+          <a href="resources.html" class="hover:text-teal transition">Resources</a>
+        </nav>
+        <div class="hidden lg:flex items-center gap-3">
+          <a href="login.html" class="px-4 py-2 text-sm font-semibold text-navy border border-slate-200 rounded-lg hover:border-teal hover:text-teal transition">Login</a>
+          <a href="signup.html" class="px-4 py-2 text-sm font-semibold text-white bg-navy rounded-lg hover:bg-navy-700 transition">Join Now</a>
+        </div>
+        <button id="menuBtn" class="lg:hidden p-2 text-navy" aria-label="Menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="mobileMenu" class="hidden lg:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-1">
+      <a href="mentors.html" class="block py-2 text-slate-700 font-medium">Mentors</a>
+      <a href="programs.html" class="block py-2 text-slate-700 font-medium">Programs</a>
+      <a href="events.html" class="block py-2 text-teal font-semibold">Events</a>
+      <a href="success-stories.html" class="block py-2 text-slate-700 font-medium">Success Stories</a>
+      <a href="resources.html" class="block py-2 text-slate-700 font-medium">Resources</a>
+    </div>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <section class="cta-gradient">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-white">
+      <nav class="text-sm text-teal-50/80 mb-4"><a href="index.html" class="hover:text-white">Home</a> <span class="mx-1">›</span> <a href="events.html" class="hover:text-white">Events</a> <span class="mx-1">›</span> <span class="text-white font-medium">Future of Work Conference 2026</span></nav>
+      <div class="flex flex-wrap gap-2 mb-3">
+        <span class="text-xs font-semibold bg-white/15 px-2.5 py-1 rounded-full">Business</span>
+        <span class="text-xs font-semibold bg-navy px-2.5 py-1 rounded-full">In-person</span>
+        <span class="text-xs font-semibold bg-teal px-2.5 py-1 rounded-full">Featured</span>
+      </div>
+      <h1 class="text-3xl lg:text-4xl font-extrabold leading-tight max-w-3xl">Future of Work Conference 2026</h1>
+      <div class="flex flex-wrap items-center gap-x-6 gap-y-2 mt-4 text-sm text-teal-50/90">
+        <span>📅 Thursday, 25 June 2026</span>
+        <span>🕘 9:00 AM - 4:30 PM EAT</span>
+        <span>📍 Sarit Centre, Nairobi</span>
+        <span>👥 120+ attending</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BODY ================= -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid lg:grid-cols-3 gap-8 items-start">
+
+    <!-- MAIN -->
+    <div class="lg:col-span-2 space-y-6">
+      <img src="images/sd7fbrdmwf1ba8zryhj7mxhy6188vaw2.jpg" class="w-full h-64 object-cover rounded-2xl shadow-card" alt="Future of Work Conference">
+
+      <div class="bg-white rounded-2xl shadow-card p-6 sm:p-8">
+        <h2 class="text-xl font-bold text-navy mb-3">About this event</h2>
+        <p class="text-slate-600 leading-relaxed">Join 500+ professionals, founders, and changemakers for Kenya's premier conference on the future of work. Explore how AI, remote work, and the creator economy are reshaping careers across Africa - and how to position yourself to thrive.</p>
+        <p class="text-slate-600 leading-relaxed mt-3">A full day of keynotes, panels, hands-on workshops, and high-value networking with the region's leading mentors and employers.</p>
+        <h3 class="text-lg font-bold text-navy mt-6 mb-3">What you'll gain</h3>
+        <div class="grid sm:grid-cols-2 gap-3" id="gainGrid"></div>
+      </div>
+
+      <!-- Agenda -->
+      <div class="bg-white rounded-2xl shadow-card p-6 sm:p-8">
+        <h3 class="text-lg font-bold text-navy mb-5">Agenda</h3>
+        <div class="space-y-5" id="agenda"></div>
+      </div>
+
+      <!-- Speakers -->
+      <div class="bg-white rounded-2xl shadow-card p-6 sm:p-8">
+        <h3 class="text-lg font-bold text-navy mb-5">Speakers</h3>
+        <div class="grid sm:grid-cols-3 gap-5" id="speakerGrid"></div>
+      </div>
+    </div>
+
+    <!-- REGISTER SIDEBAR -->
+    <aside class="lg:sticky lg:top-24 space-y-4">
+      <div class="bg-white rounded-2xl shadow-card p-6">
+        <div class="flex items-end gap-2">
+          <span class="text-3xl font-extrabold text-navy">Free</span>
+          <span class="text-sm text-slate-400 mb-1">· entry</span>
+        </div>
+        <p class="text-xs text-teal-600 font-medium mt-1">Only 30 spots left of 150</p>
+
+        <ul class="mt-4 space-y-3 text-sm">
+          <li class="flex items-center gap-3"><span class="text-teal">📅</span><span>Thu, 25 June 2026</span></li>
+          <li class="flex items-center gap-3"><span class="text-teal">🕘</span><span>9:00 AM - 4:30 PM EAT</span></li>
+          <li class="flex items-center gap-3"><span class="text-teal">📍</span><span>Sarit Centre, Westlands, Nairobi</span></li>
+        </ul>
+
+        <button id="registerBtn" class="w-full mt-5 py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">Register Now</button>
+        <div class="grid grid-cols-2 gap-3 mt-3">
+          <button class="py-2.5 border border-slate-200 text-navy text-sm font-semibold rounded-lg hover:border-teal hover:text-teal transition">Add to Calendar</button>
+          <button class="py-2.5 border border-slate-200 text-navy text-sm font-semibold rounded-lg hover:border-teal hover:text-teal transition">Share</button>
+        </div>
+
+        <!-- Ticket (revealed after registering) -->
+        <div id="ticket" class="hidden mt-5 pt-5 border-t border-slate-100">
+          <div class="rounded-xl border-2 border-dashed border-teal/40 bg-teal-50/40 p-4 text-center">
+            <p class="text-xs font-semibold text-teal-600 uppercase tracking-wide">Your Ticket</p>
+            <div id="qr" class="flex justify-center my-3"></div>
+            <p class="text-sm font-bold text-navy">MentorBay · FOW-2026</p>
+            <p class="text-xs text-slate-500">Ticket #MB-25JUN-0142</p>
+            <p class="text-xs text-slate-400 mt-1">Present this QR at the entrance</p>
+          </div>
+          <p class="text-xs text-center text-teal-600 mt-3 font-medium">✓ You're registered! A reminder will be emailed before the event.</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- RELATED -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+    <h3 class="text-xl font-bold text-navy mb-5">More events you might like</h3>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="relatedGrid"></div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-navy text-slate-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <svg viewBox="0 0 64 64" class="h-8 w-8">
+            <circle cx="32" cy="8" r="6" fill="#3bb8d1"/><circle cx="55" cy="20" r="6" fill="#fff"/>
+            <circle cx="55" cy="44" r="6" fill="#3bb8d1"/><circle cx="32" cy="56" r="6" fill="#fff"/>
+            <circle cx="9" cy="44" r="6" fill="#3bb8d1"/><circle cx="9" cy="20" r="6" fill="#fff"/>
+            <text x="32" y="41" text-anchor="middle" font-size="26" font-weight="800" fill="#fff" font-family="Inter">M</text>
+          </svg>
+          <span class="text-lg font-extrabold text-white">Mentor<span class="text-teal-400">Bay</span></span>
+        </div>
+        <p class="text-sm text-slate-400 max-w-xs">Connecting ambitious African learners with exceptional mentors.</p>
+      </div>
+      <div><h4 class="text-white font-semibold mb-3">Platform</h4><ul class="space-y-2 text-sm"><li><a href="mentors.html" class="hover:text-teal-400">Browse Mentors</a></li><li><a href="programs.html" class="hover:text-teal-400">Programs</a></li><li><a href="events.html" class="hover:text-teal-400">Events</a></li></ul></div>
+      <div><h4 class="text-white font-semibold mb-3">For Mentors</h4><ul class="space-y-2 text-sm"><li><a href="become-a-mentor.html" class="hover:text-teal-400">Become a Mentor</a></li><li><a href="#" class="hover:text-teal-400">Resources</a></li></ul></div>
+      <div><h4 class="text-white font-semibold mb-3">Support</h4><ul class="space-y-2 text-sm"><li><a href="#" class="hover:text-teal-400">Help Center</a></li><li><a href="#" class="hover:text-teal-400">Contact Us</a></li></ul></div>
+    </div>
+    <div class="border-t border-white/10 py-5 text-center text-sm text-slate-400">© 2026 MentorBay. All rights reserved. Made in Nairobi, Kenya.</div>
+  </footer>
+
+  <!-- ================= SCRIPT ================= -->
+  <script>
+    document.getElementById('menuBtn').addEventListener('click', () => document.getElementById('mobileMenu').classList.toggle('hidden'));
+    const IMG = 'images/';
+
+    // What you'll gain
+    const gains = ['Insights from 20+ industry leaders','Practical, hands-on workshops','High-value networking','Access to hiring partners','Session recordings afterwards','Certificate of attendance'];
+    document.getElementById('gainGrid').innerHTML = gains.map(g=>`
+      <div class="flex items-start gap-2 text-sm text-slate-600">
+        <svg class="w-5 h-5 text-teal shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+        <span>${g}</span>
+      </div>`).join('');
+
+    // Agenda
+    const agenda = [
+      { t:'9:00 AM', title:'Registration & Welcome Coffee' },
+      { t:'9:30 AM', title:'Keynote: The Future of Work in Africa', who:'Sarah Mwangi' },
+      { t:'10:30 AM', title:'Panel: AI, Remote Work & New Careers' },
+      { t:'12:00 PM', title:'Networking Lunch' },
+      { t:'1:30 PM', title:'Breakout Workshops (Tech, Business, Creative)' },
+      { t:'3:30 PM', title:'Fireside Chat: Building a Career That Lasts', who:'Jane Wanjiku' },
+      { t:'4:30 PM', title:'Closing & Networking' },
+    ];
+    document.getElementById('agenda').innerHTML = agenda.map(a=>`
+      <div class="flex gap-4">
+        <div class="w-20 shrink-0 text-sm font-semibold text-teal-600">${a.t}</div>
+        <div class="relative pl-5 border-l-2 border-slate-100 pb-1">
+          <span class="absolute -left-[7px] top-1 w-3 h-3 rounded-full bg-teal"></span>
+          <p class="font-semibold text-navy text-sm">${a.title}</p>
+          ${a.who?`<p class="text-xs text-slate-500 mt-0.5">with ${a.who}</p>`:''}
+        </div>
+      </div>`).join('');
+
+    // Speakers
+    const speakers = [
+      { name:'Sarah Mwangi', role:'Business Strategist', img:'sd79aj8r0vdw5tawj8zpnn76dn88tdme' },
+      { name:'John Kamau', role:'Tech Entrepreneur', img:'sd7fd2ygetvv1t14epgbhnf31s88vgsk' },
+      { name:'Jane Wanjiku', role:'Leadership Coach', img:'sd7erhqwt022qcj3zh7r9nt7a188tncb' },
+    ];
+    document.getElementById('speakerGrid').innerHTML = speakers.map(s=>`
+      <div class="text-center">
+        <img src="${IMG}${s.img}.jpg" class="w-20 h-20 rounded-full object-cover mx-auto" alt="${s.name}">
+        <p class="font-bold text-navy text-sm mt-3">${s.name}</p>
+        <p class="text-xs text-slate-500">${s.role}</p>
+      </div>`).join('');
+
+    // Related events
+    const related = [
+      { title:'Women in Tech Summit', date:'Jul 10, 2026', img:'sd79w96bc0dmwb9qd0rg1h4ek988tdaq' },
+      { title:'Startup Growth Masterclass', date:'Jul 30, 2026', img:'sd7cw7fxc5jdak3bhrek7g334188tm52' },
+      { title:'Leadership Forum Nairobi', date:'Aug 22, 2026', img:'sd7cxyvmncgt75zcbvkjs66p7s88tgjf' },
+    ];
+    document.getElementById('relatedGrid').innerHTML = related.map(r=>`
+      <a href="event-detail.html" class="bg-white rounded-2xl shadow-card overflow-hidden hover:-translate-y-1 transition block">
+        <img src="${IMG}${r.img}.jpg" class="w-full h-32 object-cover" alt="">
+        <div class="p-5"><p class="font-bold text-navy text-sm leading-snug">${r.title}</p><p class="text-xs text-slate-400 mt-2">📅 ${r.date}</p></div>
+      </a>`).join('');
+
+    // Fake-but-realistic QR code (decorative). Real QR is generated server-side later.
+    function renderQR(el){
+      const N=25, size=140, m=size/N; let s='';
+      s += `<svg viewBox="0 0 ${size} ${size}" class="w-32 h-32"><rect width="${size}" height="${size}" fill="#fff"/>`;
+      let seed=20260625;
+      for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+        if((x<8&&y<8)||(x>N-9&&y<8)||(x<8&&y>N-9)) continue;
+        seed=(seed*1103515245+12345)&0x7fffffff;
+        if((seed>>9)%2===0) s+=`<rect x="${x*m}" y="${y*m}" width="${m}" height="${m}" fill="#0B2A4A"/>`;
+      }
+      const finder = (fx,fy)=>`<rect x="${fx*m}" y="${fy*m}" width="${7*m}" height="${7*m}" fill="#0B2A4A"/><rect x="${(fx+1)*m}" y="${(fy+1)*m}" width="${5*m}" height="${5*m}" fill="#fff"/><rect x="${(fx+2)*m}" y="${(fy+2)*m}" width="${3*m}" height="${3*m}" fill="#0B2A4A"/>`;
+      s += finder(0,0)+finder(N-7,0)+finder(0,N-7)+`</svg>`;
+      el.innerHTML = s;
+    }
+
+    // Register toggle reveals ticket + QR
+    const registerBtn = document.getElementById('registerBtn'), ticket = document.getElementById('ticket');
+    registerBtn.addEventListener('click', ()=>{
+      const on = registerBtn.textContent.trim() === 'Registered ✓';
+      if(on){
+        registerBtn.textContent = 'Register Now';
+        registerBtn.classList.remove('bg-teal'); registerBtn.classList.add('bg-navy');
+        ticket.classList.add('hidden');
+      } else {
+        registerBtn.textContent = 'Registered ✓';
+        registerBtn.classList.add('bg-teal'); registerBtn.classList.remove('bg-navy');
+        ticket.classList.remove('hidden');
+        renderQR(document.getElementById('qr'));
+        ticket.scrollIntoView({behavior:'smooth', block:'nearest'});
+      }
+    });
+  </script>
+</body>
+</html>
