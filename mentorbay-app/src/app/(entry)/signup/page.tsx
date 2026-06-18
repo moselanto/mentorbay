@@ -32,7 +32,11 @@ export default function SignupPage() {
       },
     });
     if (error) {
-      setError(error.message);
+      console.error("Sign-up error:", error);
+      setError(
+        error.message ||
+          "Sign-up failed. Check your browser console and your Supabase Auth logs for the exact reason."
+      );
       setLoading(false);
       return;
     }
