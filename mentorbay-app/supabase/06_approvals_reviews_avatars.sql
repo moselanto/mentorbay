@@ -73,6 +73,9 @@ create policy "Admins manage reviews" on reviews
 ------------------------------------------------------------------
 -- 4) Mentor-owned events (approved mentors can create events)
 ------------------------------------------------------------------
+-- Allow a mentor to schedule a session before a mentee is linked.
+alter table sessions alter column mentee_id drop not null;
+
 alter table events add column if not exists created_by uuid references public.profiles(id);
 
 drop policy if exists "Mentors manage own events" on events;

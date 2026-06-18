@@ -16,9 +16,18 @@ const NAV: NavItem[] = [
 ];
 
 export default async function MentorLayout({ children }: { children: React.ReactNode }) {
-  const { userName } = await requireRole("mentor");
+  const { userName, approvalStatus } = await requireRole("mentor");
   return (
     <DashboardShell roleLabel="Mentor" nav={NAV} userName={userName}>
+      {approvalStatus !== "approved" && (
+        <div className={`mb-6 rounded-xl border p-4 text-sm ${approvalStatus === "rejected" ? "bg-rose-50 border-rose-200 text-rose-800" : "bg-amber-50 border-amber-200 text-amber-800"}`}>
+          {approvalStatus === "rejected" ? (
+            <span><span className="font-semibold">Your mentor application was not approved.</span> Please contact support if you believe this is a mistake.</span>
+          ) : (
+            <span><span className="font-semibold">Your mentor account is pending admin approval.</span> You can edit your profile now, but creating programs, events, and sessions is disabled until an admin approves you.</span>
+          )}
+        </div>
+      )}
       {children}
     </DashboardShell>
   );

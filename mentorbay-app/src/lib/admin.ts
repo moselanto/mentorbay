@@ -1,0 +1,49 @@
+import { createClient } from "@/lib/supabase/server";
+
+export type AdminUser = {
+  id: string; name: string; role: string; approvalStatus: string; suspended: boolean; avatarUrl: string | null;
+};
+type ProfileRow = {
+  id: string; full_name: string | null; role: string; approval_status: string; suspended: boolean; avatar_url: string | null;
+};
+function toUser(r: ProfileRow): AdminUser {
+  return { id: r.id, name: r.full_name ?? "(no name)", role: r.role, approvalStatus: r.approval_status, suspended: !!r.suspended, avatarUrl: r.avatar_url ?? null };
+}
+
+export async function getPendingApprovals(): Promise<AdminUser[]> {
+  try {
+    const s = createClient();
+    const { data } = await s.from("profiles")
+      .select("id, full_name, role, approval_status, suspended, avatar_url")
+      .eq("approval_status", "pending");
+    return (data as ProfileRow[] | null ?? []).map(toUser);
+  } catch { return []; }
+}
+
+export async function getAllUsers(): Promise<AdminUser[]> {
+  try {
+    const s = createClient();
+    const { data } = await s.from("profiles")
+      .select("id, full_name, role, approval_status, suspended, avatar_url");
+    return (data as ProfileRow[] | null ?? []).map(toUser);
+  } catch { return []; }
+}
+
+export type AdminReview = {
+  id: string; mentorSlug: string | null; authorId: string | null; authorName: string; rating: number; body: string; status: string;
+};
+type ReviewRow = {
+  id: string; mentor_slug: string | null; author_id: string | null; author_name: string | null; rating: number; body: string; status: string;
+};
+export async function getAllReviews(): Promise<AdminReview[]> {
+  try {
+    const s = createClient();
+    const { data } = await s.from("reviews")
+      .select("id, mentor_slug, author_id, author_name, rating, body, status")
+      .order("created_at", { ascending: false });
+    return (data as ReviewRow[] | null ?? []).map((r) => ({
+      id: r.id, mentorSlug: r.mentor_slug, authorId: r.author_id,
+      authorName: r.author_name ?? "Anonymous", rating: r.rating, body: r.body, status: r.status,
+    }));
+  } catch { return []; }
+}
