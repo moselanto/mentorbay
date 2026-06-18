@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/server";
 
 type ServerClient = ReturnType<typeof createClient>;
 
-// Mentors must be approved before they can create content. Non-mentors pass.
 async function mentorApproved(supabase: ServerClient, userId: string): Promise<boolean> {
   const { data } = await supabase.from("profiles").select("role, approval_status").eq("id", userId).maybeSingle();
   if (!data) return false;
@@ -35,7 +34,7 @@ export async function updateProfileAction(formData: FormData) {
   redirect(`${formData.get("redirect") ?? "/mentee/settings"}?saved=1`);
 }
 
-// ---------- Create Program ----------
+// ---------- Create Program (submitted for admin approval) ----------
 export async function createProgramAction(formData: FormData) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -43,20 +42,29 @@ export async function createProgramAction(formData: FormData) {
   if (!(await mentorApproved(supabase, user.id))) redirect("/mentor/create-program?error=pending");
   const title = String(formData.get("title") ?? "").trim();
   if (!title) redirect("/mentor/create-program?error=title");
-  const publish = formData.get("intent") === "publish";
+
+  const learn = String(formData.get("learn") ?? "").split("\n").map((s) => s.trim()).filter(Boolean);
+  const curriculum = String(formData.get("curriculum") ?? "")
+    .split("\n").map((l) => l.trim()).filter(Boolean)
+    .map((line) => { const p = line.split("|").map((x) => x.trim()).filter(Boolean); return { title: p[0] ?? "Module", lessons: p.slice(1) }; });
+  const durationLabel = String(formData.get("duration") ?? "").trim();
+  const weeksMatch = durationLabel.match(/(\d+)\s*week/i);
+  const weeks = weeksMatch ? Number(weeksMatch[1]) : 0;
+  const lessons = Number(formData.get("lessons") ?? 0) || curriculum.reduce((n, m) => n + m.lessons.length, 0);
+
   const { error } = await supabase.from("programs").insert({
     slug: slugify(title), title,
     category: String(formData.get("category") ?? "Leadership"),
     level: String(formData.get("level") ?? "Beginner"),
-    weeks: Number(formData.get("weeks") ?? 6) || 6,
-    lessons: Number(formData.get("lessons") ?? 12) || 12,
+    weeks, lessons,
     description: String(formData.get("description") ?? ""),
-    status: publish ? "published" : "draft",
-    created_by: user.id, rating: 0, enrolled: 0,
+    about: String(formData.get("about") ?? ""),
+    learn, curriculum, duration_label: durationLabel || null,
+    status: "pending", created_by: user.id, rating: 0, enrolled: 0,
   });
   if (error) redirect("/mentor/create-program?error=save");
   revalidatePath("/mentor/programs");
-  redirect("/mentor/programs?created=1");
+  redirect("/mentor/programs?submitted=1");
 }
 
 // ---------- Create Event ----------
@@ -88,7 +96,7 @@ export async function createEventAction(formData: FormData) {
   redirect("/mentor/events?created=1");
 }
 
-// ---------- Create Session ----------
+// ---------- Create Session (defaults to pending approval) ----------
 export async function createSessionAction(formData: FormData) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -105,6 +113,17 @@ export async function createSessionAction(formData: FormData) {
   if (error) redirect("/mentor/sessions?error=save");
   revalidatePath("/mentor/sessions");
   redirect("/mentor/sessions?created=1");
+}
+
+// ---------- Delete own session ----------
+export async function deleteSessionAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  await supabase.from("sessions").delete().eq("id", id).eq("mentor_id", user.id);
+  revalidatePath("/mentor/sessions");
 }
 
 // ---------- Mentor: accept/decline applications ----------
@@ -133,6 +152,33 @@ export async function setApprovalAction(formData: FormData) {
   revalidatePath("/admin/approvals");
   revalidatePath("/admin");
   revalidatePath("/admin/users");
+}
+
+// ---------- Admin: approve/reject a program ----------
+export async function setProgramApprovalAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "");
+  const decision = String(formData.get("status") ?? "");
+  if (!id || !["approved", "rejected"].includes(decision)) return;
+  await supabase.from("programs").update({ status: decision === "approved" ? "published" : "rejected" }).eq("id", id);
+  revalidatePath("/admin/approvals");
+  revalidatePath("/mentor/programs");
+  revalidatePath("/programs");
+}
+
+// ---------- Admin: approve/reject a session ----------
+export async function setSessionApprovalAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "");
+  const status = String(formData.get("status") ?? "");
+  if (!id || !["approved", "rejected"].includes(status)) return;
+  await supabase.from("sessions").update({ approval_status: status }).eq("id", id);
+  revalidatePath("/admin/approvals");
+  revalidatePath("/mentor/sessions");
 }
 
 // ---------- Admin: review moderation ----------
@@ -170,9 +216,7 @@ export async function setSuspendedAction(formData: FormData) {
   revalidatePath("/admin/users");
 }
 
-// ---------- Email admins when a new mentor signs up ----------
-// Best-effort: only runs if RESEND_API_KEY + ADMIN_NOTIFY_EMAIL are set.
-// Never throws into the signup flow.
+// ---------- Email admins when a new mentor signs up (best-effort) ----------
 export async function notifyAdminsOfSignupAction(payload: { name: string; email: string; role: string }) {
   const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.ADMIN_NOTIFY_EMAIL;
@@ -183,8 +227,7 @@ export async function notifyAdminsOfSignupAction(payload: { name: string; email:
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from,
-        to,
+        from, to,
         subject: `New ${payload.role} awaiting approval: ${payload.name}`,
         html: `<p>A new ${payload.role} just signed up on MentorBay and is awaiting approval.</p>
                <p><strong>Name:</strong> ${payload.name}<br/><strong>Email:</strong> ${payload.email}</p>
@@ -192,6 +235,6 @@ export async function notifyAdminsOfSignupAction(payload: { name: string; email:
       }),
     });
   } catch {
-    // email is best-effort; signup must not fail because of it
+    // best-effort
   }
 }

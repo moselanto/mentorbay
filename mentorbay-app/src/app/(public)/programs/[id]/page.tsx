@@ -32,6 +32,10 @@ export default async function ProgramDetailPage({ params }: { params: { id: stri
   const p = await getProgram(params.id);
   if (!p) notFound();
   const all = await getPrograms();
+  const learn = p.learn && p.learn.length ? p.learn : LEARN;
+  const curriculum = p.curriculum && p.curriculum.length ? p.curriculum : CURRICULUM;
+  const duration = p.durationLabel ?? `${p.weeks} weeks`;
+  const about = p.about || p.description;
   const related = all.filter((x) => x.id !== p.id).slice(0, 3);
 
   return (
@@ -58,7 +62,7 @@ export default async function ProgramDetailPage({ params }: { params: { id: stri
             </span>
             <span className="flex items-center gap-1"><span className="text-amber-300">★</span> {p.rating}</span>
             <span>{p.enrolled.toLocaleString()} enrolled</span>
-            <span>{p.weeks} weeks</span>
+            <span>{duration}</span>
           </div>
         </div>
       </section>
@@ -70,10 +74,10 @@ export default async function ProgramDetailPage({ params }: { params: { id: stri
 
           <div className="bg-white rounded-2xl shadow-card p-6 sm:p-8">
             <h2 className="text-xl font-bold text-navy mb-3">About this program</h2>
-            <p className="text-slate-600 leading-relaxed">{p.description} This {p.weeks}-week, mentor-led program blends global frameworks with real, local case studies from Nairobi to Lagos.</p>
+            <p className="text-slate-600 leading-relaxed">{about}</p>
             <h3 className="text-lg font-bold text-navy mt-7 mb-4">What you&apos;ll learn</h3>
             <div className="grid sm:grid-cols-2 gap-3">
-              {LEARN.map((l) => (
+              {learn.map((l) => (
                 <div key={l} className="flex items-start gap-2 text-sm text-slate-600">
                   <svg className="w-5 h-5 text-teal shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" /></svg>
                   <span>{l}</span>
@@ -87,7 +91,7 @@ export default async function ProgramDetailPage({ params }: { params: { id: stri
               <h3 className="text-lg font-bold text-navy">Curriculum</h3>
               <span className="text-sm text-slate-500">{p.lessons} lessons</span>
             </div>
-            <Accordion items={CURRICULUM} />
+            <Accordion items={curriculum} />
           </div>
 
           <div className="bg-white rounded-2xl shadow-card p-6 sm:p-8">
@@ -116,7 +120,7 @@ export default async function ProgramDetailPage({ params }: { params: { id: stri
               <p className="text-xs text-teal-600 font-medium mt-1">Free during launch - limited time</p>
               <EnrollButton />
               <ul className="mt-5 pt-5 border-t border-slate-100 space-y-3 text-sm">
-                <li className="flex justify-between"><span className="text-slate-500">Duration</span><span className="font-semibold text-navy">{p.weeks} weeks</span></li>
+                <li className="flex justify-between"><span className="text-slate-500">Duration</span><span className="font-semibold text-navy">{duration}</span></li>
                 <li className="flex justify-between"><span className="text-slate-500">Lessons</span><span className="font-semibold text-navy">{p.lessons} lessons</span></li>
                 <li className="flex justify-between"><span className="text-slate-500">Level</span><span className="font-semibold text-navy">{p.level}</span></li>
                 <li className="flex justify-between"><span className="text-slate-500">Certificate</span><span className="font-semibold text-navy">Yes</span></li>

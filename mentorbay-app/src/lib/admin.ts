@@ -47,3 +47,23 @@ export async function getAllReviews(): Promise<AdminReview[]> {
     }));
   } catch { return []; }
 }
+
+export type AdminProgram = { id: string; slug: string; title: string; category: string; level: string };
+export async function getPendingPrograms(): Promise<AdminProgram[]> {
+  try {
+    const s = createClient();
+    const { data } = await s.from("programs").select("id, slug, title, category, level").eq("status", "pending");
+    return (data as { id: string; slug: string; title: string; category: string; level: string }[] | null ?? [])
+      .map((r) => ({ id: r.id, slug: r.slug, title: r.title, category: r.category, level: r.level }));
+  } catch { return []; }
+}
+
+export type AdminSession = { id: string; topic: string; mode: string; when: string };
+export async function getPendingSessions(): Promise<AdminSession[]> {
+  try {
+    const s = createClient();
+    const { data } = await s.from("sessions").select("id, topic, mode, scheduled_at").eq("approval_status", "pending");
+    return (data as { id: string; topic: string; mode: string; scheduled_at: string }[] | null ?? [])
+      .map((r) => ({ id: r.id, topic: r.topic, mode: r.mode, when: new Date(r.scheduled_at).toLocaleString("en-KE", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) }));
+  } catch { return []; }
+}

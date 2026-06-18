@@ -1,5 +1,11 @@
 import { getMySessions } from "@/lib/sessions";
-import { createSessionAction } from "@/app/actions";
+import { createSessionAction, deleteSessionAction } from "@/app/actions";
+
+function approvalBadge(status: string) {
+  if (status === "approved") return <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700">approved</span>;
+  if (status === "rejected") return <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600">rejected</span>;
+  return <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">pending approval</span>;
+}
 
 export default async function MentorSessionsPage({ searchParams }: { searchParams: { created?: string; error?: string } }) {
   const sessions = await getMySessions();
@@ -10,7 +16,7 @@ export default async function MentorSessionsPage({ searchParams }: { searchParam
     <div className="space-y-6">
       <h1 className="text-2xl font-extrabold text-navy">Sessions</h1>
 
-      {searchParams.created && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Session scheduled.</p>}
+      {searchParams.created && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Session created. It will be confirmed once an admin approves it.</p>}
       {searchParams.error === "pending" && <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 px-4 py-2.5 rounded-lg">Your account is pending approval, so you can&apos;t schedule sessions yet.</p>}
       {searchParams.error === "missing" && <p className="text-sm text-rose-600 bg-rose-50 px-4 py-2.5 rounded-lg">Please enter a topic and a date/time.</p>}
 
@@ -34,8 +40,9 @@ export default async function MentorSessionsPage({ searchParams }: { searchParam
               <div key={s.id} className="flex flex-wrap items-center gap-4 p-4 rounded-xl bg-slate-50">
                 <div className="w-11 h-11 rounded-lg bg-navy text-white grid place-items-center font-bold">{s.counterpart[0]}</div>
                 <div className="flex-1 min-w-0"><p className="font-semibold text-navy">{s.topic}</p><p className="text-xs text-slate-500">with {s.counterpart} · {s.mode}</p></div>
+                {approvalBadge(s.approvalStatus)}
                 <span className="text-sm font-medium text-slate-600">{s.when}</span>
-                <button className="px-4 py-2 bg-teal text-white text-sm font-semibold rounded-lg">Start</button>
+                <form action={deleteSessionAction}><input type="hidden" name="id" value={s.id} /><button className="px-3 py-2 border border-slate-200 text-slate-500 text-sm font-semibold rounded-lg hover:border-rose-300 hover:text-rose-500 transition">Delete</button></form>
               </div>
             ))}
           </div>

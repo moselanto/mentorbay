@@ -88,6 +88,8 @@ export type Program = {
   id: string; title: string; category: string; level: string; weeks: number; lessons: number;
   mentor: string; mentorId: string; face: string; img: string; rating: number; enrolled: number;
   badge?: string; description: string;
+  about?: string; learn?: string[]; curriculum?: { title: string; lessons: string[] }[];
+  durationLabel?: string; status?: string;
 };
 
 export const PROGRAMS: Program[] = [
