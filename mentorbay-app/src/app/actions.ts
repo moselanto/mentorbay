@@ -60,6 +60,7 @@ export async function createProgramAction(formData: FormData) {
     description: String(formData.get("description") ?? ""),
     about: String(formData.get("about") ?? ""),
     learn, curriculum, duration_label: durationLabel || null,
+    cover_url: String(formData.get("cover_url") ?? "") || null,
     status: "pending", created_by: user.id, rating: 0, enrolled: 0,
   });
   if (error) redirect("/mentor/create-program?error=save");
@@ -88,7 +89,7 @@ export async function createEventAction(formData: FormData) {
     time_label: String(formData.get("time") ?? ""),
     location: String(formData.get("location") ?? ""),
     speaker: String(formData.get("speaker") ?? ""),
-    img: "", face: "", going: 0, featured: false,
+    img: String(formData.get("cover_url") ?? "") || "", face: "", going: 0, featured: false,
     status: "published", created_by: user.id,
   });
   if (error) redirect("/mentor/create-event?error=save");
@@ -237,4 +238,18 @@ export async function notifyAdminsOfSignupAction(payload: { name: string; email:
   } catch {
     // best-effort
   }
+}
+
+// ---------- Admin: approve/reject an event ----------
+export async function setEventApprovalAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "");
+  const status = String(formData.get("status") ?? "");
+  if (!id || !["approved", "rejected"].includes(status)) return;
+  await supabase.from("events").update({ approval_status: status }).eq("id", id);
+  revalidatePath("/admin/approvals");
+  revalidatePath("/events");
+  revalidatePath("/mentor/events");
 }

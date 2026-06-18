@@ -67,3 +67,13 @@ export async function getPendingSessions(): Promise<AdminSession[]> {
       .map((r) => ({ id: r.id, topic: r.topic, mode: r.mode, when: new Date(r.scheduled_at).toLocaleString("en-KE", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) }));
   } catch { return []; }
 }
+
+export type AdminEvent = { id: string; title: string; category: string; format: string; date: string };
+export async function getPendingEvents(): Promise<AdminEvent[]> {
+  try {
+    const s = createClient();
+    const { data } = await s.from("events").select("id, title, category, format, date_label").eq("approval_status", "pending");
+    return (data as { id: string; title: string; category: string; format: string; date_label: string }[] | null ?? [])
+      .map((r) => ({ id: r.id, title: r.title, category: r.category, format: r.format, date: r.date_label }));
+  } catch { return []; }
+}

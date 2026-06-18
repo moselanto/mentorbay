@@ -1,4 +1,5 @@
 import { createProgramAction } from "@/app/actions";
+import CoverUpload from "@/components/CoverUpload";
 
 const DURATIONS = ["1 day", "2 days", "3 days", "1 week", "2 weeks", "4 weeks", "6 weeks", "8 weeks", "12 weeks"];
 
@@ -15,6 +16,7 @@ export default function CreateProgramPage({ searchParams }: { searchParams: { er
 
       <form action={createProgramAction} className="space-y-6">
         <section className="bg-white rounded-2xl shadow-card p-6 space-y-4">
+          <CoverUpload name="cover_url" label="Program banner (cover image)" />
           <div><label className="block text-sm font-semibold text-navy mb-1">Program title</label><input name="title" required className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="e.g. Leadership Foundations" /></div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div><label className="block text-sm font-semibold text-navy mb-1">Category</label><select name="category" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none"><option>Leadership</option><option>Technology</option><option>Business</option><option>Marketing</option><option>Finance</option><option>Design</option></select></div>
@@ -29,12 +31,12 @@ export default function CreateProgramPage({ searchParams }: { searchParams: { er
           <div><label className="block text-sm font-semibold text-navy mb-1">About this program</label><textarea name="about" rows={4} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="Describe what this program is about and who it is for." /></div>
           <div>
             <label className="block text-sm font-semibold text-navy mb-1">What you&apos;ll learn</label>
-            <textarea name="learn" rows={5} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder={"One outcome per line, e.g.\nLead with confidence\nCommunicate effectively\nGive constructive feedback"} />
+            <textarea name="learn" rows={5} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder={"One outcome per line, e.g.\nLead with confidence\nCommunicate effectively"} />
             <p className="text-xs text-slate-400 mt-1">One learning outcome per line.</p>
           </div>
           <div>
             <label className="block text-sm font-semibold text-navy mb-1">Curriculum</label>
-            <textarea name="curriculum" rows={5} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder={"One module per line. Put lessons after the title, separated by | :\nFoundations | What is leadership | Leadership styles\nCommunication | Active listening | Difficult conversations"} />
+            <textarea name="curriculum" rows={5} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder={"One module per line:\nFoundations | What is leadership | Leadership styles"} />
             <p className="text-xs text-slate-400 mt-1">One module per line: <code>Module title | lesson 1 | lesson 2</code></p>
           </div>
         </section>

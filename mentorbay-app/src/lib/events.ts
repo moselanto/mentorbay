@@ -26,9 +26,7 @@ export async function getEvents(): Promise<EventItem[]> {
     const { data, error } = await supabase.from("events").select("*").eq("status", "published");
     if (error || !data || data.length === 0) return EVENTS;
     return (data as EventRow[]).map(rowToEvent);
-  } catch {
-    return EVENTS;
-  }
+  } catch { return EVENTS; }
 }
 
 export async function getEvent(slug: string): Promise<EventItem | null> {
@@ -38,7 +36,17 @@ export async function getEvent(slug: string): Promise<EventItem | null> {
     const { data, error } = await supabase.from("events").select("*").eq("slug", slug).eq("status", "published").maybeSingle();
     if (error || !data) return EVENTS.find((e) => e.id === slug) ?? null;
     return rowToEvent(data as EventRow);
-  } catch {
-    return EVENTS.find((e) => e.id === slug) ?? null;
-  }
+  } catch { return EVENTS.find((e) => e.id === slug) ?? null; }
+}
+
+export type MyEvent = EventItem & { approvalStatus: string };
+export async function getMyEvents(): Promise<MyEvent[]> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data, error } = await supabase.from("events").select("*").eq("created_by", user.id).order("created_at", { ascending: false });
+    if (error || !data) return [];
+    return (data as (EventRow & { approval_status: string | null })[]).map((r) => ({ ...rowToEvent(r), approvalStatus: r.approval_status ?? "approved" }));
+  } catch { return []; }
 }
