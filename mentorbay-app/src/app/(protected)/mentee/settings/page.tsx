@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { updateProfileAction } from "@/app/actions";
+import AvatarUpload from "@/components/AvatarUpload";
 
 export default async function MenteeSettingsPage({ searchParams }: { searchParams: { saved?: string } }) {
   const supabase = createClient();
@@ -10,6 +11,8 @@ export default async function MenteeSettingsPage({ searchParams }: { searchParam
     <div className="space-y-6 max-w-2xl">
       <h1 className="text-2xl font-extrabold text-navy">Settings</h1>
       {searchParams.saved && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Your profile has been saved.</p>}
+
+      <AvatarUpload currentUrl={profile?.avatar_url ?? null} />
 
       <form action={updateProfileAction} className="space-y-6">
         <input type="hidden" name="redirect" value="/mentee/settings" />

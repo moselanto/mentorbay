@@ -157,3 +157,15 @@ export async function suspendAuthorAction(formData: FormData) {
   revalidatePath("/admin/moderation");
   revalidatePath("/admin/users");
 }
+
+// ---------- Admin: suspend / unsuspend a user ----------
+export async function setSuspendedAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "");
+  const suspended = String(formData.get("suspended") ?? "") === "true";
+  if (!id) return;
+  await supabase.from("profiles").update({ suspended }).eq("id", id);
+  revalidatePath("/admin/users");
+}
