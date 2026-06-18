@@ -50,3 +50,15 @@ export async function getMyEvents(): Promise<MyEvent[]> {
     return (data as (EventRow & { approval_status: string | null })[]).map((r) => ({ ...rowToEvent(r), approvalStatus: r.approval_status ?? "approved" }));
   } catch { return []; }
 }
+
+export async function getMyEventBySlug(slug: string): Promise<MyEvent | null> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    const { data, error } = await supabase.from("events").select("*").eq("slug", slug).eq("created_by", user.id).maybeSingle();
+    if (error || !data) return null;
+    const r = data as (EventRow & { approval_status: string | null });
+    return { ...rowToEvent(r), approvalStatus: r.approval_status ?? "approved" };
+  } catch { return null; }
+}

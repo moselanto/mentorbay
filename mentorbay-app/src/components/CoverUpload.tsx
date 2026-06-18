@@ -3,10 +3,8 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-// Uploads a banner image to storage and writes the public URL into a hidden
-// form field (so a server action receives it on submit).
-export default function CoverUpload({ name, label = "Banner image" }: { name: string; label?: string }) {
-  const [url, setUrl] = useState("");
+export default function CoverUpload({ name, label = "Banner image", currentUrl = "" }: { name: string; label?: string; currentUrl?: string }) {
+  const [url, setUrl] = useState(currentUrl);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 

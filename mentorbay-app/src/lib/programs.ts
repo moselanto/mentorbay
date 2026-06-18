@@ -70,3 +70,14 @@ export async function getMyPrograms(): Promise<Program[]> {
     return (data as ProgramRow[]).map(rowToProgram);
   } catch { return []; }
 }
+
+export async function getMyProgramBySlug(slug: string): Promise<Program | null> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    const { data, error } = await supabase.from("programs").select(SELECT).eq("slug", slug).eq("created_by", user.id).maybeSingle();
+    if (error || !data) return null;
+    return rowToProgram(data as ProgramRow);
+  } catch { return null; }
+}

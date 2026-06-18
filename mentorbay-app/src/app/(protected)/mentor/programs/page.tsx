@@ -10,7 +10,7 @@ function statusStyle(status?: string): { label: string; cls: string } {
   }
 }
 
-export default async function MentorProgramsPage({ searchParams }: { searchParams: { submitted?: string } }) {
+export default async function MentorProgramsPage({ searchParams }: { searchParams: { submitted?: string; updated?: string } }) {
   const mine = await getMyPrograms();
   return (
     <div className="space-y-6">
@@ -19,6 +19,7 @@ export default async function MentorProgramsPage({ searchParams }: { searchParam
         <Link href="/mentor/create-program" className="px-4 py-2 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">+ Create Program</Link>
       </div>
       {searchParams.submitted && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Program submitted. An admin will review it before it goes live.</p>}
+      {searchParams.updated && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Program updated.</p>}
 
       {mine.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-card p-10 text-center">
@@ -38,6 +39,7 @@ export default async function MentorProgramsPage({ searchParams }: { searchParam
                   <p className="text-xs text-slate-500">{p.category} · {p.durationLabel ?? `${p.weeks} weeks`} · {p.lessons} lessons</p>
                 </div>
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${s.cls}`}>{s.label}</span>
+                <Link href={`/mentor/programs/${p.id}/edit`} className="ml-2 text-sm font-semibold text-teal-600 hover:underline">Edit</Link>
               </div>
             );
           })}

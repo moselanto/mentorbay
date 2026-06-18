@@ -9,7 +9,7 @@ function statusStyle(status: string): { label: string; cls: string } {
   }
 }
 
-export default async function MentorEventsPage({ searchParams }: { searchParams: { created?: string } }) {
+export default async function MentorEventsPage({ searchParams }: { searchParams: { created?: string; updated?: string } }) {
   const events = await getMyEvents();
   return (
     <div className="space-y-6">
@@ -18,6 +18,7 @@ export default async function MentorEventsPage({ searchParams }: { searchParams:
         <Link href="/mentor/create-event" className="px-4 py-2 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">+ Host event</Link>
       </div>
       {searchParams.created && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Event submitted. An admin will review it before it goes live.</p>}
+      {searchParams.updated && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Event updated.</p>}
 
       {events.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-card p-10 text-center">

@@ -253,3 +253,61 @@ export async function setEventApprovalAction(formData: FormData) {
   revalidatePath("/events");
   revalidatePath("/mentor/events");
 }
+
+// ---------- Edit own program ----------
+export async function updateProgramAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const slug = String(formData.get("slug") ?? "");
+  if (!slug) redirect("/mentor/programs");
+  const learn = String(formData.get("learn") ?? "").split("\n").map((s) => s.trim()).filter(Boolean);
+  const curriculum = String(formData.get("curriculum") ?? "")
+    .split("\n").map((l) => l.trim()).filter(Boolean)
+    .map((line) => { const p = line.split("|").map((x) => x.trim()).filter(Boolean); return { title: p[0] ?? "Module", lessons: p.slice(1) }; });
+  const durationLabel = String(formData.get("duration") ?? "").trim();
+  const weeksMatch = durationLabel.match(/(\d+)\s*week/i);
+  const weeks = weeksMatch ? Number(weeksMatch[1]) : 0;
+  const lessons = Number(formData.get("lessons") ?? 0) || curriculum.reduce((n, m) => n + m.lessons.length, 0);
+  await supabase.from("programs").update({
+    title: String(formData.get("title") ?? ""),
+    category: String(formData.get("category") ?? ""),
+    level: String(formData.get("level") ?? ""),
+    weeks, lessons,
+    description: String(formData.get("description") ?? ""),
+    about: String(formData.get("about") ?? ""),
+    learn, curriculum, duration_label: durationLabel || null,
+    cover_url: String(formData.get("cover_url") ?? "") || null,
+  }).eq("slug", slug).eq("created_by", user.id);
+  revalidatePath("/mentor/programs");
+  revalidatePath(`/programs/${slug}`);
+  redirect("/mentor/programs?updated=1");
+}
+
+// ---------- Edit own event ----------
+export async function updateEventAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const slug = String(formData.get("slug") ?? "");
+  if (!slug) redirect("/mentor/events");
+  const dateLabel = String(formData.get("date_label") ?? "");
+  const t = dateLabel ? new Date(dateLabel).getTime() : NaN;
+  const valid = Number.isFinite(t);
+  const dd = valid ? new Date(t) : null;
+  const mon = dd ? dd.toLocaleString("en-US", { month: "short" }).toUpperCase() : "";
+  const day = dd ? String(dd.getDate()) : "";
+  await supabase.from("events").update({
+    title: String(formData.get("title") ?? ""),
+    category: String(formData.get("category") ?? ""),
+    format: String(formData.get("format") ?? ""),
+    date_label: dateLabel, mon, day,
+    time_label: String(formData.get("time") ?? ""),
+    location: String(formData.get("location") ?? ""),
+    speaker: String(formData.get("speaker") ?? ""),
+    img: String(formData.get("cover_url") ?? "") || "",
+  }).eq("slug", slug).eq("created_by", user.id);
+  revalidatePath("/mentor/events");
+  revalidatePath(`/events/${slug}`);
+  redirect("/mentor/events?updated=1");
+}
