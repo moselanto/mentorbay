@@ -169,3 +169,29 @@ export async function setSuspendedAction(formData: FormData) {
   await supabase.from("profiles").update({ suspended }).eq("id", id);
   revalidatePath("/admin/users");
 }
+
+// ---------- Email admins when a new mentor signs up ----------
+// Best-effort: only runs if RESEND_API_KEY + ADMIN_NOTIFY_EMAIL are set.
+// Never throws into the signup flow.
+export async function notifyAdminsOfSignupAction(payload: { name: string; email: string; role: string }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const to = process.env.ADMIN_NOTIFY_EMAIL;
+  if (!apiKey || !to) return;
+  const from = process.env.NOTIFY_FROM_EMAIL || "MentorBay <onboarding@resend.dev>";
+  try {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from,
+        to,
+        subject: `New ${payload.role} awaiting approval: ${payload.name}`,
+        html: `<p>A new ${payload.role} just signed up on MentorBay and is awaiting approval.</p>
+               <p><strong>Name:</strong> ${payload.name}<br/><strong>Email:</strong> ${payload.email}</p>
+               <p>Review them here: <a href="https://mentorbay.vercel.app/admin/approvals">Approvals dashboard</a></p>`,
+      }),
+    });
+  } catch {
+    // email is best-effort; signup must not fail because of it
+  }
+}
