@@ -1,10 +1,15 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Routes that require a signed-in user.
+// Routes that require a signed-in user (exact path or a subpath).
 const PROTECTED = ["/account", "/mentee", "/mentor", "/admin", "/onboarding"];
 
 type CookieToSet = { name: string; value: string; options?: CookieOptions };
+
+function isProtected(path: string): boolean {
+  // Segment-aware so "/mentors" (public) does NOT match "/mentor" (dashboard).
+  return PROTECTED.some((p) => path === p || path.startsWith(p + "/"));
+}
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -37,7 +42,7 @@ export async function updateSession(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  if (!user && PROTECTED.some((p) => path.startsWith(p))) {
+  if (!user && isProtected(path)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirect", path);
