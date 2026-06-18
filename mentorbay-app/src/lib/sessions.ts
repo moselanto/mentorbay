@@ -29,7 +29,7 @@ export async function getMySessions(): Promise<MySession[]> {
     const now = Date.now();
     return (data as unknown as Row[]).map((r) => {
       const isMentee = r.mentee_id === user.id;
-      const counterpart = (isMentee ? r.mentor?.full_name : r.mentee?.full_name) ?? "MentorBay";
+      const counterpart = (isMentee ? r.mentor?.full_name : r.mentee?.full_name) ?? "Mentee TBD";
       return {
         id: r.id, topic: r.topic, mode: r.mode, when: fmt(r.scheduled_at),
         counterpart, upcoming: new Date(r.scheduled_at).getTime() >= now,
