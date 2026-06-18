@@ -6,6 +6,7 @@ import { useState } from "react";
 import { LogoWordmark } from "./Logo";
 
 const LINKS = [
+  { href: "/", label: "Home" },
   { href: "/mentors", label: "Mentors" },
   { href: "/programs", label: "Programs" },
   { href: "/events", label: "Events" },

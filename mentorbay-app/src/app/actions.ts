@@ -134,3 +134,26 @@ export async function setApprovalAction(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/admin/users");
 }
+
+// ---------- Admin: review moderation ----------
+export async function setReviewStatusAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "");
+  const status = String(formData.get("status") ?? "");
+  if (!id || !["visible", "removed"].includes(status)) return;
+  await supabase.from("reviews").update({ status }).eq("id", id);
+  revalidatePath("/admin/moderation");
+}
+
+export async function suspendAuthorAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const authorId = String(formData.get("author_id") ?? "");
+  if (!authorId) return;
+  await supabase.from("profiles").update({ suspended: true }).eq("id", authorId);
+  revalidatePath("/admin/moderation");
+  revalidatePath("/admin/users");
+}
