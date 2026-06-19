@@ -44,6 +44,7 @@ export async function createProgramAction(formData: FormData) {
   if (!title) redirect("/mentor/create-program?error=title");
 
   const learn = String(formData.get("learn") ?? "").split("\n").map((s) => s.trim()).filter(Boolean);
+  const requirements = String(formData.get("requirements") ?? "").split("\n").map((s) => s.trim()).filter(Boolean);
   const curriculum = String(formData.get("curriculum") ?? "")
     .split("\n").map((l) => l.trim()).filter(Boolean)
     .map((line) => { const p = line.split("|").map((x) => x.trim()).filter(Boolean); return { title: p[0] ?? "Module", lessons: p.slice(1) }; });
@@ -59,7 +60,7 @@ export async function createProgramAction(formData: FormData) {
     weeks, lessons,
     description: String(formData.get("description") ?? ""),
     about: String(formData.get("about") ?? ""),
-    learn, curriculum, duration_label: durationLabel || null,
+    learn, curriculum, requirements, duration_label: durationLabel || null,
     cover_url: String(formData.get("cover_url") ?? "") || null,
     status: "pending", created_by: user.id, rating: 0, enrolled: 0,
   });
@@ -262,6 +263,7 @@ export async function updateProgramAction(formData: FormData) {
   const slug = String(formData.get("slug") ?? "");
   if (!slug) redirect("/mentor/programs");
   const learn = String(formData.get("learn") ?? "").split("\n").map((s) => s.trim()).filter(Boolean);
+  const requirements = String(formData.get("requirements") ?? "").split("\n").map((s) => s.trim()).filter(Boolean);
   const curriculum = String(formData.get("curriculum") ?? "")
     .split("\n").map((l) => l.trim()).filter(Boolean)
     .map((line) => { const p = line.split("|").map((x) => x.trim()).filter(Boolean); return { title: p[0] ?? "Module", lessons: p.slice(1) }; });
@@ -276,7 +278,7 @@ export async function updateProgramAction(formData: FormData) {
     weeks, lessons,
     description: String(formData.get("description") ?? ""),
     about: String(formData.get("about") ?? ""),
-    learn, curriculum, duration_label: durationLabel || null,
+    learn, curriculum, requirements, duration_label: durationLabel || null,
     cover_url: String(formData.get("cover_url") ?? "") || null,
   }).eq("slug", slug).eq("created_by", user.id);
   revalidatePath("/mentor/programs");
@@ -310,4 +312,17 @@ export async function updateEventAction(formData: FormData) {
   revalidatePath("/mentor/events");
   revalidatePath(`/events/${slug}`);
   redirect("/mentor/events?updated=1");
+}
+
+// ---------- Delete own program ----------
+export async function deleteProgramAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const slug = String(formData.get("slug") ?? "");
+  if (!slug) return;
+  await supabase.from("programs").delete().eq("slug", slug).eq("created_by", user.id);
+  revalidatePath("/mentor/programs");
+  revalidatePath("/programs");
+  redirect("/mentor/programs?deleted=1");
 }

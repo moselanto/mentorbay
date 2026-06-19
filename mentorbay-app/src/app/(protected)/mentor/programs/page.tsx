@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getMyPrograms } from "@/lib/programs";
+import { deleteProgramAction } from "@/app/actions";
 
 function statusStyle(status?: string): { label: string; cls: string } {
   switch (status) {
@@ -10,7 +11,7 @@ function statusStyle(status?: string): { label: string; cls: string } {
   }
 }
 
-export default async function MentorProgramsPage({ searchParams }: { searchParams: { submitted?: string; updated?: string } }) {
+export default async function MentorProgramsPage({ searchParams }: { searchParams: { submitted?: string; updated?: string; deleted?: string } }) {
   const mine = await getMyPrograms();
   return (
     <div className="space-y-6">
@@ -20,6 +21,7 @@ export default async function MentorProgramsPage({ searchParams }: { searchParam
       </div>
       {searchParams.submitted && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Program submitted. An admin will review it before it goes live.</p>}
       {searchParams.updated && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Program updated.</p>}
+      {searchParams.deleted && <p className="text-sm text-slate-600 bg-slate-100 px-4 py-2.5 rounded-lg">Program deleted.</p>}
 
       {mine.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-card p-10 text-center">
@@ -40,6 +42,7 @@ export default async function MentorProgramsPage({ searchParams }: { searchParam
                 </div>
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${s.cls}`}>{s.label}</span>
                 <Link href={`/mentor/programs/${p.id}/edit`} className="ml-2 text-sm font-semibold text-teal-600 hover:underline">Edit</Link>
+                <form action={deleteProgramAction} className="ml-2 inline"><input type="hidden" name="slug" value={p.id} /><button className="text-sm font-semibold text-rose-500 hover:underline">Delete</button></form>
               </div>
             );
           })}

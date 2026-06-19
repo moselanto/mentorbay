@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getMyProgramBySlug } from "@/lib/programs";
 import { updateProgramAction } from "@/app/actions";
 import CoverUpload from "@/components/CoverUpload";
+import CurriculumBuilder from "@/components/CurriculumBuilder";
 
 const DURATIONS = ["1 day", "2 days", "3 days", "1 week", "2 weeks", "4 weeks", "6 weeks", "8 weeks", "12 weeks"];
 
@@ -10,7 +11,7 @@ export default async function EditProgramPage({ params }: { params: { id: string
   if (!p) notFound();
 
   const learnText = (p.learn ?? []).join("\n");
-  const curriculumText = (p.curriculum ?? []).map((m) => [m.title, ...m.lessons].join(" | ")).join("\n");
+  const requirementsText = (p.requirements ?? []).join("\n");
   const duration = p.durationLabel ?? `${p.weeks} weeks`;
   const durationOptions = DURATIONS.includes(duration) ? DURATIONS : [duration, ...DURATIONS];
 
@@ -36,7 +37,8 @@ export default async function EditProgramPage({ params }: { params: { id: string
         <section className="bg-white rounded-2xl shadow-card p-6 space-y-4">
           <div><label className="block text-sm font-semibold text-navy mb-1">About this program</label><textarea name="about" rows={4} defaultValue={p.about ?? ""} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /></div>
           <div><label className="block text-sm font-semibold text-navy mb-1">What you&apos;ll learn</label><textarea name="learn" rows={5} defaultValue={learnText} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /><p className="text-xs text-slate-400 mt-1">One learning outcome per line.</p></div>
-          <div><label className="block text-sm font-semibold text-navy mb-1">Curriculum</label><textarea name="curriculum" rows={5} defaultValue={curriculumText} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /><p className="text-xs text-slate-400 mt-1">One module per line: <code>Module title | lesson 1 | lesson 2</code></p></div>
+          <CurriculumBuilder name="curriculum" initial={p.curriculum ?? []} />
+          <div><label className="block text-sm font-semibold text-navy mb-1">Requirements</label><textarea name="requirements" rows={3} defaultValue={requirementsText} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /><p className="text-xs text-slate-400 mt-1">One requirement per line.</p></div>
         </section>
 
         <div className="flex justify-end"><button type="submit" className="px-6 py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">Save changes</button></div>

@@ -1,5 +1,6 @@
 import { createProgramAction } from "@/app/actions";
 import CoverUpload from "@/components/CoverUpload";
+import CurriculumBuilder from "@/components/CurriculumBuilder";
 
 const DURATIONS = ["1 day", "2 days", "3 days", "1 week", "2 weeks", "4 weeks", "6 weeks", "8 weeks", "12 weeks"];
 
@@ -31,13 +32,14 @@ export default function CreateProgramPage({ searchParams }: { searchParams: { er
           <div><label className="block text-sm font-semibold text-navy mb-1">About this program</label><textarea name="about" rows={4} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="Describe what this program is about and who it is for." /></div>
           <div>
             <label className="block text-sm font-semibold text-navy mb-1">What you&apos;ll learn</label>
-            <textarea name="learn" rows={5} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder={"One outcome per line, e.g.\nLead with confidence\nCommunicate effectively"} />
+            <textarea name="learn" rows={5} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder={"One outcome per line"} />
             <p className="text-xs text-slate-400 mt-1">One learning outcome per line.</p>
           </div>
+          <CurriculumBuilder name="curriculum" />
           <div>
-            <label className="block text-sm font-semibold text-navy mb-1">Curriculum</label>
-            <textarea name="curriculum" rows={5} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder={"One module per line:\nFoundations | What is leadership | Leadership styles"} />
-            <p className="text-xs text-slate-400 mt-1">One module per line: <code>Module title | lesson 1 | lesson 2</code></p>
+            <label className="block text-sm font-semibold text-navy mb-1">Requirements</label>
+            <textarea name="requirements" rows={3} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder={"One requirement per line, e.g.\nA laptop with internet\nBasic spreadsheet skills"} />
+            <p className="text-xs text-slate-400 mt-1">One requirement per line (leave blank if none).</p>
           </div>
         </section>
 

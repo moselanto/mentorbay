@@ -36,6 +36,7 @@ export default async function ProgramDetailPage({ params }: { params: { id: stri
   const curriculum = p.curriculum && p.curriculum.length ? p.curriculum : CURRICULUM;
   const duration = p.durationLabel ?? `${p.weeks} weeks`;
   const about = p.about || p.description;
+  const requirements = p.requirements ?? [];
   const related = all.filter((x) => x.id !== p.id).slice(0, 3);
 
   return (
@@ -93,6 +94,15 @@ export default async function ProgramDetailPage({ params }: { params: { id: stri
             </div>
             <Accordion items={curriculum} />
           </div>
+
+          {requirements.length > 0 && (
+            <div className="bg-white rounded-2xl shadow-card p-6 sm:p-8">
+              <h3 className="text-lg font-bold text-navy mb-4">Requirements</h3>
+              <ul className="space-y-2">
+                {requirements.map((r) => (<li key={r} className="flex items-start gap-2 text-sm text-slate-600"><span className="text-teal mt-0.5">&bull;</span><span>{r}</span></li>))}
+              </ul>
+            </div>
+          )}
 
           <div className="bg-white rounded-2xl shadow-card p-6 sm:p-8">
             <h3 className="text-lg font-bold text-navy mb-4">Your Mentor</h3>
