@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getMyPrograms } from "@/lib/programs";
 import { deleteProgramAction } from "@/app/actions";
+import ConfirmButton from "@/components/ConfirmButton";
 
 function statusStyle(status?: string): { label: string; cls: string } {
   switch (status) {
@@ -42,7 +43,7 @@ export default async function MentorProgramsPage({ searchParams }: { searchParam
                 </div>
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${s.cls}`}>{s.label}</span>
                 <Link href={`/mentor/programs/${p.id}/edit`} className="ml-2 text-sm font-semibold text-teal-600 hover:underline">Edit</Link>
-                <form action={deleteProgramAction} className="ml-2 inline"><input type="hidden" name="slug" value={p.id} /><button className="text-sm font-semibold text-rose-500 hover:underline">Delete</button></form>
+                <form action={deleteProgramAction} className="ml-2 inline"><input type="hidden" name="slug" value={p.id} /><ConfirmButton message="Delete this program? This cannot be undone." className="text-sm font-semibold text-rose-500 hover:underline">Delete</ConfirmButton></form>
               </div>
             );
           })}

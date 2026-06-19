@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { LogoWordmark } from "./Logo";
+import { createClient } from "@/lib/supabase/client";
 
 const LINKS = [
   { href: "/", label: "Home" },
@@ -14,10 +15,93 @@ const LINKS = [
   { href: "/resources", label: "Resources" },
 ];
 
+function dashboardFor(role?: string | null): string {
+  if (role === "admin") return "/admin";
+  if (role === "mentor") return "/mentor";
+  return "/mentee";
+}
+
 export default function PublicNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [authed, setAuthed] = useState<boolean | null>(null);
+  const [dash, setDash] = useState("/mentee");
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
+
+  useEffect(() => {
+    const supabase = createClient();
+    let active = true;
+
+    async function load() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!active) return;
+      if (!user) {
+        setAuthed(false);
+        return;
+      }
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      if (!active) return;
+      setDash(dashboardFor(profile?.role));
+      setAuthed(true);
+    }
+    load();
+
+    const { data: sub } = supabase.auth.onAuthStateChange(() => load());
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  async function logout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setAuthed(false);
+    router.push("/");
+    router.refresh();
+  }
+
+  // Desktop auth area. While loading (authed === null) render nothing to avoid
+  // flashing the wrong state.
+  const desktopAuth =
+    authed === null ? (
+      <div className="w-40" />
+    ) : authed ? (
+      <>
+        <Link
+          href={dash}
+          className="px-4 py-2 text-sm font-semibold text-white bg-navy rounded-lg hover:bg-navy-700 transition"
+        >
+          Dashboard
+        </Link>
+        <button
+          onClick={logout}
+          className="px-4 py-2 text-sm font-semibold text-navy border border-slate-200 rounded-lg hover:border-teal hover:text-teal transition"
+        >
+          Log out
+        </button>
+      </>
+    ) : (
+      <>
+        <Link
+          href="/login"
+          className="px-4 py-2 text-sm font-semibold text-navy border border-slate-200 rounded-lg hover:border-teal hover:text-teal transition"
+        >
+          Login
+        </Link>
+        <Link
+          href="/signup"
+          className="px-4 py-2 text-sm font-semibold text-white bg-navy rounded-lg hover:bg-navy-700 transition"
+        >
+          Join Now
+        </Link>
+      </>
+    );
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-100">
@@ -39,20 +123,7 @@ export default function PublicNav() {
             ))}
           </nav>
 
-          <div className="hidden lg:flex items-center gap-3">
-            <Link
-              href="/login"
-              className="px-4 py-2 text-sm font-semibold text-navy border border-slate-200 rounded-lg hover:border-teal hover:text-teal transition"
-            >
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              className="px-4 py-2 text-sm font-semibold text-white bg-navy rounded-lg hover:bg-navy-700 transition"
-            >
-              Join Now
-            </Link>
-          </div>
+          <div className="hidden lg:flex items-center gap-3">{desktopAuth}</div>
 
           <button onClick={() => setOpen((v) => !v)} className="lg:hidden p-2 text-navy" aria-label="Menu">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -74,12 +145,25 @@ export default function PublicNav() {
             </Link>
           ))}
           <div className="flex gap-3 pt-3">
-            <Link href="/login" className="flex-1 text-center px-4 py-2 text-sm font-semibold text-navy border border-slate-200 rounded-lg">
-              Login
-            </Link>
-            <Link href="/signup" className="flex-1 text-center px-4 py-2 text-sm font-semibold text-white bg-navy rounded-lg">
-              Join Now
-            </Link>
+            {authed ? (
+              <>
+                <Link href={dash} className="flex-1 text-center px-4 py-2 text-sm font-semibold text-white bg-navy rounded-lg">
+                  Dashboard
+                </Link>
+                <button onClick={logout} className="flex-1 text-center px-4 py-2 text-sm font-semibold text-navy border border-slate-200 rounded-lg">
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="flex-1 text-center px-4 py-2 text-sm font-semibold text-navy border border-slate-200 rounded-lg">
+                  Login
+                </Link>
+                <Link href="/signup" className="flex-1 text-center px-4 py-2 text-sm font-semibold text-white bg-navy rounded-lg">
+                  Join Now
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

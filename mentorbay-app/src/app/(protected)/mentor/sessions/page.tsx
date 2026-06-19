@@ -1,5 +1,6 @@
 import { getMySessions } from "@/lib/sessions";
 import { createSessionAction, deleteSessionAction } from "@/app/actions";
+import ConfirmButton from "@/components/ConfirmButton";
 
 function approvalBadge(status: string) {
   if (status === "approved") return <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700">approved</span>;
@@ -42,7 +43,7 @@ export default async function MentorSessionsPage({ searchParams }: { searchParam
                 <div className="flex-1 min-w-0"><p className="font-semibold text-navy">{s.topic}</p><p className="text-xs text-slate-500">with {s.counterpart} · {s.mode}</p></div>
                 {approvalBadge(s.approvalStatus)}
                 <span className="text-sm font-medium text-slate-600">{s.when}</span>
-                <form action={deleteSessionAction}><input type="hidden" name="id" value={s.id} /><button className="px-3 py-2 border border-slate-200 text-slate-500 text-sm font-semibold rounded-lg hover:border-rose-300 hover:text-rose-500 transition">Delete</button></form>
+                <form action={deleteSessionAction}><input type="hidden" name="id" value={s.id} /><ConfirmButton message="Delete this session?" className="px-3 py-2 border border-slate-200 text-slate-500 text-sm font-semibold rounded-lg hover:border-rose-300 hover:text-rose-500 transition">Delete</ConfirmButton></form>
               </div>
             ))}
           </div>

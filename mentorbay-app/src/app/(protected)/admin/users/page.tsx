@@ -1,5 +1,6 @@
 import { getAllUsers } from "@/lib/admin";
 import { setSuspendedAction, setApprovalAction } from "@/app/actions";
+import ConfirmButton from "@/components/ConfirmButton";
 
 export default async function AdminUsersPage() {
   const users = await getAllUsers();
@@ -45,7 +46,7 @@ export default async function AdminUsersPage() {
                       {u.suspended ? (
                         <form action={setSuspendedAction}><input type="hidden" name="id" value={u.id} /><input type="hidden" name="suspended" value="false" /><button className="px-3 py-1.5 border border-slate-200 text-slate-600 text-xs font-semibold rounded-lg">Unsuspend</button></form>
                       ) : (
-                        <form action={setSuspendedAction}><input type="hidden" name="id" value={u.id} /><input type="hidden" name="suspended" value="true" /><button className="px-3 py-1.5 border border-slate-200 text-slate-500 text-xs font-semibold rounded-lg hover:border-rose-300 hover:text-rose-500 transition">Suspend</button></form>
+                        <form action={setSuspendedAction}><input type="hidden" name="id" value={u.id} /><input type="hidden" name="suspended" value="true" /><ConfirmButton message="Suspend this user? They will lose access until unsuspended." className="px-3 py-1.5 border border-slate-200 text-slate-500 text-xs font-semibold rounded-lg hover:border-rose-300 hover:text-rose-500 transition">Suspend</ConfirmButton></form>
                       )}
                     </div>
                   </td>
