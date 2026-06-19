@@ -12,11 +12,11 @@ function isProtected(path: string): boolean {
 }
 
 export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  let supabaseResponse = NextResponse.next({ request });
 
   // If Supabase isn't configured yet, do nothing (app runs on demo data).
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    return response;
+    return supabaseResponse;
   }
 
   const supabase = createServerClient(
@@ -29,16 +29,17 @@ export async function updateSession(request: NextRequest) {
         },
         setAll(cookiesToSet: CookieToSet[]) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
+          supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, options)
           );
         },
       },
     },
   );
 
-  // Refreshes the session cookie if needed.
+  // IMPORTANT: refresh the session right after creating the client, with no
+  // logic in between. getUser() rotates/refreshes the auth cookies as needed.
   const { data: { user } } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
@@ -46,8 +47,13 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirect", path);
-    return NextResponse.redirect(url);
+    const redirectResponse = NextResponse.redirect(url);
+    // Carry any refreshed auth cookies onto the redirect so the session
+    // is not dropped (this is what prevents random logouts on navigation).
+    supabaseResponse.cookies.getAll().forEach((c) => redirectResponse.cookies.set(c));
+    return redirectResponse;
   }
 
-  return response;
+  // Must return supabaseResponse so refreshed cookies reach the browser.
+  return supabaseResponse;
 }
