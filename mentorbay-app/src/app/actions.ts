@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { sendNotificationEmail } from "@/lib/email";
 
 type ServerClient = ReturnType<typeof createClient>;
 
@@ -17,6 +18,12 @@ function slugify(title: string): string {
     title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) +
     "-" + Math.random().toString(36).slice(2, 6)
   );
+}
+
+
+async function getUserContact(supabase: ServerClient, id: string): Promise<{ email: string | null; name: string }> {
+  const { data } = await supabase.from("profiles").select("email, full_name").eq("id", id).maybeSingle();
+  return { email: (data?.email as string | null) ?? null, name: (data?.full_name as string | null) ?? "there" };
 }
 
 // ---------- Profile (Settings) ----------
@@ -151,6 +158,14 @@ export async function setApprovalAction(formData: FormData) {
   const status = String(formData.get("status") ?? "");
   if (!id || !["approved", "rejected"].includes(status)) return;
   await supabase.from("profiles").update({ approval_status: status }).eq("id", id);
+  const who = await getUserContact(supabase, id);
+  if (status === "approved") {
+    await sendNotificationEmail({ to: who.email, subject: "Your MentorBay mentor account is approved",
+      html: `<p>Hi ${who.name},</p><p>Good news - your mentor account has been approved. You can now publish programs, events and sessions.</p><p><a href="https://mentorbay.vercel.app/mentor">Go to your dashboard</a></p>` });
+  } else {
+    await sendNotificationEmail({ to: who.email, subject: "Update on your MentorBay mentor application",
+      html: `<p>Hi ${who.name},</p><p>Thank you for your interest in mentoring on MentorBay. After review, your mentor application was not approved at this time.</p>` });
+  }
   revalidatePath("/admin/approvals");
   revalidatePath("/admin");
   revalidatePath("/admin/users");
@@ -164,7 +179,16 @@ export async function setProgramApprovalAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   const decision = String(formData.get("status") ?? "");
   if (!id || !["approved", "rejected"].includes(decision)) return;
-  await supabase.from("programs").update({ status: decision === "approved" ? "published" : "rejected" }).eq("id", id);
+  const { data: prog } = await supabase.from("programs").update({ status: decision === "approved" ? "published" : "rejected" }).eq("id", id).select("title, created_by").maybeSingle();
+  if (prog?.created_by) {
+    const owner = await getUserContact(supabase, prog.created_by as string);
+    const title = (prog.title as string) ?? "Your program";
+    await sendNotificationEmail({ to: owner.email,
+      subject: decision === "approved" ? `Your program "${title}" is now live` : `Your program "${title}" was not approved`,
+      html: decision === "approved"
+        ? `<p>Hi ${owner.name},</p><p>Your program <strong>${title}</strong> has been approved and is now published on MentorBay.</p>`
+        : `<p>Hi ${owner.name},</p><p>Your program <strong>${title}</strong> was reviewed but not approved. You can edit it and resubmit from your dashboard.</p>` });
+  }
   revalidatePath("/admin/approvals");
   revalidatePath("/mentor/programs");
   revalidatePath("/programs");
@@ -215,6 +239,11 @@ export async function setSuspendedAction(formData: FormData) {
   const suspended = String(formData.get("suspended") ?? "") === "true";
   if (!id) return;
   await supabase.from("profiles").update({ suspended }).eq("id", id);
+  if (suspended) {
+    const who = await getUserContact(supabase, id);
+    await sendNotificationEmail({ to: who.email, subject: "Your MentorBay account has been suspended",
+      html: `<p>Hi ${who.name},</p><p>Your MentorBay account has been suspended and access is temporarily restricted. If you believe this is a mistake, reply to this email to reach our support team.</p>` });
+  }
   revalidatePath("/admin/users");
 }
 
@@ -325,4 +354,18 @@ export async function deleteProgramAction(formData: FormData) {
   revalidatePath("/mentor/programs");
   revalidatePath("/programs");
   redirect("/mentor/programs?deleted=1");
+}
+
+// ---------- Admin: save platform settings (name + support email) ----------
+export async function saveSettingsAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const { data: prof } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  if (prof?.role !== "admin") redirect("/admin/settings");
+  const platform_name = String(formData.get("platform_name") ?? "MentorBay").trim() || "MentorBay";
+  const support_email = String(formData.get("support_email") ?? "").trim() || null;
+  await supabase.from("app_settings").update({ platform_name, support_email, updated_at: new Date().toISOString() }).eq("id", 1);
+  revalidatePath("/admin/settings");
+  redirect("/admin/settings?saved=1");
 }
