@@ -119,6 +119,12 @@ export default function SignupPage() {
                 <button disabled={loading} className="w-full py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition disabled:opacity-60">
                   {loading ? "Creating account..." : "Create Account"}
                 </button>
+                <p className="text-center text-xs text-slate-400 leading-relaxed">
+                  By creating an account, you agree to our{" "}
+                  <Link href="/terms" className="text-teal-600 font-medium hover:underline">Terms of Service</Link>{" "}
+                  and{" "}
+                  <Link href="/privacy" className="text-teal-600 font-medium hover:underline">Privacy Policy</Link>.
+                </p>
               </form>
               <p className="text-center text-sm text-slate-500 mt-6">Already have an account? <Link href="/login" className="text-teal-600 font-semibold hover:underline">Log in</Link></p>
             </>
