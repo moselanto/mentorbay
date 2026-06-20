@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { notifyAdminsOfSignupAction } from "@/app/actions";
+import { notifyAdminsOfSignupAction, sendWelcomeEmailAction } from "@/app/actions";
 import { LogoWordmark } from "@/components/Logo";
 
 type Role = "mentee" | "mentor";
@@ -44,6 +44,7 @@ export default function SignupPage() {
     if (role === "mentor") {
       try { await notifyAdminsOfSignupAction({ name, email, role }); } catch { /* best-effort */ }
     }
+    try { await sendWelcomeEmailAction({ name, email, role }); } catch { /* best-effort */ }
     // If email confirmation is OFF, a session is returned and we can go straight to onboarding.
     if (data.session) {
       router.push(`/onboarding/${role}`);

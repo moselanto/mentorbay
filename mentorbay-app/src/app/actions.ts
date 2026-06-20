@@ -202,7 +202,16 @@ export async function setSessionApprovalAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "");
   if (!id || !["approved", "rejected"].includes(status)) return;
-  await supabase.from("sessions").update({ approval_status: status }).eq("id", id);
+  const { data: sess } = await supabase.from("sessions").update({ approval_status: status }).eq("id", id).select("topic, mentor_id").maybeSingle();
+  if (sess?.mentor_id) {
+    const owner = await getUserContact(supabase, sess.mentor_id as string);
+    const topic = (sess.topic as string) ?? "your session";
+    await sendNotificationEmail({ to: owner.email,
+      subject: status === "approved" ? `Your session "${topic}" is approved` : `Your session "${topic}" was not approved`,
+      html: status === "approved"
+        ? `<p>Hi ${owner.name},</p><p>Your session <strong>${topic}</strong> has been approved and is now visible to mentees.</p><p><a href="https://mentorbay.vercel.app/mentor/sessions">View your sessions</a></p>`
+        : `<p>Hi ${owner.name},</p><p>Your session <strong>${topic}</strong> was reviewed but not approved.</p>` });
+  }
   revalidatePath("/admin/approvals");
   revalidatePath("/mentor/sessions");
 }
@@ -278,7 +287,16 @@ export async function setEventApprovalAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "");
   if (!id || !["approved", "rejected"].includes(status)) return;
-  await supabase.from("events").update({ approval_status: status }).eq("id", id);
+  const { data: evt } = await supabase.from("events").update({ approval_status: status }).eq("id", id).select("title, created_by").maybeSingle();
+  if (evt?.created_by) {
+    const owner = await getUserContact(supabase, evt.created_by as string);
+    const title = (evt.title as string) ?? "Your event";
+    await sendNotificationEmail({ to: owner.email,
+      subject: status === "approved" ? `Your event "${title}" is now live` : `Your event "${title}" was not approved`,
+      html: status === "approved"
+        ? `<p>Hi ${owner.name},</p><p>Your event <strong>${title}</strong> has been approved and is now published on MentorBay.</p>`
+        : `<p>Hi ${owner.name},</p><p>Your event <strong>${title}</strong> was reviewed but not approved. You can edit it and resubmit from your dashboard.</p>` });
+  }
   revalidatePath("/admin/approvals");
   revalidatePath("/events");
   revalidatePath("/mentor/events");
@@ -368,4 +386,18 @@ export async function saveSettingsAction(formData: FormData) {
   await supabase.from("app_settings").update({ platform_name, support_email, updated_at: new Date().toISOString() }).eq("id", 1);
   revalidatePath("/admin/settings");
   redirect("/admin/settings?saved=1");
+}
+
+// ---------- Welcome email on signup (best-effort, env-gated) ----------
+export async function sendWelcomeEmailAction(payload: { name: string; email: string; role: string }) {
+  const greeting = payload.name ? payload.name : "there";
+  const roleNote =
+    payload.role === "mentor"
+      ? "<p>Your mentor account is pending review by our team - we'll email you as soon as it's approved, and then you can publish programs, events and sessions.</p>"
+      : "<p>You can now browse mentors, programs and events, and request sessions that fit your goals.</p>";
+  await sendNotificationEmail({
+    to: payload.email,
+    subject: "Welcome to MentorBay",
+    html: `<p>Hi ${greeting},</p><p>Welcome to MentorBay - we're glad to have you.</p>${roleNote}<p><a href="https://mentorbay.vercel.app/${payload.role === "mentor" ? "mentor" : "mentee"}">Go to your dashboard</a></p>`,
+  });
 }
