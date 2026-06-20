@@ -36,10 +36,10 @@ export default function PublicFooter() {
         <div>
           <h4 className="text-white font-semibold mb-3">Support</h4>
           <ul className="space-y-2 text-sm">
-            <li><Link href="#" className="hover:text-teal-400">Help Center</Link></li>
-            <li><Link href="#" className="hover:text-teal-400">Contact Us</Link></li>
-            <li><Link href="#" className="hover:text-teal-400">Terms of Service</Link></li>
-            <li><Link href="#" className="hover:text-teal-400">Privacy Policy</Link></li>
+            <li><Link href="/help" className="hover:text-teal-400">Help Center</Link></li>
+            <li><Link href="/contact" className="hover:text-teal-400">Contact Us</Link></li>
+            <li><Link href="/terms" className="hover:text-teal-400">Terms of Service</Link></li>
+            <li><Link href="/privacy" className="hover:text-teal-400">Privacy Policy</Link></li>
           </ul>
         </div>
       </div>
