@@ -14,8 +14,12 @@ export default function ProgramCard({ program: p }: { program: Program }) {
         <h3 className="font-bold text-navy leading-snug">{p.title}</h3>
         <div className="flex items-center gap-2 mt-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={p.face} alt={p.mentor} className="w-7 h-7 rounded-full object-cover" />
-          <span className="text-xs text-slate-500">by {p.mentor}</span>
+          {p.face ? (
+            <img src={p.face} alt={p.mentor} className="w-7 h-7 rounded-full object-cover" />
+          ) : (
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-navy to-teal grid place-items-center text-white text-[10px] font-bold">{(p.mentor || "M").charAt(0)}</span>
+          )}
+          <span className="text-xs text-slate-500">by {p.mentor || "MentorBay"}</span>
         </div>
         <div className="flex items-center gap-3 mt-4 text-xs text-slate-500">
           <span>{p.weeks} weeks</span><span>{p.lessons} lessons</span><span className="font-medium text-slate-600">{p.level}</span>
