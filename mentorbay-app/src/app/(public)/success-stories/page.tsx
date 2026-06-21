@@ -1,63 +1,74 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { STORIES } from "@/lib/data";
-import StoryFilter from "./StoryFilter";
+import { getFeaturedStories } from "@/lib/stories";
 
-export const metadata: Metadata = { title: "Success Stories — MentorBay" };
+export const metadata: Metadata = { title: "Success Stories - MentorBay" };
 
-const featured = STORIES.find((s) => s.name === "Brian Otieno") ?? STORIES[0];
+export default async function SuccessStoriesPage() {
+  const stories = await getFeaturedStories();
+  const featured = stories[0];
+  const rest = stories.slice(1);
 
-export default function SuccessStoriesPage() {
   return (
     <>
       {/* HERO */}
       <section className="cta-gradient text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 text-center">
           <nav className="text-sm text-teal-50/80 mb-4">
-            <Link href="/" className="hover:text-white">Home</Link> <span className="mx-1">›</span>
+            <Link href="/" className="hover:text-white">Home</Link> <span className="mx-1">&rsaquo;</span>
             <span className="text-white font-medium">Success Stories</span>
           </nav>
           <h1 className="text-3xl lg:text-4xl font-extrabold">Real People. Real Growth.</h1>
           <p className="mt-3 text-teal-50/90 max-w-2xl mx-auto">See how mentees across Kenya and Africa transformed their careers with the right mentor on MentorBay.</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 max-w-3xl mx-auto">
-            {[["12,000+", "Mentees"], ["85%", "Advanced their careers"], ["300+", "Partner companies"], ["4.9/5", "Avg. mentee rating"]].map(([n, l]) => (
-              <div key={l} className="bg-white/10 rounded-xl p-4 backdrop-blur">
-                <p className="text-2xl font-extrabold">{n}</p>
-                <p className="text-xs text-teal-50/80">{l}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
-      {/* FEATURED */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
-        <div className="bg-white rounded-2xl shadow-card grid md:grid-cols-2 overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={featured.img} alt={featured.name} className="w-full h-full object-cover min-h-64" />
-          <div className="p-8">
-            <span className="text-xs font-semibold text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full">Featured Story</span>
-            <h2 className="text-2xl font-extrabold text-navy mt-4">&quot;MentorBay changed the trajectory of my career.&quot;</h2>
-            <p className="text-slate-600 mt-3 leading-relaxed">&quot;{featured.quote}&quot;</p>
-            <div className="flex items-center gap-3 mt-6">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={featured.img} alt={featured.name} className="w-12 h-12 rounded-full object-cover" />
-              <div>
-                <p className="font-bold text-navy">{featured.name}</p>
-                <p className="text-sm text-slate-500">{featured.from} → {featured.to}</p>
+      {!featured ? (
+        <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <div className="bg-white rounded-2xl shadow-card p-10">
+            <h2 className="text-xl font-bold text-navy">No success stories yet</h2>
+            <p className="text-slate-500 mt-2">As mentees share reviews of their mentors, the best ones will be featured here.</p>
+            <Link href="/mentors" className="inline-block mt-5 px-6 py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">Browse Mentors</Link>
+          </div>
+        </section>
+      ) : (
+        <>
+          {/* FEATURED */}
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
+            <div className="bg-white rounded-2xl shadow-card p-8">
+              <span className="text-xs font-semibold text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full">Featured Story</span>
+              <p className="text-amber-400 text-sm mt-4">{"\u2605".repeat(featured.rating)}</p>
+              <p className="text-slate-700 mt-3 leading-relaxed text-lg">&quot;{featured.quote}&quot;</p>
+              <div className="flex items-center gap-3 mt-6">
+                <span className="w-12 h-12 rounded-full bg-gradient-to-br from-navy to-teal grid place-items-center text-white font-bold">{featured.name.charAt(0)}</span>
+                <div>
+                  <p className="font-bold text-navy">{featured.name}</p>
+                  {featured.mentor && <p className="text-sm text-slate-500">Mentored by {featured.mentor}</p>}
+                </div>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2 mt-5 text-xs">
-              <span className="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">Mentor: {featured.mentor}</span>
-            </div>
-          </div>
-        </div>
-      </section>
+          </section>
 
-      {/* GRID */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <StoryFilter stories={STORIES} />
-      </section>
+          {/* GRID */}
+          {rest.length > 0 && (
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {rest.map((s) => (
+                <div key={s.id} className="bg-white rounded-2xl shadow-card p-6">
+                  <p className="text-amber-400 text-sm mb-3">{"\u2605".repeat(s.rating)}</p>
+                  <p className="text-slate-600 text-sm leading-relaxed">&quot;{s.quote}&quot;</p>
+                  <div className="flex items-center gap-3 mt-5">
+                    <span className="w-10 h-10 rounded-full bg-gradient-to-br from-navy to-teal grid place-items-center text-white font-bold">{s.name.charAt(0)}</span>
+                    <div>
+                      <p className="font-bold text-navy text-sm">{s.name}</p>
+                      {s.mentor && <p className="text-xs text-slate-500">Mentored by {s.mentor}</p>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </section>
+          )}
+        </>
+      )}
 
       {/* CTA */}
       <section className="cta-gradient">

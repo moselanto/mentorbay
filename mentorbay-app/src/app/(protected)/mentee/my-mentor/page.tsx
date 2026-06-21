@@ -53,7 +53,7 @@ export default async function MyMentorPage({ searchParams }: { searchParams: { a
                 </Link>
                 {m.skills[0] && <span className="inline-block mt-3 text-xs font-medium text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full">{m.skills[0]}</span>}
                 <form action={applyMentorshipAction} className="mt-4">
-                  <input type="hidden" name="mentor_id" value={m.id} />
+                  <input type="hidden" name="mentor_id" value={m.profileId ?? ""} />
                   <input type="hidden" name="redirect" value="/mentee/my-mentor" />
                   <button className="w-full py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">Apply for mentorship</button>
                 </form>

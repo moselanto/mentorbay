@@ -3,6 +3,7 @@
 
 export type Mentor = {
   id: string;
+  profileId?: string;
   name: string;
   role: string;
   industry: string;

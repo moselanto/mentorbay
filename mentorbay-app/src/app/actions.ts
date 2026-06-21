@@ -564,14 +564,14 @@ export async function applyMentorshipAction(formData: FormData) {
   const mentorId = String(formData.get("mentor_id") ?? "");
   const redirectTo = String(formData.get("redirect") ?? "/mentors");
   if (!user) redirect(`/login?redirect=${encodeURIComponent(redirectTo)}`);
-  await supabase.from("applications").insert({
+  const { error } = await supabase.from("applications").insert({
     mentee_id: user.id,
     mentor_id: mentorId || null,
     note: String(formData.get("note") ?? "").trim() || null,
   });
   revalidatePath(redirectTo);
   revalidatePath("/mentee/my-mentor");
-  redirect(`${redirectTo}?applied=1`);
+  redirect(`${redirectTo}?${error ? "applyerror=1" : "applied=1"}`);
 }
 
 // ---------- Mentee: register / unregister for an event ----------

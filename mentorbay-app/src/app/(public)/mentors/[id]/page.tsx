@@ -68,7 +68,7 @@ export default async function MentorProfilePage({ params }: { params: { id: stri
                   <div className="text-center py-3 bg-teal-50 text-teal-700 font-semibold rounded-lg">✓ Application sent</div>
                 ) : (
                   <form action={applyMentorshipAction}>
-                    <input type="hidden" name="mentor_id" value={m.id} />
+                    <input type="hidden" name="mentor_id" value={m.profileId ?? ""} />
                     <input type="hidden" name="redirect" value={here} />
                     <button className="w-full py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">✦ Apply for Mentorship</button>
                   </form>
@@ -76,7 +76,7 @@ export default async function MentorProfilePage({ params }: { params: { id: stri
               ) : (
                 <Link href={`/login?redirect=${encodeURIComponent(here)}`} className="block text-center py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">✦ Apply for Mentorship</Link>
               )}
-              <button className="w-full mt-3 py-3 border border-slate-200 text-navy font-semibold rounded-lg hover:border-teal hover:text-teal transition">Message Mentor</button>
+              <Link href={signedIn ? "/mentee/messages" : `/login?redirect=${encodeURIComponent(here)}`} className="block text-center w-full mt-3 py-3 border border-slate-200 text-navy font-semibold rounded-lg hover:border-teal hover:text-teal transition">Message Mentor</Link>
               <SaveMentorButton />
               <div className="mt-5 pt-5 border-t border-slate-100 space-y-3 text-sm">
                 <div className="flex justify-between"><span className="text-slate-500">Mentorship Fee</span><span className="font-semibold text-teal-600">Free during launch</span></div>
