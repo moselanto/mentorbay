@@ -16,9 +16,9 @@ const NAV: NavItem[] = [
 ];
 
 export default async function MentorLayout({ children }: { children: React.ReactNode }) {
-  const { userName, approvalStatus } = await requireRole("mentor");
+  const { userName, avatarUrl, approvalStatus } = await requireRole("mentor");
   return (
-    <DashboardShell roleLabel="Mentor" nav={NAV} userName={userName}>
+    <DashboardShell roleLabel="Mentor" nav={NAV} userName={userName} avatarUrl={avatarUrl}>
       {approvalStatus !== "approved" && (
         <div className={`mb-6 rounded-xl border p-4 text-sm ${approvalStatus === "rejected" ? "bg-rose-50 border-rose-200 text-rose-800" : "bg-amber-50 border-amber-200 text-amber-800"}`}>
           {approvalStatus === "rejected" ? (

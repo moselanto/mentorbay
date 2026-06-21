@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getProgram, getPrograms } from "@/lib/programs";
 import Accordion, { type Module } from "@/components/Accordion";
 import EnrollButton from "@/components/EnrollButton";
+import { isEnrolledInProgram } from "@/lib/enrollments";
 import ProgramCard from "@/components/ProgramCard";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -30,6 +31,7 @@ const CURRICULUM: Module[] = [
 
 export default async function ProgramDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string } }) {
   const p = await getProgram(params.id, { preview: searchParams?.preview === "1" });
+  const enrolled = p ? await isEnrolledInProgram(p.id) : false;
   if (!p) notFound();
   const all = await getPrograms();
   const learn = p.learn && p.learn.length ? p.learn : LEARN;
@@ -128,7 +130,7 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
                 <span className="text-sm text-slate-400 line-through mb-1">KES 15,000</span>
               </div>
               <p className="text-xs text-teal-600 font-medium mt-1">Free during launch - limited time</p>
-              <EnrollButton />
+              <EnrollButton slug={p.id} enrolled={enrolled} />
               <ul className="mt-5 pt-5 border-t border-slate-100 space-y-3 text-sm">
                 <li className="flex justify-between"><span className="text-slate-500">Duration</span><span className="font-semibold text-navy">{duration}</span></li>
                 <li className="flex justify-between"><span className="text-slate-500">Lessons</span><span className="font-semibold text-navy">{p.lessons} lessons</span></li>

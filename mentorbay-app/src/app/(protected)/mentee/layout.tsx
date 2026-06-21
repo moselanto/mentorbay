@@ -13,9 +13,9 @@ const NAV: NavItem[] = [
 ];
 
 export default async function MenteeLayout({ children }: { children: React.ReactNode }) {
-  const { userName } = await requireRole("mentee");
+  const { userName, avatarUrl } = await requireRole("mentee");
   return (
-    <DashboardShell roleLabel="Mentee" nav={NAV} userName={userName}>
+    <DashboardShell roleLabel="Mentee" nav={NAV} userName={userName} avatarUrl={avatarUrl}>
       {children}
     </DashboardShell>
   );

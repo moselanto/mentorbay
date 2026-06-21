@@ -31,7 +31,7 @@ const ARTICLES = [
   { title: "How to Build a Powerful Personal Brand", date: "Apr 28, 2026", img: img("sd7f8shp9xrg8xvwefbhc1peyx88tt44") },
 ];
 
-export default function MentorProfileTabs({ mentor, programs }: { mentor: Mentor; programs: Program[] }) {
+export default function MentorProfileTabs({ mentor, programs, signedIn, reviewForm }: { mentor: Mentor; programs: Program[]; signedIn?: boolean; reviewForm?: React.ReactNode }) {
   const tabs = [
     { id: "About", label: "About" },
     { id: "Programs", label: `Programs (${programs.length})` },
@@ -80,7 +80,9 @@ export default function MentorProfileTabs({ mentor, programs }: { mentor: Mentor
         )}
 
         {tab === "Reviews" && (
-          <div className="grid sm:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            {reviewForm}
+            <div className="grid sm:grid-cols-2 gap-6">
             {REVIEWS.map((r) => (
               <div key={r.name} className="bg-white rounded-2xl shadow-card p-6">
                 <div className="text-amber-400 text-sm mb-3">★★★★★</div>
@@ -92,6 +94,7 @@ export default function MentorProfileTabs({ mentor, programs }: { mentor: Mentor
                 </div>
               </div>
             ))}
+            </div>
           </div>
         )}
 

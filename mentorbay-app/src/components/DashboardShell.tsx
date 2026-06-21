@@ -41,12 +41,14 @@ export default function DashboardShell({
   roleLabel,
   nav,
   userName,
+  avatarUrl = null,
   theme = "light",
   children,
 }: {
   roleLabel: string;
   nav: NavItem[];
   userName: string;
+  avatarUrl?: string | null;
   theme?: "light" | "dark";
   children: React.ReactNode;
 }) {
@@ -112,7 +114,7 @@ export default function DashboardShell({
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-slate-500 hidden sm:inline">{userName}</span>
-            <span className="w-9 h-9 rounded-full bg-teal-50 text-teal-700 grid place-items-center text-sm font-bold">{userName?.[0]?.toUpperCase() ?? "U"}</span>
+            <span className="w-9 h-9 rounded-full bg-teal-50 text-teal-700 grid place-items-center text-sm font-bold overflow-hidden">{avatarUrl ? (/* eslint-disable-next-line @next/next/no-img-element */ <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" />) : (userName?.[0]?.toUpperCase() ?? "U")}</span>
             <SignOutButton />
           </div>
         </header>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getEvent, getEvents } from "@/lib/events";
+import { isRegisteredForEvent } from "@/lib/registrations";
 import { MENTORS } from "@/lib/data";
 import EventRegister from "@/components/EventRegister";
 import EventCard from "@/components/EventCard";
@@ -32,6 +33,7 @@ const AGENDA = [
 
 export default async function EventDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string } }) {
   const e = await getEvent(params.id, { preview: searchParams?.preview === "1" });
+  const registered = e ? await isRegisteredForEvent(e.id) : false;
   if (!e) notFound();
 
   const speakers = (e.speakers && e.speakers.length
@@ -117,7 +119,7 @@ export default async function EventDetailPage({ params, searchParams }: { params
         </div>
 
         <aside>
-          <EventRegister event={e} />
+          <EventRegister event={e} registered={registered} />
         </aside>
       </div>
 

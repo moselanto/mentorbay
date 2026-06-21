@@ -533,3 +533,87 @@ export async function deleteArticleAction(formData: FormData) {
   revalidatePath("/mentor/articles");
   redirect("/mentor/articles?deleted=1");
 }
+
+// ---------- Mentee: enroll / unenroll in a program ----------
+export async function enrollProgramAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const slug = String(formData.get("slug") ?? "");
+  const redirectTo = String(formData.get("redirect") ?? `/programs/${slug}`);
+  if (!user) redirect(`/login?redirect=${encodeURIComponent(redirectTo)}`);
+  if (!slug) return;
+  const action = String(formData.get("action") ?? "enroll");
+  if (action === "unenroll") {
+    await supabase.from("enrollments").delete().eq("user_id", user.id).eq("program_slug", slug);
+  } else {
+    await supabase.from("enrollments").upsert({ user_id: user.id, program_slug: slug }, { onConflict: "user_id,program_slug" });
+  }
+  revalidatePath(`/programs/${slug}`);
+  revalidatePath("/mentee/programs");
+  revalidatePath("/mentee");
+}
+
+// ---------- Mentee: apply for mentorship ----------
+export async function applyMentorshipAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const mentorId = String(formData.get("mentor_id") ?? "");
+  const redirectTo = String(formData.get("redirect") ?? "/mentors");
+  if (!user) redirect(`/login?redirect=${encodeURIComponent(redirectTo)}`);
+  await supabase.from("applications").insert({
+    mentee_id: user.id,
+    mentor_id: mentorId || null,
+    note: String(formData.get("note") ?? "").trim() || null,
+  });
+  revalidatePath(redirectTo);
+  revalidatePath("/mentee/my-mentor");
+  redirect(`${redirectTo}?applied=1`);
+}
+
+// ---------- Mentee: register / unregister for an event ----------
+export async function registerEventAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const slug = String(formData.get("slug") ?? "");
+  const redirectTo = String(formData.get("redirect") ?? `/events/${slug}`);
+  if (!user) redirect(`/login?redirect=${encodeURIComponent(redirectTo)}`);
+  if (!slug) return;
+  const action = String(formData.get("action") ?? "register");
+  if (action === "unregister") {
+    await supabase.from("event_registrations").delete().eq("user_id", user.id).eq("event_slug", slug);
+  } else {
+    await supabase.from("event_registrations").upsert({ user_id: user.id, event_slug: slug }, { onConflict: "user_id,event_slug" });
+    // Email a confirmation with the event link (best-effort, env-gated).
+    const who = await getUserContact(supabase, user.id);
+    const { data: ev } = await supabase.from("events").select("title, date_label, time_label, location").eq("slug", slug).maybeSingle();
+    const title = (ev?.title as string) ?? "the event";
+    await sendNotificationEmail({ to: who.email, subject: `You're registered: ${title}`,
+      html: `<p>Hi ${who.name},</p><p>You're registered for <strong>${title}</strong>.</p>` +
+            `<p>${ev?.date_label ?? ""} ${ev?.time_label ? "at " + ev.time_label : ""}<br/>${ev?.location ?? ""}</p>` +
+            `<p><a href="https://mentorbay.vercel.app/events/${slug}">View the event page</a></p>` });
+  }
+  revalidatePath(`/events/${slug}`);
+}
+
+// ---------- Mentee: submit a review for a mentor ----------
+export async function submitReviewAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const mentorSlug = String(formData.get("mentor_slug") ?? "");
+  const redirectTo = String(formData.get("redirect") ?? (mentorSlug ? `/mentors/${mentorSlug}` : "/mentors"));
+  if (!user) redirect(`/login?redirect=${encodeURIComponent(redirectTo)}`);
+  const rating = Math.max(1, Math.min(5, Number(formData.get("rating") ?? 5)));
+  const body = String(formData.get("body") ?? "").trim();
+  if (!body) redirect(`${redirectTo}?review=empty`);
+  const who = await getUserContact(supabase, user.id);
+  await supabase.from("reviews").insert({
+    mentor_slug: mentorSlug || null,
+    author_id: user.id,
+    author_name: who.name,
+    rating,
+    body,
+    status: "visible",
+  });
+  revalidatePath(redirectTo);
+  redirect(`${redirectTo}?review=thanks`);
+}

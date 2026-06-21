@@ -11,9 +11,9 @@ const NAV: NavItem[] = [
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { userName } = await requireRole("admin");
+  const { userName, avatarUrl } = await requireRole("admin");
   return (
-    <DashboardShell roleLabel="Admin" nav={NAV} userName={userName} theme="dark">
+    <DashboardShell roleLabel="Admin" nav={NAV} userName={userName} avatarUrl={avatarUrl} theme="dark">
       {children}
     </DashboardShell>
   );

@@ -32,3 +32,15 @@ export async function getMyEnrollments(): Promise<MyEnrollment[]> {
     return [];
   }
 }
+
+
+/** Whether the signed-in user is enrolled in a given program. */
+export async function isEnrolledInProgram(slug: string): Promise<boolean> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+    const { data } = await supabase.from("enrollments").select("id").eq("user_id", user.id).eq("program_slug", slug).maybeSingle();
+    return !!data;
+  } catch { return false; }
+}
