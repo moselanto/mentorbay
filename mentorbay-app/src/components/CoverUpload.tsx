@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { toWebp } from "@/lib/image-to-webp";
 
 export default function CoverUpload({ name, label = "Banner image", currentUrl = "" }: { name: string; label?: string; currentUrl?: string }) {
   const [url, setUrl] = useState(currentUrl);
@@ -9,17 +10,18 @@ export default function CoverUpload({ name, label = "Banner image", currentUrl =
   const [err, setErr] = useState("");
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const original = e.target.files?.[0];
+    if (!original) return;
     setBusy(true);
     setErr("");
     try {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setErr("Please log in again."); return; }
-      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const file = await toWebp(original, 1600);
+      const ext = file.type === "image/webp" ? "webp" : (file.name.split(".").pop() || "jpg").toLowerCase();
       const path = `${user.id}/covers/${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
       if (upErr) { setErr(upErr.message); return; }
       const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
       setUrl(pub.publicUrl);
