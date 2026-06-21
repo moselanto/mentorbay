@@ -1,8 +1,20 @@
+"use client";
+
 import Link from "next/link";
+import { useFormStatus } from "react-dom";
 import { submitReviewAction } from "@/app/actions";
 
-// A simple review form: 1-5 star rating (select) + body. Submitted reviews are
-// visible immediately and can be moderated by admins.
+function SubmitBtn() {
+  const { pending } = useFormStatus();
+  return (
+    <button disabled={pending} className="px-5 py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition disabled:opacity-60">
+      {pending ? "Submitting..." : "Submit review"}
+    </button>
+  );
+}
+
+// Review form: 1-5 star rating + body. Submitted reviews are visible immediately
+// and can be moderated by admins. Shows a pending state while submitting.
 export default function ReviewForm({ mentorSlug, signedIn, redirectTo }: { mentorSlug: string; signedIn: boolean; redirectTo: string }) {
   if (!signedIn) {
     return (
@@ -32,7 +44,7 @@ export default function ReviewForm({ mentorSlug, signedIn, redirectTo }: { mento
         <textarea name="body" rows={4} required className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="Share how this mentor helped you..." />
       </div>
       <div className="flex justify-end">
-        <button className="px-5 py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">Submit review</button>
+        <SubmitBtn />
       </div>
     </form>
   );

@@ -615,7 +615,7 @@ export async function submitReviewAction(formData: FormData) {
   const body = String(formData.get("body") ?? "").trim();
   if (!body) redirect(`${redirectTo}?review=empty`);
   const who = await getUserContact(supabase, user.id);
-  await supabase.from("reviews").insert({
+  const { error } = await supabase.from("reviews").insert({
     mentor_slug: mentorSlug || null,
     author_id: user.id,
     author_name: who.name,
@@ -624,7 +624,7 @@ export async function submitReviewAction(formData: FormData) {
     status: "visible",
   });
   revalidatePath(redirectTo);
-  redirect(`${redirectTo}?review=thanks`);
+  redirect(`${redirectTo}?review=${error ? "error" : "thanks"}`);
 }
 
 // ---------- Admin: feature / unfeature a review as a success story ----------

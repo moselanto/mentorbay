@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   return { title: m ? `${m.name} — Mentor Profile | MentorBay` : "Mentor — MentorBay" };
 }
 
-export default async function MentorProfilePage({ params, searchParams }: { params: { id: string }; searchParams: { applied?: string; applyerror?: string } }) {
+export default async function MentorProfilePage({ params, searchParams }: { params: { id: string }; searchParams: { applied?: string; applyerror?: string; review?: string } }) {
   const m = await getMentorBySlug(params.id);
   if (!m) notFound();
   const programs = await getProgramsByMentor(m.id);
@@ -27,6 +27,9 @@ export default async function MentorProfilePage({ params, searchParams }: { para
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         {searchParams?.applied && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg mb-4">Application sent. The mentor will be in touch.</p>}
         {searchParams?.applyerror && <p className="text-sm text-rose-600 bg-rose-50 px-4 py-2.5 rounded-lg mb-4">Could not send your application. This mentor may not have a linked account yet.</p>}
+        {searchParams?.review === "thanks" && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg mb-4">Thanks! Your review has been posted.</p>}
+        {searchParams?.review === "empty" && <p className="text-sm text-rose-600 bg-rose-50 px-4 py-2.5 rounded-lg mb-4">Please write something before submitting your review.</p>}
+        {searchParams?.review === "error" && <p className="text-sm text-rose-600 bg-rose-50 px-4 py-2.5 rounded-lg mb-4">Could not post your review. Please try again.</p>}
         <nav className="text-sm text-slate-500 mb-4">
           <Link href="/" className="hover:text-teal">Home</Link> <span className="mx-1">›</span>
           <Link href="/mentors" className="hover:text-teal">Mentors</Link> <span className="mx-1">›</span>
