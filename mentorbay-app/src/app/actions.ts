@@ -32,9 +32,13 @@ export async function updateProfileAction(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
   const str = (k: string) => { const v = formData.get(k); return typeof v === "string" && v.length > 0 ? v : null; };
+  // NOTE: avatar_url is intentionally NOT updated here. The AvatarUpload
+  // component saves the avatar directly on upload; including it in this form
+  // patch would overwrite the saved photo with null (no avatar field exists
+  // in this form), which previously made the photo disappear on reload.
   await supabase.from("profiles").update({
     full_name: str("full_name"), headline: str("headline"), title: str("title"),
-    bio: str("bio"), location: str("location"), languages: str("languages"), avatar_url: str("avatar_url"),
+    bio: str("bio"), location: str("location"), languages: str("languages"),
   }).eq("id", user.id);
   revalidatePath("/mentee/settings");
   revalidatePath("/mentor/settings");
