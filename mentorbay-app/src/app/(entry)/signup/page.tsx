@@ -71,10 +71,47 @@ function SignupForm() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       <div className="cta-gradient hidden lg:flex flex-col justify-between p-12 text-white">
-        <Link href="/"><LogoWordmark /></Link>
+        <Link href="/"><LogoWordmark light /></Link>
         <div>
           <h2 className="text-3xl font-extrabold leading-tight">Start your growth journey today.</h2>
           <p className="mt-3 text-teal-50/90 max-w-sm">Join thousands of mentees and mentors across Kenya and Africa. Free during launch.</p>
+
+          {/* Animated mentorship-network visual */}
+          <div className="mt-10 relative h-64 w-full max-w-sm" aria-hidden="true">
+            <svg viewBox="0 0 320 260" className="w-full h-full">
+              <defs>
+                <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#7fe7f5" stopOpacity="0.5" />
+                  <stop offset="100%" stopColor="#7fe7f5" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+              <circle cx="160" cy="130" r="120" fill="url(#glow)">
+                <animate attributeName="r" values="110;125;110" dur="6s" repeatCount="indefinite" />
+              </circle>
+
+              {/* connecting lines */}
+              <g stroke="#bdeef6" strokeWidth="1.5" strokeOpacity="0.5">
+                <line x1="160" y1="130" x2="60" y2="60"><animate attributeName="stroke-opacity" values="0.2;0.7;0.2" dur="3s" repeatCount="indefinite" /></line>
+                <line x1="160" y1="130" x2="270" y2="70"><animate attributeName="stroke-opacity" values="0.2;0.7;0.2" dur="3.6s" repeatCount="indefinite" /></line>
+                <line x1="160" y1="130" x2="50" y2="200"><animate attributeName="stroke-opacity" values="0.2;0.7;0.2" dur="4.2s" repeatCount="indefinite" /></line>
+                <line x1="160" y1="130" x2="265" y2="205"><animate attributeName="stroke-opacity" values="0.2;0.7;0.2" dur="3.3s" repeatCount="indefinite" /></line>
+                <line x1="60" y1="60" x2="270" y2="70" strokeOpacity="0.25" />
+                <line x1="50" y1="200" x2="265" y2="205" strokeOpacity="0.25" />
+              </g>
+
+              {/* center mentor node */}
+              <circle cx="160" cy="130" r="30" fill="#1FA2BE" stroke="#ffffff" strokeWidth="2" />
+              <text x="160" y="138" textAnchor="middle" fontSize="22" fontWeight="800" fill="#ffffff" fontFamily="Inter">M</text>
+
+              {/* mentee nodes (gently pulsing) */}
+              <g fill="#ffffff">
+                <circle cx="60" cy="60" r="14"><animate attributeName="r" values="12;15;12" dur="2.8s" repeatCount="indefinite" /></circle>
+                <circle cx="270" cy="70" r="14"><animate attributeName="r" values="13;16;13" dur="3.4s" repeatCount="indefinite" /></circle>
+                <circle cx="50" cy="200" r="14"><animate attributeName="r" values="14;11;14" dur="3.1s" repeatCount="indefinite" /></circle>
+                <circle cx="265" cy="205" r="14"><animate attributeName="r" values="12;15;12" dur="3.7s" repeatCount="indefinite" /></circle>
+              </g>
+            </svg>
+          </div>
         </div>
         <p className="text-xs text-teal-50/60">© 2026 MentorBay · Connect · Grow · Succeed</p>
       </div>

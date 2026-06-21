@@ -16,13 +16,13 @@ export function Logo({ light = false, className = "h-8 w-8" }: { light?: boolean
   );
 }
 
-// Logo + wordmark, used in the header.
-export function LogoWordmark() {
+// Logo + wordmark, used in the header. Pass `light` on dark backgrounds.
+export function LogoWordmark({ light = false }: { light?: boolean }) {
   return (
     <span className="flex items-center gap-2">
-      <Logo className="h-9 w-9" />
-      <span className="text-xl font-extrabold text-navy">
-        Mentor<span className="text-teal">Bay</span>
+      <Logo light={light} className="h-9 w-9" />
+      <span className={`text-xl font-extrabold ${light ? "text-white" : "text-navy"}`}>
+        Mentor<span className={light ? "text-teal-300" : "text-teal"}>Bay</span>
       </span>
     </span>
   );
