@@ -28,8 +28,8 @@ const CURRICULUM: Module[] = [
   { title: "Module 5 - Capstone Project", lessons: ["Action plan", "Peer presentation", "Certification"] },
 ];
 
-export default async function ProgramDetailPage({ params }: { params: { id: string } }) {
-  const p = await getProgram(params.id);
+export default async function ProgramDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string } }) {
+  const p = await getProgram(params.id, { preview: searchParams?.preview === "1" });
   if (!p) notFound();
   const all = await getPrograms();
   const learn = p.learn && p.learn.length ? p.learn : LEARN;

@@ -30,8 +30,8 @@ const AGENDA = [
   { t: "4:30 PM", title: "Closing & networking" },
 ];
 
-export default async function EventDetailPage({ params }: { params: { id: string } }) {
-  const e = await getEvent(params.id);
+export default async function EventDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string } }) {
+  const e = await getEvent(params.id, { preview: searchParams?.preview === "1" });
   if (!e) notFound();
 
   const speakers = (e.speakers && e.speakers.length

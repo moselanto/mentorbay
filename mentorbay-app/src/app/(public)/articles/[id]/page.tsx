@@ -7,8 +7,8 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   return { title: a ? `${a.title} - MentorBay` : "Article - MentorBay" };
 }
 
-export default async function ArticleDetailPage({ params }: { params: { id: string } }) {
-  const a = await getArticle(params.id);
+export default async function ArticleDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string } }) {
+  const a = await getArticle(params.id, { preview: searchParams?.preview === "1" });
   if (!a) notFound();
   const paragraphs = a.body.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
   return (

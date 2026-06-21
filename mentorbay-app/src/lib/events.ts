@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { EVENTS, type EventItem } from "@/lib/data";
+import { currentUserIsAdmin } from "@/lib/is-admin";
 
 function hasSupabase() {
   return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
@@ -29,11 +30,14 @@ export async function getEvents(): Promise<EventItem[]> {
   } catch { return EVENTS; }
 }
 
-export async function getEvent(slug: string): Promise<EventItem | null> {
+export async function getEvent(slug: string, opts?: { preview?: boolean }): Promise<EventItem | null> {
   if (!hasSupabase()) return EVENTS.find((e) => e.id === slug) ?? null;
   try {
     const supabase = createClient();
-    const { data, error } = await supabase.from("events").select("*").eq("slug", slug).eq("status", "published").maybeSingle();
+    const allowPreview = opts?.preview === true && (await currentUserIsAdmin());
+    let q = supabase.from("events").select("*").eq("slug", slug);
+    if (!allowPreview) q = q.eq("status", "published");
+    const { data, error } = await q.maybeSingle();
     if (error || !data) return EVENTS.find((e) => e.id === slug) ?? null;
     return rowToEvent(data as EventRow);
   } catch { return EVENTS.find((e) => e.id === slug) ?? null; }

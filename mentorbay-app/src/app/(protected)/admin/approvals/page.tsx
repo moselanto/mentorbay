@@ -29,7 +29,8 @@ export default async function AdminApprovalsPage() {
                   {u.avatarUrl ? <img src={u.avatarUrl} alt={u.name} className="w-full h-full object-cover" /> : u.name[0]}
                 </span>
                 <div className="flex-1 min-w-0"><p className="font-semibold text-navy">{u.name}</p><p className="text-sm text-slate-500 capitalize">{u.role}</p></div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
+                  <a href={`/mentors/${u.id}?preview=1`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 border border-slate-200 text-navy text-sm font-semibold rounded-lg hover:border-teal transition">Preview</a>
                   <form action={setApprovalAction}><input type="hidden" name="id" value={u.id} /><input type="hidden" name="status" value="approved" /><button className="px-4 py-2 bg-teal text-white text-sm font-semibold rounded-lg">Approve</button></form>
                   <form action={setApprovalAction}><input type="hidden" name="id" value={u.id} /><input type="hidden" name="status" value="rejected" /><button className="px-4 py-2 border border-slate-200 text-slate-500 text-sm font-semibold rounded-lg hover:border-rose-300 hover:text-rose-500 transition">Reject</button></form>
                 </div>
@@ -46,7 +47,8 @@ export default async function AdminApprovalsPage() {
             {programs.map((p) => (
               <div key={p.id} className="bg-white rounded-2xl shadow-card p-4 flex items-center gap-4">
                 <div className="flex-1 min-w-0"><p className="font-semibold text-navy truncate">{p.title}</p><p className="text-sm text-slate-500">{p.category} · {p.level}</p></div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
+                  <a href={`/programs/${p.slug}?preview=1`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 border border-slate-200 text-navy text-sm font-semibold rounded-lg hover:border-teal transition">Preview</a>
                   <form action={setProgramApprovalAction}><input type="hidden" name="id" value={p.id} /><input type="hidden" name="status" value="approved" /><button className="px-4 py-2 bg-teal text-white text-sm font-semibold rounded-lg">Approve</button></form>
                   <form action={setProgramApprovalAction}><input type="hidden" name="id" value={p.id} /><input type="hidden" name="status" value="rejected" /><button className="px-4 py-2 border border-slate-200 text-slate-500 text-sm font-semibold rounded-lg hover:border-rose-300 hover:text-rose-500 transition">Reject</button></form>
                 </div>
@@ -63,7 +65,8 @@ export default async function AdminApprovalsPage() {
             {events.map((e) => (
               <div key={e.id} className="bg-white rounded-2xl shadow-card p-4 flex items-center gap-4">
                 <div className="flex-1 min-w-0"><p className="font-semibold text-navy truncate">{e.title}</p><p className="text-sm text-slate-500">{e.category} · {e.format} · {e.date}</p></div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
+                  <a href={`/events/${e.id}?preview=1`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 border border-slate-200 text-navy text-sm font-semibold rounded-lg hover:border-teal transition">Preview</a>
                   <form action={setEventApprovalAction}><input type="hidden" name="id" value={e.id} /><input type="hidden" name="status" value="approved" /><button className="px-4 py-2 bg-teal text-white text-sm font-semibold rounded-lg">Approve</button></form>
                   <form action={setEventApprovalAction}><input type="hidden" name="id" value={e.id} /><input type="hidden" name="status" value="rejected" /><button className="px-4 py-2 border border-slate-200 text-slate-500 text-sm font-semibold rounded-lg hover:border-rose-300 hover:text-rose-500 transition">Reject</button></form>
                 </div>
@@ -97,7 +100,8 @@ export default async function AdminApprovalsPage() {
             {articles.map((a) => (
               <div key={a.id} className="bg-white rounded-2xl shadow-card p-4 flex items-center gap-4">
                 <div className="flex-1 min-w-0"><p className="font-semibold text-navy truncate">{a.title}</p><p className="text-sm text-slate-500">by {a.author} · {a.date}</p></div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
+                  <a href={`/articles/${a.id}?preview=1`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 border border-slate-200 text-navy text-sm font-semibold rounded-lg hover:border-teal transition">Preview</a>
                   <form action={setArticleApprovalAction}><input type="hidden" name="id" value={a.id} /><input type="hidden" name="status" value="approved" /><button className="px-4 py-2 bg-teal text-white text-sm font-semibold rounded-lg">Approve</button></form>
                   <form action={setArticleApprovalAction}><input type="hidden" name="id" value={a.id} /><input type="hidden" name="status" value="rejected" /><button className="px-4 py-2 border border-slate-200 text-slate-500 text-sm font-semibold rounded-lg hover:border-rose-300 hover:text-rose-500 transition">Reject</button></form>
                 </div>

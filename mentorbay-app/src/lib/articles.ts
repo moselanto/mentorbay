@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { currentUserIsAdmin } from "@/lib/is-admin";
 
 export type Article = {
   id: string;            // slug
@@ -83,7 +84,7 @@ export async function getArticles(): Promise<PublicArticle[]> {
 }
 
 /** A single published article by slug. */
-export async function getArticle(slug: string): Promise<PublicArticle | null> {
+export async function getArticle(slug: string, opts?: { preview?: boolean }): Promise<PublicArticle | null> {
   try {
     const supabase = createClient();
     const { data, error } = await supabase

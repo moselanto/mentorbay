@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { PROGRAMS, type Program } from "@/lib/data";
+import { currentUserIsAdmin } from "@/lib/is-admin";
 
 function hasSupabase() {
   return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
@@ -39,11 +40,14 @@ export async function getPrograms(): Promise<Program[]> {
   } catch { return PROGRAMS; }
 }
 
-export async function getProgram(slug: string): Promise<Program | null> {
+export async function getProgram(slug: string, opts?: { preview?: boolean }): Promise<Program | null> {
   if (!hasSupabase()) return PROGRAMS.find((p) => p.id === slug) ?? null;
   try {
     const supabase = createClient();
-    const { data, error } = await supabase.from("programs").select(SELECT).eq("slug", slug).eq("status", "published").maybeSingle();
+    const allowPreview = opts?.preview === true && (await currentUserIsAdmin());
+    let q = supabase.from("programs").select(SELECT).eq("slug", slug);
+    if (!allowPreview) q = q.eq("status", "published");
+    const { data, error } = await q.maybeSingle();
     if (error || !data) return PROGRAMS.find((p) => p.id === slug) ?? null;
     return rowToProgram(data as ProgramRow);
   } catch { return PROGRAMS.find((p) => p.id === slug) ?? null; }
