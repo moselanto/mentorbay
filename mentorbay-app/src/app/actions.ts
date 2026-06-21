@@ -117,6 +117,7 @@ export async function createSessionAction(formData: FormData) {
   const { error } = await supabase.from("sessions").insert({
     mentor_id: user.id, topic,
     mode: String(formData.get("mode") ?? "Google Meet"),
+    meeting_url: String(formData.get("meeting_url") ?? "").trim() || null,
     scheduled_at: new Date(when).toISOString(), status: "upcoming",
   });
   if (error) redirect("/mentor/sessions?error=save");
@@ -400,4 +401,90 @@ export async function sendWelcomeEmailAction(payload: { name: string; email: str
     subject: "Welcome to MentorBay",
     html: `<p>Hi ${greeting},</p><p>Welcome to MentorBay - we're glad to have you.</p>${roleNote}<p><a href="https://mentorbay.vercel.app/${payload.role === "mentor" ? "mentor" : "mentee"}">Go to your dashboard</a></p>`,
   });
+}
+
+// ---------- Delete own event ----------
+export async function deleteEventAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const slug = String(formData.get("slug") ?? "");
+  if (!slug) return;
+  await supabase.from("events").delete().eq("slug", slug).eq("created_by", user.id);
+  revalidatePath("/mentor/events");
+  revalidatePath("/events");
+  redirect("/mentor/events?deleted=1");
+}
+
+// ---------- Update an existing session (mode + meeting link + time) ----------
+export async function updateSessionAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const patch: Record<string, unknown> = {
+    mode: String(formData.get("mode") ?? "Google Meet"),
+    meeting_url: String(formData.get("meeting_url") ?? "").trim() || null,
+  };
+  const when = String(formData.get("scheduled_at") ?? "");
+  if (when) patch.scheduled_at = new Date(when).toISOString();
+  await supabase.from("sessions").update(patch).eq("id", id).eq("mentor_id", user.id);
+  revalidatePath("/mentor/sessions");
+}
+
+// ---------- Articles: create (submitted for admin approval) ----------
+export async function createArticleAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  if (!(await mentorApproved(supabase, user.id))) redirect("/mentor/articles?error=pending");
+  const title = String(formData.get("title") ?? "").trim();
+  if (!title) redirect("/mentor/articles/new?error=title");
+  const publish = String(formData.get("publish") ?? "") === "true";
+  const { error } = await supabase.from("articles").insert({
+    slug: slugify(title), title,
+    excerpt: String(formData.get("excerpt") ?? "").trim() || null,
+    body: String(formData.get("body") ?? "").trim() || null,
+    cover_url: String(formData.get("cover_url") ?? "").trim() || null,
+    author_id: user.id,
+    status: publish ? "published" : "draft",
+    approval_status: "pending",
+  });
+  if (error) redirect("/mentor/articles/new?error=save");
+  revalidatePath("/mentor/articles");
+  redirect(publish ? "/mentor/articles?submitted=1" : "/mentor/articles?saved=1");
+}
+
+// ---------- Articles: edit own ----------
+export async function updateArticleAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const slug = String(formData.get("slug") ?? "");
+  if (!slug) redirect("/mentor/articles");
+  const publish = String(formData.get("publish") ?? "") === "true";
+  await supabase.from("articles").update({
+    title: String(formData.get("title") ?? ""),
+    excerpt: String(formData.get("excerpt") ?? "").trim() || null,
+    body: String(formData.get("body") ?? "").trim() || null,
+    cover_url: String(formData.get("cover_url") ?? "").trim() || null,
+    status: publish ? "published" : "draft",
+    approval_status: "pending",
+    updated_at: new Date().toISOString(),
+  }).eq("slug", slug).eq("author_id", user.id);
+  revalidatePath("/mentor/articles");
+  redirect("/mentor/articles?updated=1");
+}
+
+// ---------- Articles: delete own ----------
+export async function deleteArticleAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const slug = String(formData.get("slug") ?? "");
+  if (!slug) return;
+  await supabase.from("articles").delete().eq("slug", slug).eq("author_id", user.id);
+  revalidatePath("/mentor/articles");
+  redirect("/mentor/articles?deleted=1");
 }

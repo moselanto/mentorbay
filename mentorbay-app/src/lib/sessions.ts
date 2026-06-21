@@ -1,12 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 
 export type MySession = {
-  id: string; topic: string; mode: string; when: string; counterpart: string; upcoming: boolean; approvalStatus: string;
+  id: string; topic: string; mode: string; when: string; counterpart: string; upcoming: boolean; approvalStatus: string; meetingUrl: string | null;
 };
 
 type Row = {
   id: string; topic: string; mode: string; scheduled_at: string; mentor_id: string | null; mentee_id: string | null;
-  approval_status: string | null;
+  approval_status: string | null; meeting_url: string | null;
   mentor: { full_name: string | null } | null;
   mentee: { full_name: string | null } | null;
 };
@@ -34,7 +34,7 @@ export async function getMySessions(): Promise<MySession[]> {
       return {
         id: r.id, topic: r.topic, mode: r.mode, when: fmt(r.scheduled_at),
         counterpart, upcoming: new Date(r.scheduled_at).getTime() >= now,
-        approvalStatus: r.approval_status ?? "approved",
+        approvalStatus: r.approval_status ?? "approved", meetingUrl: r.meeting_url ?? null,
       };
     });
   } catch { return []; }

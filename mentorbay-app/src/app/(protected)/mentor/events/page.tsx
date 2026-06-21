@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { getMyEvents } from "@/lib/events";
+import { deleteEventAction } from "@/app/actions";
+import ConfirmButton from "@/components/ConfirmButton";
 
 function statusStyle(status: string): { label: string; cls: string } {
   switch (status) {
@@ -9,7 +11,7 @@ function statusStyle(status: string): { label: string; cls: string } {
   }
 }
 
-export default async function MentorEventsPage({ searchParams }: { searchParams: { created?: string; updated?: string } }) {
+export default async function MentorEventsPage({ searchParams }: { searchParams: { created?: string; updated?: string; deleted?: string } }) {
   const events = await getMyEvents();
   return (
     <div className="space-y-6">
@@ -19,6 +21,7 @@ export default async function MentorEventsPage({ searchParams }: { searchParams:
       </div>
       {searchParams.created && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Event submitted. An admin will review it before it goes live.</p>}
       {searchParams.updated && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Event updated.</p>}
+      {searchParams.deleted && <p className="text-sm text-slate-600 bg-slate-100 px-4 py-2.5 rounded-lg">Event deleted.</p>}
 
       {events.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-card p-10 text-center">
@@ -38,7 +41,10 @@ export default async function MentorEventsPage({ searchParams }: { searchParams:
                   <h3 className="font-bold text-navy mt-1 leading-snug">{e.title}</h3>
                   <p className="text-xs text-slate-500 mt-1">{e.date} · {e.time}</p>
                   <p className="text-xs text-slate-400 mt-1 truncate">{e.loc}</p>
-                  <Link href={`/mentor/events/${e.id}/edit`} className="mt-3 block text-center py-2 border border-slate-200 text-navy text-sm font-semibold rounded-lg hover:border-teal transition">Edit</Link>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <Link href={`/mentor/events/${e.id}/edit`} className="block text-center py-2 border border-slate-200 text-navy text-sm font-semibold rounded-lg hover:border-teal transition">Edit</Link>
+                    <form action={deleteEventAction}><input type="hidden" name="slug" value={e.id} /><ConfirmButton message="Delete this event? This cannot be undone." className="w-full py-2 border border-slate-200 text-rose-500 text-sm font-semibold rounded-lg hover:border-rose-300 transition">Delete</ConfirmButton></form>
+                  </div>
                 </div>
               </div>
             );

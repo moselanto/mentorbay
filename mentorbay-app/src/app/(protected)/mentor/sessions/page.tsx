@@ -27,6 +27,7 @@ export default async function MentorSessionsPage({ searchParams }: { searchParam
           <div className="sm:col-span-2"><label className="block text-xs font-semibold text-navy mb-1">Topic</label><input name="topic" required className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="e.g. Career roadmap review" /></div>
           <div><label className="block text-xs font-semibold text-navy mb-1">Date &amp; time</label><input name="scheduled_at" type="datetime-local" required className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /></div>
           <div><label className="block text-xs font-semibold text-navy mb-1">Mode</label><select name="mode" className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none"><option>Google Meet</option><option>Zoom</option><option>In-person</option></select></div>
+          <div className="sm:col-span-4"><label className="block text-xs font-semibold text-navy mb-1">Meeting link <span className="text-slate-400 font-normal">(Google Meet or Zoom URL - optional)</span></label><input name="meeting_url" type="url" className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="https://meet.google.com/... or https://zoom.us/j/..." /></div>
           <div className="sm:col-span-4 flex justify-end"><button className="px-5 py-2 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">+ Schedule</button></div>
         </form>
       </section>
@@ -40,7 +41,7 @@ export default async function MentorSessionsPage({ searchParams }: { searchParam
             {upcoming.map((s) => (
               <div key={s.id} className="flex flex-wrap items-center gap-4 p-4 rounded-xl bg-slate-50">
                 <div className="w-11 h-11 rounded-lg bg-navy text-white grid place-items-center font-bold">{s.counterpart[0]}</div>
-                <div className="flex-1 min-w-0"><p className="font-semibold text-navy">{s.topic}</p><p className="text-xs text-slate-500">with {s.counterpart} · {s.mode}</p></div>
+                <div className="flex-1 min-w-0"><p className="font-semibold text-navy">{s.topic}</p><p className="text-xs text-slate-500">with {s.counterpart} · {s.mode}</p>{s.meetingUrl && (<a href={s.meetingUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-teal-600 hover:underline break-all">Join link</a>)}</div>
                 {approvalBadge(s.approvalStatus)}
                 <span className="text-sm font-medium text-slate-600">{s.when}</span>
                 <form action={deleteSessionAction}><input type="hidden" name="id" value={s.id} /><ConfirmButton message="Delete this session?" className="px-3 py-2 border border-slate-200 text-slate-500 text-sm font-semibold rounded-lg hover:border-rose-300 hover:text-rose-500 transition">Delete</ConfirmButton></form>
