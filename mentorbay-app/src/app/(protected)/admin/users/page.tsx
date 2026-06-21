@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getAllUsers } from "@/lib/admin";
 import { setSuspendedAction, setApprovalAction } from "@/app/actions";
 import ConfirmButton from "@/components/ConfirmButton";

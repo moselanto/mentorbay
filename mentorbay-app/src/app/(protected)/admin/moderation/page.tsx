@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getAllReviews } from "@/lib/admin";
 import { setReviewStatusAction, suspendAuthorAction, featureReviewAction } from "@/app/actions";
 import ConfirmButton from "@/components/ConfirmButton";

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getPendingApprovals, getPendingPrograms, getPendingSessions, getPendingEvents, getPendingArticles } from "@/lib/admin";
 import { setApprovalAction, setProgramApprovalAction, setSessionApprovalAction, setEventApprovalAction, setArticleApprovalAction } from "@/app/actions";
 

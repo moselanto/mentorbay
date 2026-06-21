@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { getPendingApprovals, getAllUsers, getAllReviews } from "@/lib/admin";
 import { setApprovalAction } from "@/app/actions";
