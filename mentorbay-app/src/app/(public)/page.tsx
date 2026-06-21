@@ -50,7 +50,7 @@ export default async function HomePage() {
               <Link href="/mentors" className="px-6 py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">
                 Browse Mentors
               </Link>
-              <Link href="/signup" className="px-6 py-3 bg-white text-navy font-semibold rounded-lg border border-slate-200 hover:border-teal transition">
+              <Link href="/signup?role=mentor" className="px-6 py-3 bg-white text-navy font-semibold rounded-lg border border-slate-200 hover:border-teal transition">
                 Become a Mentor
               </Link>
             </div>
@@ -228,7 +228,7 @@ export default async function HomePage() {
           <div className="bg-white/10 rounded-2xl p-8 backdrop-blur">
             <h3 className="text-2xl font-extrabold text-white">Become a Mentor</h3>
             <p className="text-teal-50/90 mt-2">Share your expertise, build programs, grow your impact.</p>
-            <Link href="/signup" className="inline-block mt-5 px-6 py-3 bg-teal text-white font-semibold rounded-lg hover:bg-teal-600 transition">
+            <Link href="/signup?role=mentor" className="inline-block mt-5 px-6 py-3 bg-teal text-white font-semibold rounded-lg hover:bg-teal-600 transition">
               Apply to Mentor
             </Link>
           </div>

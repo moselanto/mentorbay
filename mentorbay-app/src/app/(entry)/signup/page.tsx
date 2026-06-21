@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { notifyAdminsOfSignupAction, sendWelcomeEmailAction } from "@/app/actions";
@@ -9,9 +9,11 @@ import { LogoWordmark } from "@/components/Logo";
 
 type Role = "mentee" | "mentor";
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
-  const [role, setRole] = useState<Role>("mentee");
+  const params = useSearchParams();
+  const initialRole: Role = params.get("role") === "mentor" ? "mentor" : "mentee";
+  const [role, setRole] = useState<Role>(initialRole);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -132,5 +134,13 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignupForm />
+    </Suspense>
   );
 }
