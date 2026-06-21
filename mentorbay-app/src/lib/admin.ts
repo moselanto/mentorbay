@@ -77,3 +77,16 @@ export async function getPendingEvents(): Promise<AdminEvent[]> {
       .map((r) => ({ id: r.id, title: r.title, category: r.category, format: r.format, date: r.date_label }));
   } catch { return []; }
 }
+
+
+export type AdminArticle = { id: string; title: string; author: string; date: string };
+export async function getPendingArticles(): Promise<AdminArticle[]> {
+  try {
+    const s = createClient();
+    const { data } = await s.from("articles")
+      .select("id, title, created_at, author:profiles!articles_author_id_fkey(full_name)")
+      .eq("status", "published").eq("approval_status", "pending");
+    return (data as unknown as { id: string; title: string; created_at: string; author: { full_name: string | null } | null }[] | null ?? [])
+      .map((r) => ({ id: r.id, title: r.title, author: r.author?.full_name ?? "Unknown", date: new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) }));
+  } catch { return []; }
+}

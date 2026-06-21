@@ -1,5 +1,5 @@
-import { getPendingApprovals, getPendingPrograms, getPendingSessions, getPendingEvents } from "@/lib/admin";
-import { setApprovalAction, setProgramApprovalAction, setSessionApprovalAction, setEventApprovalAction } from "@/app/actions";
+import { getPendingApprovals, getPendingPrograms, getPendingSessions, getPendingEvents, getPendingArticles } from "@/lib/admin";
+import { setApprovalAction, setProgramApprovalAction, setSessionApprovalAction, setEventApprovalAction, setArticleApprovalAction } from "@/app/actions";
 
 function Badge({ n }: { n: number }) {
   if (n === 0) return null;
@@ -7,8 +7,8 @@ function Badge({ n }: { n: number }) {
 }
 
 export default async function AdminApprovalsPage() {
-  const [users, programs, sessions, events] = await Promise.all([
-    getPendingApprovals(), getPendingPrograms(), getPendingSessions(), getPendingEvents(),
+  const [users, programs, sessions, events, articles] = await Promise.all([
+    getPendingApprovals(), getPendingPrograms(), getPendingSessions(), getPendingEvents(), getPendingArticles(),
   ]);
 
   return (
@@ -89,6 +89,24 @@ export default async function AdminApprovalsPage() {
           </div>
         )}
       </section>
+
+      <section>
+        <h2 className="font-bold text-navy mb-3">Articles <Badge n={articles.length} /></h2>
+        {articles.length === 0 ? <p className="text-sm text-slate-500 bg-white rounded-2xl shadow-card p-6 text-center">No articles awaiting review.</p> : (
+          <div className="space-y-3">
+            {articles.map((a) => (
+              <div key={a.id} className="bg-white rounded-2xl shadow-card p-4 flex items-center gap-4">
+                <div className="flex-1 min-w-0"><p className="font-semibold text-navy truncate">{a.title}</p><p className="text-sm text-slate-500">by {a.author} · {a.date}</p></div>
+                <div className="flex gap-2">
+                  <form action={setArticleApprovalAction}><input type="hidden" name="id" value={a.id} /><input type="hidden" name="status" value="approved" /><button className="px-4 py-2 bg-teal text-white text-sm font-semibold rounded-lg">Approve</button></form>
+                  <form action={setArticleApprovalAction}><input type="hidden" name="id" value={a.id} /><input type="hidden" name="status" value="rejected" /><button className="px-4 py-2 border border-slate-200 text-slate-500 text-sm font-semibold rounded-lg hover:border-rose-300 hover:text-rose-500 transition">Reject</button></form>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
     </div>
   );
 }

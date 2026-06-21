@@ -24,6 +24,7 @@ export default function PublicFooter() {
             <li><Link href="/programs" className="hover:text-teal-400">Programs</Link></li>
             <li><Link href="/events" className="hover:text-teal-400">Events</Link></li>
             <li><Link href="/success-stories" className="hover:text-teal-400">Success Stories</Link></li>
+            <li><Link href="/articles" className="hover:text-teal-400">Articles</Link></li>
           </ul>
         </div>
         <div>

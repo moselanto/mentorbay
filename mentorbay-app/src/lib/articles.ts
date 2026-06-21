@@ -56,3 +56,40 @@ export async function getMyArticleBySlug(slug: string): Promise<Article | null> 
     return rowToArticle(data as Row);
   } catch { return null; }
 }
+
+
+type PubRow = Row & { author: { full_name: string | null; avatar_url: string | null } | null };
+
+export type PublicArticle = Article & { author: string; authorAvatar: string | null };
+
+function rowToPublic(r: PubRow): PublicArticle {
+  const base = rowToArticle(r);
+  return { ...base, author: r.author?.full_name ?? "MentorBay", authorAvatar: r.author?.avatar_url ?? null };
+}
+
+const PUB_SELECT = "id, slug, title, excerpt, body, cover_url, status, approval_status, views, created_at, author:profiles!articles_author_id_fkey(full_name, avatar_url)";
+
+/** All published + approved articles (newest first). */
+export async function getArticles(): Promise<PublicArticle[]> {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("articles").select(PUB_SELECT)
+      .eq("status", "published").eq("approval_status", "approved")
+      .order("created_at", { ascending: false });
+    if (error || !data) return [];
+    return (data as unknown as PubRow[]).map(rowToPublic);
+  } catch { return []; }
+}
+
+/** A single published article by slug. */
+export async function getArticle(slug: string): Promise<PublicArticle | null> {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("articles").select(PUB_SELECT)
+      .eq("slug", slug).eq("status", "published").eq("approval_status", "approved").maybeSingle();
+    if (error || !data) return null;
+    return rowToPublic(data as unknown as PubRow);
+  } catch { return null; }
+}

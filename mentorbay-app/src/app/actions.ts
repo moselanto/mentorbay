@@ -433,6 +433,30 @@ export async function updateSessionAction(formData: FormData) {
   revalidatePath("/mentor/sessions");
 }
 
+
+// ---------- Admin: approve/reject an article ----------
+export async function setArticleApprovalAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "");
+  const status = String(formData.get("status") ?? "");
+  if (!id || !["approved", "rejected"].includes(status)) return;
+  const { data: art } = await supabase.from("articles").update({ approval_status: status }).eq("id", id).select("title, slug, author_id").maybeSingle();
+  if (art?.author_id) {
+    const owner = await getUserContact(supabase, art.author_id as string);
+    const title = (art.title as string) ?? "Your article";
+    await sendNotificationEmail({ to: owner.email,
+      subject: status === "approved" ? `Your article "${title}" is now live` : `Your article "${title}" was not approved`,
+      html: status === "approved"
+        ? `<p>Hi ${owner.name},</p><p>Your article <strong>${title}</strong> has been approved and is now published on MentorBay.</p>`
+        : `<p>Hi ${owner.name},</p><p>Your article <strong>${title}</strong> was reviewed but not approved. You can edit it and resubmit from your dashboard.</p>` });
+  }
+  revalidatePath("/admin/approvals");
+  revalidatePath("/articles");
+  revalidatePath("/mentor/articles");
+}
+
 // ---------- Articles: create (submitted for admin approval) ----------
 export async function createArticleAction(formData: FormData) {
   const supabase = createClient();
