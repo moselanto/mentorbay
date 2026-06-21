@@ -1,5 +1,6 @@
 import { getMySessions } from "@/lib/sessions";
-import { createSessionAction, deleteSessionAction } from "@/app/actions";
+import { deleteSessionAction } from "@/app/actions";
+import SessionScheduleForm from "@/components/SessionScheduleForm";
 import ConfirmButton from "@/components/ConfirmButton";
 
 function approvalBadge(status: string) {
@@ -23,13 +24,7 @@ export default async function MentorSessionsPage({ searchParams }: { searchParam
 
       <section className="bg-white rounded-2xl shadow-card p-6">
         <h3 className="font-bold text-navy mb-4">Schedule a session</h3>
-        <form action={createSessionAction} className="grid sm:grid-cols-4 gap-3 items-end">
-          <div className="sm:col-span-2"><label className="block text-xs font-semibold text-navy mb-1">Topic</label><input name="topic" required className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="e.g. Career roadmap review" /></div>
-          <div><label className="block text-xs font-semibold text-navy mb-1">Date &amp; time</label><input name="scheduled_at" type="datetime-local" required className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /></div>
-          <div><label className="block text-xs font-semibold text-navy mb-1">Mode</label><select name="mode" className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none"><option>Google Meet</option><option>Zoom</option><option>In-person</option></select></div>
-          <div className="sm:col-span-4"><label className="block text-xs font-semibold text-navy mb-1">Meeting link <span className="text-slate-400 font-normal">(Google Meet or Zoom URL - optional)</span></label><input name="meeting_url" type="url" className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="https://meet.google.com/... or https://zoom.us/j/..." /></div>
-          <div className="sm:col-span-4 flex justify-end"><button className="px-5 py-2 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">+ Schedule</button></div>
-        </form>
+<SessionScheduleForm />
       </section>
 
       <section className="bg-white rounded-2xl shadow-card p-6">

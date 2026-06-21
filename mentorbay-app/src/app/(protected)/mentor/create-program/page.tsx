@@ -1,6 +1,8 @@
 import { createProgramAction } from "@/app/actions";
 import CoverUpload from "@/components/CoverUpload";
 import CurriculumBuilder from "@/components/CurriculumBuilder";
+import CategorySelect from "@/components/CategorySelect";
+import LearnEditor from "@/components/LearnEditor";
 
 const DURATIONS = ["1 day", "2 days", "3 days", "1 week", "2 weeks", "4 weeks", "6 weeks", "8 weeks", "12 weeks"];
 
@@ -20,7 +22,7 @@ export default function CreateProgramPage({ searchParams }: { searchParams: { er
           <CoverUpload name="cover_url" label="Program banner (cover image)" />
           <div><label className="block text-sm font-semibold text-navy mb-1">Program title</label><input name="title" required className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="e.g. Leadership Foundations" /></div>
           <div className="grid sm:grid-cols-2 gap-4">
-            <div><label className="block text-sm font-semibold text-navy mb-1">Category</label><select name="category" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none"><option>Leadership</option><option>Technology</option><option>Business</option><option>Marketing</option><option>Finance</option><option>Design</option></select></div>
+            <CategorySelect />
             <div><label className="block text-sm font-semibold text-navy mb-1">Level</label><select name="level" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none"><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>All Levels</option></select></div>
             <div><label className="block text-sm font-semibold text-navy mb-1">Duration</label><select name="duration" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none">{DURATIONS.map((d) => <option key={d}>{d}</option>)}</select></div>
             <div><label className="block text-sm font-semibold text-navy mb-1">Number of lessons</label><input name="lessons" type="number" min={1} defaultValue={6} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /></div>
@@ -30,11 +32,7 @@ export default function CreateProgramPage({ searchParams }: { searchParams: { er
 
         <section className="bg-white rounded-2xl shadow-card p-6 space-y-4">
           <div><label className="block text-sm font-semibold text-navy mb-1">About this program</label><textarea name="about" rows={4} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="Describe what this program is about and who it is for." /></div>
-          <div>
-            <label className="block text-sm font-semibold text-navy mb-1">What you&apos;ll learn</label>
-            <textarea name="learn" rows={5} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder={"One outcome per line"} />
-            <p className="text-xs text-slate-400 mt-1">One learning outcome per line.</p>
-          </div>
+          <LearnEditor />
           <CurriculumBuilder name="curriculum" />
           <div>
             <label className="block text-sm font-semibold text-navy mb-1">Requirements</label>
