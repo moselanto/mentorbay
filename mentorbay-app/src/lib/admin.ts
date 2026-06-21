@@ -84,7 +84,7 @@ export async function getPendingArticles(): Promise<AdminArticle[]> {
   try {
     const s = createClient();
     const { data } = await s.from("articles")
-      .select("id, title, created_at, author:profiles!articles_author_id_fkey(full_name)")
+      .select("id, slug, title, created_at, author:profiles!articles_author_id_fkey(full_name)")
       .eq("status", "published").eq("approval_status", "pending");
     return (data as unknown as { id: string; slug: string; title: string; created_at: string; author: { full_name: string | null } | null }[] | null ?? [])
       .map((r) => ({ id: r.id, slug: r.slug, title: r.title, author: r.author?.full_name ?? "Unknown", date: new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) }));
