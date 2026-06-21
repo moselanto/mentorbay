@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createArticleAction } from "@/app/actions";
+import CoverUpload from "@/components/CoverUpload";
 
 export default function NewArticlePage({ searchParams }: { searchParams: { error?: string } }) {
   return (
@@ -20,10 +21,7 @@ export default function NewArticlePage({ searchParams }: { searchParams: { error
           <label className="block text-sm font-semibold text-navy mb-1">Short summary</label>
           <input name="excerpt" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="One or two sentences shown in previews" />
         </div>
-        <div>
-          <label className="block text-sm font-semibold text-navy mb-1">Cover image URL <span className="text-slate-400 font-normal">(optional)</span></label>
-          <input name="cover_url" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="https://..." />
-        </div>
+        <CoverUpload name="cover_url" label="Cover image (optional)" />
         <div>
           <label className="block text-sm font-semibold text-navy mb-1">Body</label>
           <textarea name="body" rows={12} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="Write your article here..." />
