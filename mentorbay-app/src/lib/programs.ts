@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { PROGRAMS, type Program } from "@/lib/data";
+import { type Program } from "@/lib/data";
 import { currentUserIsAdmin } from "@/lib/is-admin";
 
 function hasSupabase() {
@@ -31,36 +31,36 @@ function rowToProgram(r: ProgramRow): Program {
 }
 
 export async function getPrograms(): Promise<Program[]> {
-  if (!hasSupabase()) return PROGRAMS;
+  if (!hasSupabase()) return [];
   try {
     const supabase = createClient();
     const { data, error } = await supabase.from("programs").select(SELECT).eq("status", "published");
-    if (error || !data || data.length === 0) return PROGRAMS;
+    if (error || !data) return [];
     return (data as ProgramRow[]).map(rowToProgram);
   } catch { return []; }
 }
 
 export async function getProgram(slug: string, opts?: { preview?: boolean }): Promise<Program | null> {
-  if (!hasSupabase()) return PROGRAMS.find((p) => p.id === slug) ?? null;
+  if (!hasSupabase()) return null;
   try {
     const supabase = createClient();
     const allowPreview = opts?.preview === true && (await currentUserIsAdmin());
     let q = supabase.from("programs").select(SELECT).eq("slug", slug);
     if (!allowPreview) q = q.eq("status", "published");
     const { data, error } = await q.maybeSingle();
-    if (error || !data) return PROGRAMS.find((p) => p.id === slug) ?? null;
+    if (error || !data) return null;
     return rowToProgram(data as ProgramRow);
   } catch { return null; }
 }
 
 export async function getProgramsByMentor(mentorSlug: string): Promise<Program[]> {
-  if (!hasSupabase()) return PROGRAMS.filter((p) => p.mentorId === mentorSlug);
+  if (!hasSupabase()) return [];
   try {
     const supabase = createClient();
     const { data, error } = await supabase.from("programs").select(SELECT).eq("mentor_slug", mentorSlug).eq("status", "published");
-    if (error || !data) return PROGRAMS.filter((p) => p.mentorId === mentorSlug);
+    if (error || !data) return [];
     return (data as ProgramRow[]).map(rowToProgram);
-  } catch { return PROGRAMS.filter((p) => p.mentorId === mentorSlug); }
+  } catch { return []; }
 }
 
 // A mentor's OWN programs, any status (so they see pending/rejected too).

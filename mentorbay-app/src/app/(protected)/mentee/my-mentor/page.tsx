@@ -13,7 +13,7 @@ export default async function MyMentorPage({ searchParams }: { searchParams: { a
   const [mentors, apps] = await Promise.all([getMentors(), getMyMentorApplications()]);
   const appliedIds = new Set(apps.map((a) => a.mentorId));
   // Available mentors the mentee hasn't applied to yet.
-  const available = mentors.filter((m) => !appliedIds.has(m.id)).filter((m) => m.avail === "Available");
+  const available = mentors.filter((m) => m.profileId && !appliedIds.has(m.profileId)).filter((m) => m.avail === "Available");
 
   return (
     <div className="space-y-6">
