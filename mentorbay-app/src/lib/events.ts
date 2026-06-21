@@ -8,14 +8,14 @@ function hasSupabase() {
 type EventRow = {
   slug: string; title: string; when_status: "upcoming" | "past"; category: string; format: "Online" | "In-person";
   mon: string; day: string; date_label: string; time_label: string; location: string;
-  speaker: string; face: string; img: string; going: number; featured: boolean;
+  speaker: string; speakers: { name: string; role: string }[] | null; face: string; img: string; going: number; featured: boolean;
 };
 
 function rowToEvent(r: EventRow): EventItem {
   return {
     id: r.slug, title: r.title, when: r.when_status, category: r.category, type: r.format,
     mon: r.mon, day: r.day, date: r.date_label, time: r.time_label, loc: r.location,
-    speaker: r.speaker, face: r.face, img: r.img, going: r.going, featured: r.featured,
+    speaker: r.speaker, speakers: Array.isArray(r.speakers) ? r.speakers : [], face: r.face, img: r.img, going: r.going, featured: r.featured,
   };
 }
 

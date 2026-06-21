@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getMyEventBySlug } from "@/lib/events";
 import { updateEventAction } from "@/app/actions";
 import CoverUpload from "@/components/CoverUpload";
+import SpeakersBuilder from "@/components/SpeakersBuilder";
 
 export default async function EditEventPage({ params }: { params: { id: string } }) {
   const e = await getMyEventBySlug(params.id);
@@ -22,7 +23,7 @@ export default async function EditEventPage({ params }: { params: { id: string }
             <div><label className="block text-sm font-semibold text-navy mb-1">Format</label><select name="format" defaultValue={e.type} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none"><option>Online</option><option>In-person</option></select></div>
             <div><label className="block text-sm font-semibold text-navy mb-1">Date</label><input name="date_label" defaultValue={e.date} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="e.g. Jun 25, 2026" /></div>
             <div><label className="block text-sm font-semibold text-navy mb-1">Time</label><input name="time" defaultValue={e.time} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /></div>
-            <div><label className="block text-sm font-semibold text-navy mb-1">Speaker</label><input name="speaker" defaultValue={e.speaker} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /></div>
+            <div className="sm:col-span-2"><SpeakersBuilder initial={(e.speakers && e.speakers.length ? e.speakers : (e.speaker ? [{ name: e.speaker, role: "Speaker" }] : []))} /></div>
           </div>
           <div><label className="block text-sm font-semibold text-navy mb-1">Location / address</label><input name="location" defaultValue={e.loc} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /></div>
         </section>

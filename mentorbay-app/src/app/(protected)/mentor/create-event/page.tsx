@@ -1,5 +1,6 @@
 import { createEventAction } from "@/app/actions";
 import CoverUpload from "@/components/CoverUpload";
+import SpeakersBuilder from "@/components/SpeakersBuilder";
 
 export default function CreateEventPage({ searchParams }: { searchParams: { error?: string } }) {
   const pending = searchParams.error === "pending";
@@ -21,8 +22,8 @@ export default function CreateEventPage({ searchParams }: { searchParams: { erro
             <div><label className="block text-sm font-semibold text-navy mb-1">Format</label><select name="format" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none"><option>Online</option><option>In-person</option></select></div>
             <div><label className="block text-sm font-semibold text-navy mb-1">Date</label><input name="date" type="date" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /></div>
             <div><label className="block text-sm font-semibold text-navy mb-1">Time</label><input name="time" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="9:00 AM" /></div>
-            <div><label className="block text-sm font-semibold text-navy mb-1">Speaker</label><input name="speaker" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="Speaker name" /></div>
           </div>
+          <SpeakersBuilder />
           <div><label className="block text-sm font-semibold text-navy mb-1">Location / address</label><input name="location" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="Venue name and full address, or 'Online (Zoom)'" /></div>
         </section>
 

@@ -80,6 +80,21 @@ export async function createProgramAction(formData: FormData) {
   redirect("/mentor/programs?submitted=1");
 }
 
+
+// Parse the speakers builder payload (a JSON string of [{name, role}]). Caps at 4.
+function parseSpeakers(raw: unknown): { name: string; role: string }[] {
+  try {
+    const arr = JSON.parse(String(raw ?? "[]"));
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .map((x) => ({ name: String(x?.name ?? "").trim(), role: String(x?.role ?? "").trim() }))
+      .filter((x) => x.name.length > 0)
+      .slice(0, 4);
+  } catch {
+    return [];
+  }
+}
+
 // ---------- Create Event ----------
 export async function createEventAction(formData: FormData) {
   const supabase = createClient();
@@ -88,6 +103,7 @@ export async function createEventAction(formData: FormData) {
   if (!(await mentorApproved(supabase, user.id))) redirect("/mentor/create-event?error=pending");
   const title = String(formData.get("title") ?? "").trim();
   if (!title) redirect("/mentor/create-event?error=title");
+  const speakersList = parseSpeakers(formData.get("speakers"));
   const dateStr = String(formData.get("date") ?? "");
   const d = dateStr ? new Date(dateStr) : null;
   const mon = d ? d.toLocaleString("en-US", { month: "short" }).toUpperCase() : "";
@@ -100,7 +116,7 @@ export async function createEventAction(formData: FormData) {
     mon, day, date_label: dateLabel,
     time_label: String(formData.get("time") ?? ""),
     location: String(formData.get("location") ?? ""),
-    speaker: String(formData.get("speaker") ?? ""),
+    speaker: speakersList[0]?.name ?? String(formData.get("speaker") ?? ""), speakers: speakersList,
     img: String(formData.get("cover_url") ?? "") || "", face: "", going: 0, featured: false,
     status: "published", created_by: user.id,
   });
@@ -358,7 +374,8 @@ export async function updateEventAction(formData: FormData) {
     date_label: dateLabel, mon, day,
     time_label: String(formData.get("time") ?? ""),
     location: String(formData.get("location") ?? ""),
-    speaker: String(formData.get("speaker") ?? ""),
+    speaker: parseSpeakers(formData.get("speakers"))[0]?.name ?? String(formData.get("speaker") ?? ""),
+    speakers: parseSpeakers(formData.get("speakers")),
     img: String(formData.get("cover_url") ?? "") || "",
   }).eq("slug", slug).eq("created_by", user.id);
   revalidatePath("/mentor/events");

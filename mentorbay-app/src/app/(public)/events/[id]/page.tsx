@@ -34,11 +34,9 @@ export default async function EventDetailPage({ params }: { params: { id: string
   const e = await getEvent(params.id);
   if (!e) notFound();
 
-  const speakers = [
-    { name: e.speaker, role: "Keynote Speaker", img: e.face },
-    { name: MENTORS[1].name, role: MENTORS[1].role, img: MENTORS[1].img },
-    { name: MENTORS[0].name, role: MENTORS[0].role, img: MENTORS[0].img },
-  ];
+  const speakers = (e.speakers && e.speakers.length
+    ? e.speakers.map((s) => ({ name: s.name, role: s.role || "Speaker", img: "" }))
+    : (e.speaker ? [{ name: e.speaker, role: "Keynote Speaker", img: e.face }] : []));
   const all = await getEvents();
   const related = all.filter((x) => x.id !== e.id && x.when === "upcoming").slice(0, 3);
 
@@ -97,19 +95,25 @@ export default async function EventDetailPage({ params }: { params: { id: string
             </div>
           </div>
 
+          {speakers.length > 0 && (
           <div className="bg-white rounded-2xl shadow-card p-6 sm:p-8">
             <h3 className="text-lg font-bold text-navy mb-5">Speakers</h3>
             <div className="grid sm:grid-cols-3 gap-5">
               {speakers.map((s) => (
                 <div key={s.name} className="text-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={s.img} alt={s.name} className="w-20 h-20 rounded-full object-cover mx-auto" />
+                  {s.img ? (
+                    <img src={s.img} alt={s.name} className="w-20 h-20 rounded-full object-cover mx-auto" />
+                  ) : (
+                    <div className="w-20 h-20 rounded-full mx-auto bg-gradient-to-br from-navy to-teal grid place-items-center text-white text-2xl font-bold">{s.name.charAt(0)}</div>
+                  )}
                   <p className="font-bold text-navy text-sm mt-3">{s.name}</p>
                   <p className="text-xs text-slate-500">{s.role}</p>
                 </div>
               ))}
             </div>
           </div>
+          )}
         </div>
 
         <aside>

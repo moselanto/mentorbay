@@ -107,7 +107,7 @@ export const PROGRAMS: Program[] = [
 // ---- Events ----
 export type EventItem = {
   id: string; title: string; when: "upcoming" | "past"; category: string; type: "Online" | "In-person";
-  mon: string; day: string; date: string; time: string; loc: string; speaker: string; face: string;
+  mon: string; day: string; date: string; time: string; loc: string; speaker: string; speakers?: { name: string; role: string }[]; face: string;
   img: string; going: number; featured?: boolean;
 };
 
