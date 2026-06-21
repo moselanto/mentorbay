@@ -3,12 +3,14 @@ import { FEATURED_MENTORS, UPCOMING_EVENTS, POPULAR_PROGRAMS, SUCCESS_STORIES, S
 import { getMentors } from "@/lib/mentors";
 import { getPrograms } from "@/lib/programs";
 import { getEvents } from "@/lib/events";
+import { getFeaturedStories } from "@/lib/stories";
 
 export default async function HomePage() {
-  const [allMentors, allPrograms, allEvents] = await Promise.all([
+  const [allMentors, allPrograms, allEvents, featuredStories] = await Promise.all([
     getMentors(),
     getPrograms(),
     getEvents(),
+    getFeaturedStories(),
   ]);
 
   // Live data with demo fallback when nothing is published yet.
@@ -197,16 +199,15 @@ export default async function HomePage() {
           <p className="text-slate-500 mt-2">Real people, real growth. See how MentorBay transformed careers across Kenya.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
-          {SUCCESS_STORIES.map((s) => (
-            <div key={s.name} className="bg-white rounded-2xl shadow-card p-6 border border-slate-50">
-              <div className="text-amber-400 text-sm mb-3">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          {(featuredStories.length ? featuredStories : SUCCESS_STORIES).map((s, i) => (
+            <div key={("id" in s ? s.id : s.name) + String(i)} className="bg-white rounded-2xl shadow-card p-6 border border-slate-50">
+              <div className="text-amber-400 text-sm mb-3">{"\u2605".repeat(("rating" in s ? s.rating : 5))}</div>
               <p className="text-slate-600 text-sm leading-relaxed">&quot;{s.quote}&quot;</p>
               <div className="flex items-center gap-3 mt-5">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={s.img} alt={s.name} className="w-10 h-10 rounded-full object-cover" />
+                <span className="w-10 h-10 rounded-full bg-gradient-to-br from-navy to-teal grid place-items-center text-white font-bold">{s.name.charAt(0)}</span>
                 <div>
                   <p className="font-bold text-navy text-sm">{s.name}</p>
-                  <p className="text-xs text-slate-500">{s.role}</p>
+                  <p className="text-xs text-slate-500">{"role" in s ? s.role : (s.mentor ? `Mentored by ${s.mentor}` : "MentorBay mentee")}</p>
                 </div>
               </div>
             </div>

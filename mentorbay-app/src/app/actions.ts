@@ -621,3 +621,17 @@ export async function submitReviewAction(formData: FormData) {
   revalidatePath(redirectTo);
   redirect(`${redirectTo}?review=thanks`);
 }
+
+// ---------- Admin: feature / unfeature a review as a success story ----------
+export async function featureReviewAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "");
+  const featured = String(formData.get("featured") ?? "") === "true";
+  if (!id) return;
+  await supabase.from("reviews").update({ featured }).eq("id", id);
+  revalidatePath("/admin/moderation");
+  revalidatePath("/success-stories");
+  revalidatePath("/");
+}

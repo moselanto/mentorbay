@@ -30,20 +30,20 @@ export async function getAllUsers(): Promise<AdminUser[]> {
 }
 
 export type AdminReview = {
-  id: string; mentorSlug: string | null; authorId: string | null; authorName: string; rating: number; body: string; status: string;
+  id: string; mentorSlug: string | null; authorId: string | null; authorName: string; rating: number; body: string; status: string; featured: boolean;
 };
 type ReviewRow = {
-  id: string; mentor_slug: string | null; author_id: string | null; author_name: string | null; rating: number; body: string; status: string;
+  id: string; mentor_slug: string | null; author_id: string | null; author_name: string | null; rating: number; body: string; status: string; featured: boolean | null;
 };
 export async function getAllReviews(): Promise<AdminReview[]> {
   try {
     const s = createClient();
     const { data } = await s.from("reviews")
-      .select("id, mentor_slug, author_id, author_name, rating, body, status")
+      .select("id, mentor_slug, author_id, author_name, rating, body, status, featured")
       .order("created_at", { ascending: false });
     return (data as ReviewRow[] | null ?? []).map((r) => ({
       id: r.id, mentorSlug: r.mentor_slug, authorId: r.author_id,
-      authorName: r.author_name ?? "Anonymous", rating: r.rating, body: r.body, status: r.status,
+      authorName: r.author_name ?? "Anonymous", rating: r.rating, body: r.body, status: r.status, featured: !!r.featured,
     }));
   } catch { return []; }
 }

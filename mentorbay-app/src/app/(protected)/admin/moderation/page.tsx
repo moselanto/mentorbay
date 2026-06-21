@@ -1,5 +1,5 @@
 import { getAllReviews } from "@/lib/admin";
-import { setReviewStatusAction, suspendAuthorAction } from "@/app/actions";
+import { setReviewStatusAction, suspendAuthorAction, featureReviewAction } from "@/app/actions";
 import ConfirmButton from "@/components/ConfirmButton";
 
 export default async function AdminModerationPage() {
@@ -24,6 +24,7 @@ export default async function AdminModerationPage() {
               <div className="flex flex-wrap gap-2 mt-4">
                 <form action={setReviewStatusAction}><input type="hidden" name="id" value={r.id} /><input type="hidden" name="status" value="visible" /><button className="px-4 py-2 border border-slate-200 text-slate-600 text-sm font-semibold rounded-lg hover:border-teal transition">Keep</button></form>
                 <form action={setReviewStatusAction}><input type="hidden" name="id" value={r.id} /><input type="hidden" name="status" value="removed" /><ConfirmButton message="Remove this review from public view?" className="px-4 py-2 bg-rose-500 text-white text-sm font-semibold rounded-lg">Remove</ConfirmButton></form>
+                <form action={featureReviewAction}><input type="hidden" name="id" value={r.id} /><input type="hidden" name="featured" value={r.featured ? "false" : "true"} /><button className={`px-4 py-2 text-sm font-semibold rounded-lg border transition ${r.featured ? "border-teal text-teal" : "border-slate-200 text-slate-600 hover:border-teal"}`}>{r.featured ? "\u2605 Featured story" : "Feature as story"}</button></form>
                 <form action={suspendAuthorAction}><input type="hidden" name="author_id" value={r.authorId ?? ""} /><ConfirmButton message="Suspend this author? They will lose access until unsuspended." disabled={!r.authorId} className="px-4 py-2 border border-slate-200 text-slate-500 text-sm font-semibold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:border-rose-300 enabled:hover:text-rose-500 transition" title={r.authorId ? "Suspend this review's author" : "No linked account (seeded review)"}>Suspend author</ConfirmButton></form>
               </div>
             </div>
