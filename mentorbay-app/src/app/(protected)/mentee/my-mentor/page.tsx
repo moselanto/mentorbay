@@ -9,7 +9,7 @@ function statusPill(status: string) {
   return <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-600">Pending</span>;
 }
 
-export default async function MyMentorPage({ searchParams }: { searchParams: { applied?: string } }) {
+export default async function MyMentorPage({ searchParams }: { searchParams: { applied?: string; applyerror?: string } }) {
   const [mentors, apps] = await Promise.all([getMentors(), getMyMentorApplications()]);
   const appliedIds = new Set(apps.map((a) => a.mentorId));
   // Available mentors the mentee hasn't applied to yet.
@@ -19,6 +19,7 @@ export default async function MyMentorPage({ searchParams }: { searchParams: { a
     <div className="space-y-6">
       <h1 className="text-2xl font-extrabold text-navy">My Mentor</h1>
       {searchParams.applied && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Application sent. The mentor will be in touch.</p>}
+      {searchParams.applyerror && <p className="text-sm text-rose-600 bg-rose-50 px-4 py-2.5 rounded-lg">Could not send your application. Please try again.</p>}
 
       <section className="bg-white rounded-2xl shadow-card p-6">
         <h3 className="font-bold text-navy mb-4">Your mentor connections</h3>

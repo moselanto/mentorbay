@@ -561,17 +561,22 @@ export async function enrollProgramAction(formData: FormData) {
 export async function applyMentorshipAction(formData: FormData) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const mentorId = String(formData.get("mentor_id") ?? "");
+  const mentorId = String(formData.get("mentor_id") ?? "").trim();
   const redirectTo = String(formData.get("redirect") ?? "/mentors");
   if (!user) redirect(`/login?redirect=${encodeURIComponent(redirectTo)}`);
-  const { error } = await supabase.from("applications").insert({
-    mentee_id: user.id,
-    mentor_id: mentorId || null,
-    note: String(formData.get("note") ?? "").trim() || null,
-  });
+  if (!mentorId) redirect(`${redirectTo}?applyerror=1`);
+  const { data: existing } = await supabase.from("applications").select("id").eq("mentee_id", user.id).eq("mentor_id", mentorId).maybeSingle();
+  if (!existing) {
+    const { error } = await supabase.from("applications").insert({
+      mentee_id: user.id,
+      mentor_id: mentorId,
+      note: String(formData.get("note") ?? "").trim() || null,
+    });
+    if (error) { revalidatePath(redirectTo); redirect(`${redirectTo}?applyerror=1`); }
+  }
   revalidatePath(redirectTo);
   revalidatePath("/mentee/my-mentor");
-  redirect(`${redirectTo}?${error ? "applyerror=1" : "applied=1"}`);
+  redirect(`${redirectTo}?applied=1`);
 }
 
 // ---------- Mentee: register / unregister for an event ----------
