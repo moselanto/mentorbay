@@ -27,7 +27,7 @@ export async function getEvents(): Promise<EventItem[]> {
     const { data, error } = await supabase.from("events").select("*").eq("status", "published");
     if (error || !data || data.length === 0) return EVENTS;
     return (data as EventRow[]).map(rowToEvent);
-  } catch { return EVENTS; }
+  } catch { return []; }
 }
 
 export async function getEvent(slug: string, opts?: { preview?: boolean }): Promise<EventItem | null> {
@@ -40,7 +40,7 @@ export async function getEvent(slug: string, opts?: { preview?: boolean }): Prom
     const { data, error } = await q.maybeSingle();
     if (error || !data) return EVENTS.find((e) => e.id === slug) ?? null;
     return rowToEvent(data as EventRow);
-  } catch { return EVENTS.find((e) => e.id === slug) ?? null; }
+  } catch { return null; }
 }
 
 export type MyEvent = EventItem & { approvalStatus: string };

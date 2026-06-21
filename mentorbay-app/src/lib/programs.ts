@@ -37,7 +37,7 @@ export async function getPrograms(): Promise<Program[]> {
     const { data, error } = await supabase.from("programs").select(SELECT).eq("status", "published");
     if (error || !data || data.length === 0) return PROGRAMS;
     return (data as ProgramRow[]).map(rowToProgram);
-  } catch { return PROGRAMS; }
+  } catch { return []; }
 }
 
 export async function getProgram(slug: string, opts?: { preview?: boolean }): Promise<Program | null> {
@@ -50,7 +50,7 @@ export async function getProgram(slug: string, opts?: { preview?: boolean }): Pr
     const { data, error } = await q.maybeSingle();
     if (error || !data) return PROGRAMS.find((p) => p.id === slug) ?? null;
     return rowToProgram(data as ProgramRow);
-  } catch { return PROGRAMS.find((p) => p.id === slug) ?? null; }
+  } catch { return null; }
 }
 
 export async function getProgramsByMentor(mentorSlug: string): Promise<Program[]> {

@@ -36,10 +36,14 @@ export async function updateProfileAction(formData: FormData) {
   // component saves the avatar directly on upload; including it in this form
   // patch would overwrite the saved photo with null (no avatar field exists
   // in this form), which previously made the photo disappear on reload.
-  await supabase.from("profiles").update({
+  const list = (k: string) => String(formData.get(k) ?? "").split("\n").map((x) => x.trim()).filter(Boolean);
+  const patch: Record<string, unknown> = {
     full_name: str("full_name"), headline: str("headline"), title: str("title"),
     bio: str("bio"), location: str("location"), languages: str("languages"),
-  }).eq("id", user.id);
+  };
+  if (formData.get("interests") !== null) patch.interests = list("interests");
+  if (formData.get("goals") !== null) patch.goals = list("goals");
+  await supabase.from("profiles").update(patch).eq("id", user.id);
   revalidatePath("/mentee/settings");
   revalidatePath("/mentor/settings");
   redirect(`${formData.get("redirect") ?? "/mentee/settings"}?saved=1`);

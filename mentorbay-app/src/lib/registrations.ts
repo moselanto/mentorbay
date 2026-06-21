@@ -30,3 +30,22 @@ export async function isSignedIn(): Promise<boolean> {
     return !!user;
   } catch { return false; }
 }
+
+
+export type MyMentorApplication = { mentorId: string; mentorName: string; status: string };
+
+/** The signed-in mentee's mentorship applications with mentor names. */
+export async function getMyMentorApplications(): Promise<MyMentorApplication[]> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data } = await supabase
+      .from("applications")
+      .select("mentor_id, status, mentor:profiles!applications_mentor_id_fkey(full_name)")
+      .eq("mentee_id", user.id);
+    return (data as unknown as { mentor_id: string | null; status: string; mentor: { full_name: string | null } | null }[] | null ?? [])
+      .filter((r) => r.mentor_id)
+      .map((r) => ({ mentorId: r.mentor_id as string, mentorName: r.mentor?.full_name ?? "Mentor", status: r.status }));
+  } catch { return []; }
+}

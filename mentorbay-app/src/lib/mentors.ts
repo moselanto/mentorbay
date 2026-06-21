@@ -30,7 +30,7 @@ export async function getMentors(): Promise<Mentor[]> {
     if (error || !data || data.length === 0) return MENTORS;
     return (data as MentorRow[]).map(rowToMentor);
   } catch {
-    return MENTORS;
+    return [];
   }
 }
 
@@ -44,6 +44,6 @@ export async function getMentorBySlug(slug: string): Promise<Mentor | null> {
     if (error || !data) return MENTORS.find((m) => m.id === slug) ?? null;
     return rowToMentor(data as MentorRow);
   } catch {
-    return MENTORS.find((m) => m.id === slug) ?? null;
+    return null;
   }
 }

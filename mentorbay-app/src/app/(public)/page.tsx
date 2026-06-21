@@ -33,16 +33,17 @@ export default async function HomePage() {
               Connect with experienced mentors across Kenya and Africa, join life-changing programs, and attend
               exclusive events that transform careers.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 max-w-lg">
+            <form action="/search" method="get" className="mt-8 flex flex-col sm:flex-row gap-3 max-w-lg">
               <input
                 type="text"
+                name="q"
                 placeholder="Search mentors, programs or topics..."
                 className="flex-1 px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal focus:border-teal outline-none"
               />
               <button className="px-6 py-3 bg-teal text-white font-semibold rounded-lg hover:bg-teal-600 transition">
                 Search
               </button>
-            </div>
+            </form>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link href="/mentors" className="px-6 py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">
                 Browse Mentors
