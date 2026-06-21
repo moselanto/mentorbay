@@ -68,25 +68,25 @@ export async function getPendingSessions(): Promise<AdminSession[]> {
   } catch { return []; }
 }
 
-export type AdminEvent = { id: string; title: string; category: string; format: string; date: string };
+export type AdminEvent = { id: string; slug: string; title: string; category: string; format: string; date: string };
 export async function getPendingEvents(): Promise<AdminEvent[]> {
   try {
     const s = createClient();
-    const { data } = await s.from("events").select("id, title, category, format, date_label").eq("approval_status", "pending");
-    return (data as { id: string; title: string; category: string; format: string; date_label: string }[] | null ?? [])
-      .map((r) => ({ id: r.id, title: r.title, category: r.category, format: r.format, date: r.date_label }));
+    const { data } = await s.from("events").select("id, slug, title, category, format, date_label").eq("approval_status", "pending");
+    return (data as { id: string; slug: string; title: string; category: string; format: string; date_label: string }[] | null ?? [])
+      .map((r) => ({ id: r.id, slug: r.slug, title: r.title, category: r.category, format: r.format, date: r.date_label }));
   } catch { return []; }
 }
 
 
-export type AdminArticle = { id: string; title: string; author: string; date: string };
+export type AdminArticle = { id: string; slug: string; title: string; author: string; date: string };
 export async function getPendingArticles(): Promise<AdminArticle[]> {
   try {
     const s = createClient();
     const { data } = await s.from("articles")
       .select("id, title, created_at, author:profiles!articles_author_id_fkey(full_name)")
       .eq("status", "published").eq("approval_status", "pending");
-    return (data as unknown as { id: string; title: string; created_at: string; author: { full_name: string | null } | null }[] | null ?? [])
-      .map((r) => ({ id: r.id, title: r.title, author: r.author?.full_name ?? "Unknown", date: new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) }));
+    return (data as unknown as { id: string; slug: string; title: string; created_at: string; author: { full_name: string | null } | null }[] | null ?? [])
+      .map((r) => ({ id: r.id, slug: r.slug, title: r.title, author: r.author?.full_name ?? "Unknown", date: new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) }));
   } catch { return []; }
 }
