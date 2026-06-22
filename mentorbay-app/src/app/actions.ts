@@ -456,6 +456,7 @@ export async function updateSessionAction(formData: FormData) {
   if (when) patch.scheduled_at = new Date(when).toISOString();
   await supabase.from("sessions").update(patch).eq("id", id).eq("mentor_id", user.id);
   revalidatePath("/mentor/sessions");
+  redirect("/mentor/sessions?updated=1");
 }
 
 

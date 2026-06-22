@@ -66,3 +66,26 @@ export async function getMyMentorSessions(): Promise<MentorSession[]> {
       }));
   } catch { return []; }
 }
+
+
+export type MentorSessionDetail = { id: string; topic: string; mode: string; scheduledAtLocal: string; meetingUrl: string; mentee: string };
+
+/** A single session owned by the signed-in mentor, for editing. */
+export async function getMentorSessionById(id: string): Promise<MentorSessionDetail | null> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    const { data } = await supabase
+      .from("sessions")
+      .select("id, topic, mode, scheduled_at, meeting_url, mentee:profiles!sessions_mentee_id_fkey(full_name)")
+      .eq("id", id).eq("mentor_id", user.id).maybeSingle();
+    if (!data) return null;
+    const r = data as unknown as { id: string; topic: string; mode: string; scheduled_at: string; meeting_url: string | null; mentee: { full_name: string | null } | null };
+    // datetime-local wants "YYYY-MM-DDTHH:mm"
+    const local = new Date(r.scheduled_at);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const dtLocal = `${local.getFullYear()}-${pad(local.getMonth() + 1)}-${pad(local.getDate())}T${pad(local.getHours())}:${pad(local.getMinutes())}`;
+    return { id: r.id, topic: r.topic, mode: r.mode, scheduledAtLocal: dtLocal, meetingUrl: r.meeting_url ?? "", mentee: r.mentee?.full_name ?? "Mentee" };
+  } catch { return null; }
+}
