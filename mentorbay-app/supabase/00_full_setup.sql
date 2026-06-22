@@ -9,15 +9,13 @@
 -- ============================================================
 -- MentorBay - Supabase schema (Phase 5: first live slice - public mentor directory)
 -- HOW TO RUN: Supabase dashboard -> SQL Editor -> New query -> paste this -> Run.
--- Safe to re-run (it drops the tables first).
+-- Safe to re-run (uses create table if not exists; does NOT drop data).
 --
 -- NOTE: These self-contained `mentors` and `programs` tables power the PUBLIC
 -- directory so we can seed and read live data right now, without auth users.
 -- When we add Supabase Auth (next phase), mentors will link to a `profiles`
 -- table tied to auth.users - see ../../MIGRATION.md for that full schema.
 
-drop table if exists programs cascade;
-drop table if exists mentors cascade;
 
 create table if not exists mentors (
   id           uuid primary key default gen_random_uuid(),
@@ -77,7 +75,6 @@ create policy "Public can read published programs"
 -- MentorBay - events table (additive migration). Run in Supabase SQL Editor.
 -- This does NOT touch your existing mentors/programs data.
 
-drop table if exists events cascade;
 
 create table if not exists events (
   id           uuid primary key default gen_random_uuid(),
