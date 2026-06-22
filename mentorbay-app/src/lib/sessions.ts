@@ -39,3 +39,30 @@ export async function getMySessions(): Promise<MySession[]> {
     });
   } catch { return []; }
 }
+
+
+export type MentorSession = { id: string; topic: string; mode: string; when: string; mentee: string; upcoming: boolean; approvalStatus: string; meetingUrl: string | null };
+
+/** Sessions where the signed-in user is the MENTOR, with the mentee's name. */
+export async function getMyMentorSessions(): Promise<MentorSession[]> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data } = await supabase
+      .from("sessions")
+      .select("id, topic, mode, scheduled_at, approval_status, meeting_url, mentee:profiles!sessions_mentee_id_fkey(full_name)")
+      .eq("mentor_id", user.id)
+      .order("scheduled_at", { ascending: true });
+    const now = Date.now();
+    return (data as unknown as { id: string; topic: string; mode: string; scheduled_at: string; approval_status: string | null; meeting_url: string | null; mentee: { full_name: string | null } | null }[] | null ?? [])
+      .map((r) => ({
+        id: r.id, topic: r.topic, mode: r.mode,
+        when: fmt(r.scheduled_at),
+        mentee: r.mentee?.full_name ?? "Mentee",
+        upcoming: new Date(r.scheduled_at).getTime() >= now,
+        approvalStatus: r.approval_status ?? "approved",
+        meetingUrl: r.meeting_url ?? null,
+      }));
+  } catch { return []; }
+}

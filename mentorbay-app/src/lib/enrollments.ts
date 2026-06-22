@@ -91,3 +91,20 @@ export async function getCompletedLessons(slug: string): Promise<string[]> {
     return (data?.completed_lessons as string[] | null) ?? [];
   } catch { return []; }
 }
+
+
+export type Enrollee = { name: string; pct: number; status: string };
+
+/** Mentees enrolled in a given program (visible to the program owner via RLS). */
+export async function getProgramEnrollees(slug: string): Promise<Enrollee[]> {
+  try {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("enrollments")
+      .select("progress, status, user:profiles!enrollments_user_id_fkey(full_name)")
+      .eq("program_slug", slug)
+      .order("created_at", { ascending: false });
+    return (data as unknown as { progress: number; status: string; user: { full_name: string | null } | null }[] | null ?? [])
+      .map((r) => ({ name: r.user?.full_name ?? "Mentee", pct: r.progress ?? 0, status: r.status ?? "active" }));
+  } catch { return []; }
+}
