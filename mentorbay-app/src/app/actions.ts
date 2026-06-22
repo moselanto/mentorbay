@@ -758,3 +758,21 @@ export async function submitProgramReviewAction(formData: FormData) {
   revalidatePath(redirectTo);
   redirect(`${redirectTo}?review=${error ? "error" : "thanks"}`);
 }
+
+// ---------- Mentee: confirm course finished -> grant certificate ----------
+export async function confirmCompletionAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const slug = String(formData.get("slug") ?? "");
+  const redirectTo = String(formData.get("redirect") ?? "/mentee/certificates");
+  if (!slug) return;
+  // Only the enrolled mentee can confirm completion of their own enrollment.
+  await supabase.from("enrollments").update({
+    status: "completed", progress: 100, certificate_issued: true, completed_at: new Date().toISOString(),
+  }).eq("user_id", user.id).eq("program_slug", slug);
+  revalidatePath("/mentee/certificates");
+  revalidatePath("/mentee/programs");
+  revalidatePath(`/programs/${slug}`);
+  redirect(`${redirectTo}?granted=1`);
+}

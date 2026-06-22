@@ -125,3 +125,54 @@ export async function getProgramEnrollees(slug: string): Promise<Enrollee[]> {
       .map((r) => ({ name: r.user?.full_name ?? "Mentee", pct: r.progress ?? 0, status: r.status ?? "active" }));
   } catch { return []; }
 }
+
+
+export type Certificate = { slug: string; title: string; mentor: string; issuedAt: string };
+
+/** Programs the mentee has confirmed complete + had a certificate issued. */
+export async function getMyCertificates(): Promise<Certificate[]> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data: rows } = await supabase
+      .from("enrollments")
+      .select("program_slug, completed_at")
+      .eq("user_id", user.id).eq("certificate_issued", true);
+    const list = (rows as { program_slug: string; completed_at: string | null }[] | null) ?? [];
+    if (list.length === 0) return [];
+    const slugs = list.map((r) => r.program_slug);
+    const { data: progs } = await supabase.from("programs").select("slug, title, mentors(name)").in("slug", slugs);
+    const bySlug = new Map(((progs as unknown as { slug: string; title: string; mentors: { name: string } | null }[] | null) ?? []).map((p) => [p.slug, p]));
+    return list.filter((r) => bySlug.has(r.program_slug)).map((r) => {
+      const p = bySlug.get(r.program_slug)!;
+      return {
+        slug: r.program_slug,
+        title: p.title,
+        mentor: p.mentors?.name ?? "MentorBay",
+        issuedAt: r.completed_at ? new Date(r.completed_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "",
+      };
+    });
+  } catch { return []; }
+}
+
+export type CompletableEnrollment = { slug: string; title: string; pct: number };
+
+/** Enrolled programs the mentee can confirm complete (not yet certified). */
+export async function getCompletableEnrollments(): Promise<CompletableEnrollment[]> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data: rows } = await supabase
+      .from("enrollments")
+      .select("program_slug, progress, certificate_issued")
+      .eq("user_id", user.id).eq("certificate_issued", false);
+    const list = (rows as { program_slug: string; progress: number; certificate_issued: boolean }[] | null) ?? [];
+    if (list.length === 0) return [];
+    const slugs = list.map((r) => r.program_slug);
+    const { data: progs } = await supabase.from("programs").select("slug, title").in("slug", slugs);
+    const bySlug = new Map(((progs as { slug: string; title: string }[] | null) ?? []).map((p) => [p.slug, p]));
+    return list.filter((r) => bySlug.has(r.program_slug)).map((r) => ({ slug: r.program_slug, title: bySlug.get(r.program_slug)!.title, pct: r.progress }));
+  } catch { return []; }
+}
