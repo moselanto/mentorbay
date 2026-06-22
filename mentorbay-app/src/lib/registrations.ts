@@ -32,7 +32,7 @@ export async function isSignedIn(): Promise<boolean> {
 }
 
 
-export type MyMentorApplication = { mentorId: string; mentorName: string; status: string };
+export type MyMentorApplication = { mentorId: string; mentorName: string; mentorSlug: string | null; status: string };
 
 /** The signed-in mentee's mentorship applications with mentor names. */
 export async function getMyMentorApplications(): Promise<MyMentorApplication[]> {
@@ -51,11 +51,18 @@ export async function getMyMentorApplications(): Promise<MyMentorApplication[]> 
     const rank = (s: string) => (s === "accepted" ? 2 : s === "pending" ? 1 : 0);
     for (const r of rows) {
       const id = r.mentor_id as string;
-      const cand: MyMentorApplication = { mentorId: id, mentorName: r.mentor?.full_name ?? "Mentor", status: r.status };
+      const cand: MyMentorApplication = { mentorId: id, mentorName: r.mentor?.full_name ?? "Mentor", mentorSlug: null, status: r.status };
       const cur = byMentor.get(id);
       if (!cur || rank(cand.status) > rank(cur.status)) byMentor.set(id, cand);
     }
-    return Array.from(byMentor.values());
+    const result = Array.from(byMentor.values());
+    const ids = result.map((r) => r.mentorId);
+    if (ids.length) {
+      const { data: ms } = await supabase.from("mentors").select("slug, profile_id").in("profile_id", ids);
+      const slugByProfile = new Map((ms as { slug: string; profile_id: string }[] | null ?? []).map((m) => [m.profile_id, m.slug]));
+      for (const r of result) r.mentorSlug = slugByProfile.get(r.mentorId) ?? null;
+    }
+    return result;
   } catch { return []; }
 }
 

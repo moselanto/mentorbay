@@ -1,4 +1,4 @@
-import { sendMessageAction } from "@/app/actions";
+import MessageComposer from "@/components/MessageComposer";
 import type { ChatMessage } from "@/lib/messages";
 
 export default function ConversationPanel({
@@ -23,12 +23,7 @@ export default function ConversationPanel({
           ))
         )}
       </div>
-      <form action={sendMessageAction} className="p-3 border-t border-slate-100 flex gap-2">
-        <input type="hidden" name="recipient_id" value={counterpartId} />
-        <input type="hidden" name="redirect" value={redirectTo} />
-        <input name="body" required autoComplete="off" className="flex-1 px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none text-sm" placeholder="Type a message..." />
-        <button className="px-5 py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">Send</button>
-      </form>
+      <MessageComposer recipientId={counterpartId} redirectTo={redirectTo} />
     </section>
   );
 }

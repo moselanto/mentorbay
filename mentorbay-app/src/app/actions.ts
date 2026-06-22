@@ -673,7 +673,13 @@ export async function sendMessageAction(formData: FormData) {
   const body = String(formData.get("body") ?? "").trim();
   const redirectTo = String(formData.get("redirect") ?? "/mentee/messages");
   if (!recipientId || !body) redirect(`${redirectTo}?with=${recipientId}`);
-  await supabase.from("messages").insert({ sender_id: user.id, recipient_id: recipientId, body });
+  const since = new Date(Date.now() - 8000).toISOString();
+  const { data: dup } = await supabase.from("messages")
+    .select("id").eq("sender_id", user.id).eq("recipient_id", recipientId).eq("body", body)
+    .gte("created_at", since).maybeSingle();
+  if (!dup) {
+    await supabase.from("messages").insert({ sender_id: user.id, recipient_id: recipientId, body }); // Guard against accidental double-submit
+  }
   revalidatePath(redirectTo);
   redirect(`${redirectTo}?with=${recipientId}`);
 }
