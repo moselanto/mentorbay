@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getEvent } from "@/lib/events";
+import { googleCalendarUrl } from "@/lib/gcal";
 
 // Events the signed-in mentee has registered for.
 async function getMyRegisteredEvents() {
@@ -41,9 +42,12 @@ export default async function MenteeEventsPage() {
                 <h3 className="font-bold text-navy mt-1 leading-snug">{e.title}</h3>
                 <p className="text-xs text-slate-500 mt-1">{e.date} · {e.time}</p>
                 <p className="text-xs text-slate-400 mt-1 truncate">{e.loc}</p>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <Link href={`/events/${e.id}`} className="text-center py-2 border border-slate-200 text-navy text-xs font-semibold rounded-lg hover:border-teal transition">Details</Link>
-                  <a href={`/events/${e.id}/calendar.ics`} className="text-center py-2 bg-navy text-white text-xs font-semibold rounded-lg hover:bg-navy-700 transition">Add to calendar</a>
+                <div className="mt-3 space-y-2">
+                  <a href={googleCalendarUrl(e)} target="_blank" rel="noopener noreferrer" className="block text-center py-2 bg-navy text-white text-xs font-semibold rounded-lg hover:bg-navy-700 transition">Add to Google Calendar</a>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link href={`/events/${e.id}`} className="text-center py-2 border border-slate-200 text-navy text-xs font-semibold rounded-lg hover:border-teal transition">Details</Link>
+                    <a href={`/events/${e.id}/calendar.ics`} className="text-center py-2 border border-slate-200 text-navy text-xs font-semibold rounded-lg hover:border-teal transition">Download .ics</a>
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { registerEventAction } from "@/app/actions";
+import { googleCalendarUrl } from "@/lib/gcal";
 import type { EventItem } from "@/lib/data";
 
 // Decorative QR (real scannable codes can be generated server-side later).
@@ -68,7 +69,8 @@ export default function EventRegister({ event, registered, goingCount = 0 }: { e
           </div>
           <p className="text-xs text-center text-teal-600 mt-3 font-medium">&#10003; You&apos;re registered! We emailed you the event link.</p>
           <div className="mt-4 space-y-2">
-            <a href={`/events/${event.id}/calendar.ics`} className="block text-center py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">Add to calendar</a>
+            <a href={googleCalendarUrl(event)} target="_blank" rel="noopener noreferrer" className="block text-center py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">Add to Google Calendar</a>
+            <a href={`/events/${event.id}/calendar.ics`} className="block text-center py-2.5 border border-slate-200 text-navy text-sm font-semibold rounded-lg hover:border-teal transition">Download .ics</a>
             <Link href="/mentee/events" className="block text-center py-2.5 border border-slate-200 text-navy text-sm font-semibold rounded-lg hover:border-teal transition">View my events</Link>
           </div>
         </div>
