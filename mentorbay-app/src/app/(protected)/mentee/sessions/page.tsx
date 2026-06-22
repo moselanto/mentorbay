@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getMySessions } from "@/lib/sessions";
 import { getMyMentorApplications } from "@/lib/registrations";
-import { bookSessionAction } from "@/app/actions";
+import SessionBookingForm from "@/components/SessionBookingForm";
 
 export default async function SessionsPage({ searchParams }: { searchParams: { booked?: string; error?: string } }) {
   const [sessions, apps] = await Promise.all([getMySessions(), getMyMentorApplications()]);
@@ -23,17 +23,7 @@ export default async function SessionsPage({ searchParams }: { searchParams: { b
         {connected.length === 0 ? (
           <p className="text-sm text-slate-500">Connect with a mentor first to book a session. <Link href="/mentee/my-mentor" className="text-teal-600 font-semibold hover:underline">Find a mentor</Link>.</p>
         ) : (
-          <form action={bookSessionAction} className="grid sm:grid-cols-4 gap-3 items-end">
-            <div className="sm:col-span-2"><label className="block text-xs font-semibold text-navy mb-1">Mentor</label>
-              <select name="mentor_id" required className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none">
-                {connected.map((c) => <option key={c.mentorId} value={c.mentorId}>{c.mentorName}</option>)}
-              </select>
-            </div>
-            <div className="sm:col-span-2"><label className="block text-xs font-semibold text-navy mb-1">Topic</label><input name="topic" required className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="e.g. Career roadmap review" /></div>
-            <div className="sm:col-span-2"><label className="block text-xs font-semibold text-navy mb-1">Date &amp; time</label><input name="scheduled_at" type="datetime-local" required className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /></div>
-            <div><label className="block text-xs font-semibold text-navy mb-1">Mode</label><select name="mode" className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none"><option>Google Meet</option><option>Zoom</option><option>In-person</option></select></div>
-            <div className="flex justify-end"><button className="px-5 py-2 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">+ Book session</button></div>
-          </form>
+          <SessionBookingForm connected={connected.map((c) => ({ mentorId: c.mentorId, mentorName: c.mentorName }))} />
         )}
       </section>
 
