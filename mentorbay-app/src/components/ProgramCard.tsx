@@ -1,14 +1,14 @@
 import Link from "next/link";
 import type { Program } from "@/lib/data";
 
-export default function ProgramCard({ program: p }: { program: Program }) {
+export default function ProgramCard({ program: p, enrolled = false }: { program: Program; enrolled?: boolean }) {
   return (
     <Link href={`/programs/${p.id}`} className="bg-white rounded-2xl shadow-card overflow-hidden hover:-translate-y-1 transition block">
       <div className="relative">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={p.img} alt="" className="w-full h-40 object-cover" />
         <span className="absolute top-3 left-3 text-xs font-semibold bg-white/90 text-navy px-2.5 py-1 rounded-full">{p.category}</span>
-        {p.badge && <span className="absolute top-3 right-3 text-xs font-semibold bg-teal text-white px-2.5 py-1 rounded-full">{p.badge}</span>}
+        {enrolled ? <span className="absolute top-3 right-3 text-xs font-semibold bg-teal text-white px-2.5 py-1 rounded-full">&#10003; Enrolled</span> : (p.badge && <span className="absolute top-3 right-3 text-xs font-semibold bg-teal text-white px-2.5 py-1 rounded-full">{p.badge}</span>)}
       </div>
       <div className="p-5">
         <h3 className="font-bold text-navy leading-snug">{p.title}</h3>

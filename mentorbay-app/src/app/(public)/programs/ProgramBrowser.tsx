@@ -6,7 +6,8 @@ import ProgramCard from "@/components/ProgramCard";
 
 type Sort = "popular" | "rating" | "newest";
 
-export default function ProgramBrowser({ programs }: { programs: Program[] }) {
+export default function ProgramBrowser({ programs, enrolledSlugs = [] }: { programs: Program[]; enrolledSlugs?: string[] }) {
+  const enrolledSet = new Set(enrolledSlugs);
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("");
   const [level, setLevel] = useState("");
@@ -101,7 +102,7 @@ export default function ProgramBrowser({ programs }: { programs: Program[] }) {
           <p className="text-sm text-slate-500 mb-5"><span className="font-semibold text-navy">{results.length}</span> programs found</p>
           {results.length > 0 ? (
             <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {results.map((p) => <ProgramCard key={p.id} program={p} />)}
+              {results.map((p) => <ProgramCard key={p.id} program={p} enrolled={enrolledSet.has(p.id)} />)}
             </div>
           ) : (
             <div className="text-center py-20">

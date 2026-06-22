@@ -67,3 +67,15 @@ export async function getProgramProgress(slug: string): Promise<{ pct: number; s
     return { pct: (data.progress as number) ?? 0, status: (data.status as string) ?? "active" };
   } catch { return null; }
 }
+
+
+/** Slugs of all programs the signed-in mentee is enrolled in. */
+export async function getMyEnrolledSlugs(): Promise<string[]> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data } = await supabase.from("enrollments").select("program_slug").eq("user_id", user.id);
+    return (data as { program_slug: string }[] | null ?? []).map((r) => r.program_slug);
+  } catch { return []; }
+}

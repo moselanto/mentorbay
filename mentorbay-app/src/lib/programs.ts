@@ -85,3 +85,14 @@ export async function getMyProgramBySlug(slug: string): Promise<Program | null> 
     return rowToProgram(data as ProgramRow);
   } catch { return null; }
 }
+
+
+/** Program titles (topics) created by a mentor, looked up by their profile id. */
+export async function getMentorProgramTopics(mentorProfileId: string): Promise<string[]> {
+  if (!hasSupabase() || !mentorProfileId) return [];
+  try {
+    const supabase = createClient();
+    const { data } = await supabase.from("programs").select("title").eq("created_by", mentorProfileId).eq("status", "published");
+    return (data as { title: string }[] | null ?? []).map((r) => r.title).filter(Boolean);
+  } catch { return []; }
+}
