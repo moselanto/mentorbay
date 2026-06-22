@@ -96,3 +96,31 @@ export async function getMentorProgramTopics(mentorProfileId: string): Promise<s
     return (data as { title: string }[] | null ?? []).map((r) => r.title).filter(Boolean);
   } catch { return []; }
 }
+
+
+export type ProgramReview = { id: string; author: string; rating: number; body: string; avatar: string | null };
+
+/** Visible reviews for a program. */
+export async function getProgramReviews(slug: string): Promise<ProgramReview[]> {
+  try {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("reviews")
+      .select("id, author_name, rating, body, author:profiles!reviews_author_id_fkey(full_name, avatar_url)")
+      .eq("program_slug", slug).eq("status", "visible")
+      .order("created_at", { ascending: false });
+    return (data as unknown as { id: string; author_name: string | null; rating: number; body: string; author: { full_name: string | null; avatar_url: string | null } | null }[] | null ?? [])
+      .map((r) => ({ id: r.id, author: r.author?.full_name ?? r.author_name ?? "Mentee", rating: r.rating, body: r.body, avatar: r.author?.avatar_url ?? null }));
+  } catch { return []; }
+}
+
+/** Whether the signed-in user already reviewed a program. */
+export async function hasReviewedProgram(slug: string): Promise<boolean> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+    const { data } = await supabase.from("reviews").select("id").eq("program_slug", slug).eq("author_id", user.id).maybeSingle();
+    return !!data;
+  } catch { return false; }
+}

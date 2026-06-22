@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getProgram, getPrograms } from "@/lib/programs";
+import { getProgram, getPrograms, getProgramReviews, hasReviewedProgram } from "@/lib/programs";
+import ProgramReviewForm from "@/components/ProgramReviewForm";
 import Accordion, { type Module } from "@/components/Accordion";
 import EnrollButton from "@/components/EnrollButton";
 import { isEnrolledInProgram, countEnrollments, getProgramProgress } from "@/lib/enrollments";
@@ -32,12 +33,14 @@ const CURRICULUM: Module[] = [
   { title: "Module 5 - Capstone Project", lessons: ["Action plan", "Peer presentation", "Certification"] },
 ];
 
-export default async function ProgramDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string; enrollerror?: string } }) {
+export default async function ProgramDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string; enrollerror?: string; review?: string } }) {
   const p = await getProgram(params.id, { preview: searchParams?.preview === "1" });
   const enrolled = p ? await isEnrolledInProgram(p.id) : false;
   const enrolledCount = p ? await countEnrollments(p.id) : 0;
   const progress = p ? await getProgramProgress(p.id) : null;
   const completedLessons = p && enrolled ? await getCompletedLessons(p.id) : [];
+  const programReviews = p ? await getProgramReviews(p.id) : [];
+  const reviewedAlready = p && enrolled ? await hasReviewedProgram(p.id) : false;
   if (!p) notFound();
   const all = await getPrograms();
   const learn = p.learn && p.learn.length ? p.learn : LEARN;
@@ -116,6 +119,33 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
               </ul>
             </div>
           )}
+
+          <div className="bg-white rounded-2xl shadow-card p-6 sm:p-8">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-navy">Reviews</h3>
+              <span className="text-sm text-slate-500"><span className="text-amber-400">&#9733;</span> {p.rating || "0"} · {programReviews.length} review{programReviews.length === 1 ? "" : "s"}</span>
+            </div>
+            {searchParams?.review === "thanks" && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg mb-4">Thanks! Your rating has been posted.</p>}
+            {searchParams?.review === "notenrolled" && <p className="text-sm text-rose-600 bg-rose-50 px-4 py-2.5 rounded-lg mb-4">Enroll in this program before rating it.</p>}
+            {searchParams?.review === "empty" && <p className="text-sm text-rose-600 bg-rose-50 px-4 py-2.5 rounded-lg mb-4">Please write something before submitting.</p>}
+            {programReviews.length === 0 ? (
+              <p className="text-sm text-slate-500">No reviews yet. {enrolled ? "Be the first to rate this program below." : "Enroll to rate this program."}</p>
+            ) : (
+              <div className="space-y-4">
+                {programReviews.map((r) => (
+                  <div key={r.id} className="flex gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {r.avatar ? <img src={r.avatar} alt={r.author} className="w-9 h-9 rounded-full object-cover shrink-0" /> : <span className="w-9 h-9 rounded-full bg-gradient-to-br from-navy to-teal grid place-items-center text-white text-xs font-bold shrink-0">{r.author.charAt(0)}</span>}
+                    <div>
+                      <div className="flex items-center gap-2"><p className="font-semibold text-navy text-sm">{r.author}</p><span className="text-amber-400 text-xs">{"\u2605".repeat(r.rating)}</span></div>
+                      <p className="text-sm text-slate-600 mt-0.5">{r.body}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {enrolled && <div className="mt-6"><ProgramReviewForm slug={p.id} alreadyReviewed={reviewedAlready} /></div>}
+          </div>
 
           <div className="bg-white rounded-2xl shadow-card p-6 sm:p-8">
             <h3 className="text-lg font-bold text-navy mb-4">Your Mentor</h3>

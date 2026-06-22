@@ -727,3 +727,24 @@ export async function toggleLessonAction(formData: FormData) {
   revalidatePath("/mentee/programs");
   revalidatePath("/mentee");
 }
+
+// ---------- Mentee: review/rate a program ----------
+export async function submitProgramReviewAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const slug = String(formData.get("program_slug") ?? "");
+  const redirectTo = `/programs/${slug}`;
+  if (!user) redirect(`/login?redirect=${encodeURIComponent(redirectTo)}`);
+  const rating = Math.max(1, Math.min(5, Number(formData.get("rating") ?? 5)));
+  const body = String(formData.get("body") ?? "").trim();
+  if (!slug || !body) redirect(`${redirectTo}?preview=&review=empty`);
+  // Only enrolled mentees can review a program.
+  const { data: enr } = await supabase.from("enrollments").select("id").eq("user_id", user.id).eq("program_slug", slug).maybeSingle();
+  if (!enr) redirect(`${redirectTo}?review=notenrolled`);
+  const who = await getUserContact(supabase, user.id);
+  const { error } = await supabase.from("reviews").insert({
+    program_slug: slug, author_id: user.id, author_name: who.name, rating, body, status: "visible",
+  });
+  revalidatePath(redirectTo);
+  redirect(`${redirectTo}?review=${error ? "error" : "thanks"}`);
+}
