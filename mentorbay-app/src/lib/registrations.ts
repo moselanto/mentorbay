@@ -44,8 +44,17 @@ export async function getMyMentorApplications(): Promise<MyMentorApplication[]> 
       .from("applications")
       .select("mentor_id, status, mentor:profiles!applications_mentor_id_fkey(full_name)")
       .eq("mentee_id", user.id);
-    return (data as unknown as { mentor_id: string | null; status: string; mentor: { full_name: string | null } | null }[] | null ?? [])
-      .filter((r) => r.mentor_id)
-      .map((r) => ({ mentorId: r.mentor_id as string, mentorName: r.mentor?.full_name ?? "Mentor", status: r.status }));
+    const rows = (data as unknown as { mentor_id: string | null; status: string; mentor: { full_name: string | null } | null }[] | null ?? [])
+      .filter((r) => r.mentor_id);
+    // Dedupe by mentor so each connection shows once (accepted wins over pending).
+    const byMentor = new Map<string, MyMentorApplication>();
+    const rank = (s: string) => (s === "accepted" ? 2 : s === "pending" ? 1 : 0);
+    for (const r of rows) {
+      const id = r.mentor_id as string;
+      const cand: MyMentorApplication = { mentorId: id, mentorName: r.mentor?.full_name ?? "Mentor", status: r.status };
+      const cur = byMentor.get(id);
+      if (!cur || rank(cand.status) > rank(cur.status)) byMentor.set(id, cand);
+    }
+    return Array.from(byMentor.values());
   } catch { return []; }
 }
