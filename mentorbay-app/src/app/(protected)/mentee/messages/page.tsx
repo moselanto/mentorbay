@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getMyMentorApplications } from "@/lib/registrations";
-import { getConversation, getMyMessageThreads } from "@/lib/messages";
+import { getConversation, getMyMessageThreads, markConversationRead } from "@/lib/messages";
 import ConversationPanel from "@/components/ConversationPanel";
 
 export default async function MessagesPage({ searchParams }: { searchParams: { with?: string } }) {
@@ -13,6 +13,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: { w
     ? searchParams.with
     : connections[0]?.mentorId;
   const active = connections.find((c) => c.mentorId === activeId) ?? null;
+  if (active) await markConversationRead(active.mentorId);
   const messages = active ? await getConversation(active.mentorId) : [];
 
   return (

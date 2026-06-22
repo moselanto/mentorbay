@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { LogoWordmark } from "@/components/Logo";
 import SignOutButton from "@/components/SignOutButton";
 
-export type NavItem = { label: string; href: string; icon: keyof typeof ICONS; ready?: boolean };
+export type NavItem = { label: string; href: string; icon: keyof typeof ICONS; ready?: boolean; badge?: number };
 
 const ICONS = {
   home: "m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10",
@@ -75,6 +75,7 @@ export default function DashboardShell({
         return (
           <Link key={item.label} href={item.href} onClick={() => setOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${active ? activeCls : idleCls}`}>
             <Icon name={item.icon} /> {item.label}
+            {item.badge ? <span className="ml-auto min-w-5 h-5 px-1.5 grid place-items-center text-[11px] font-bold text-white bg-rose-500 rounded-full">{item.badge > 9 ? "9+" : item.badge}</span> : null}
           </Link>
         );
       })}

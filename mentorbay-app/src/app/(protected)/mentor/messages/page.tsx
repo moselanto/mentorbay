@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getAcceptedMentees } from "@/lib/applications";
-import { getConversation, getMyMessageThreads } from "@/lib/messages";
+import { getConversation, getMyMessageThreads, markConversationRead } from "@/lib/messages";
 import ConversationPanel from "@/components/ConversationPanel";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +17,7 @@ export default async function MentorMessagesPage({ searchParams }: { searchParam
     ? searchParams.with
     : people[0]?.personId ?? undefined;
   const active = people.find((p) => p.personId === activeId) ?? null;
+  if (active) await markConversationRead(active.personId);
   const messages = active ? await getConversation(active.personId) : [];
 
   return (

@@ -1,5 +1,6 @@
 import DashboardShell, { type NavItem } from "@/components/DashboardShell";
 import { requireRole } from "@/lib/dashboard-access";
+import { getUnreadCount } from "@/lib/messages";
 
 const NAV: NavItem[] = [
   { label: "Dashboard", href: "/mentee", icon: "home" },
@@ -15,8 +16,10 @@ const NAV: NavItem[] = [
 
 export default async function MenteeLayout({ children }: { children: React.ReactNode }) {
   const { userName, avatarUrl } = await requireRole("mentee");
+  const unread = await getUnreadCount();
+  const nav = NAV.map((n) => (n.href === "/mentee/messages" ? { ...n, badge: unread } : n));
   return (
-    <DashboardShell roleLabel="Mentee" nav={NAV} userName={userName} avatarUrl={avatarUrl}>
+    <DashboardShell roleLabel="Mentee" nav={nav} userName={userName} avatarUrl={avatarUrl}>
       {children}
     </DashboardShell>
   );

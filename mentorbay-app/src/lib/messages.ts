@@ -49,3 +49,26 @@ export async function getMyMessageThreads(): Promise<Thread[]> {
     return Array.from(byPerson.values());
   } catch { return []; }
 }
+
+
+/** Number of unread messages addressed to the signed-in user. */
+export async function getUnreadCount(): Promise<number> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return 0;
+    const { count } = await supabase.from("messages").select("id", { count: "exact", head: true }).eq("recipient_id", user.id).is("read_at", null);
+    return count ?? 0;
+  } catch { return 0; }
+}
+
+/** Mark all messages from a counterpart to the signed-in user as read. */
+export async function markConversationRead(counterpartId: string): Promise<void> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || !counterpartId) return;
+    await supabase.from("messages").update({ read_at: new Date().toISOString() })
+      .eq("recipient_id", user.id).eq("sender_id", counterpartId).is("read_at", null);
+  } catch { /* best-effort */ }
+}
