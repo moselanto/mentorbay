@@ -62,9 +62,11 @@ create table if not exists programs (
 alter table mentors  enable row level security;
 alter table programs enable row level security;
 
+drop policy if exists "Public can read approved mentors" on mentors;
 create policy "Public can read approved mentors"
   on mentors for select using (status = 'approved');
 
+drop policy if exists "Public can read published programs" on programs;
 create policy "Public can read published programs"
   on programs for select using (status = 'published');
 
@@ -98,6 +100,7 @@ create table if not exists events (
 );
 
 alter table events enable row level security;
+drop policy if exists "Public can read published events" on events;
 create policy "Public can read published events"
   on events for select using (status = 'published');
 
