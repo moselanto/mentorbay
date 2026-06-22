@@ -6,6 +6,7 @@ import ProgramReviewForm from "@/components/ProgramReviewForm";
 import Accordion, { type Module } from "@/components/Accordion";
 import EnrollButton from "@/components/EnrollButton";
 import { isEnrolledInProgram, countEnrollments, getProgramProgress } from "@/lib/enrollments";
+import { currentUserRole } from "@/lib/is-admin";
 import ProgramProgressPanel from "@/components/ProgramProgressPanel";
 import CurriculumTracker from "@/components/CurriculumTracker";
 import { getCompletedLessons } from "@/lib/enrollments";
@@ -35,7 +36,9 @@ const CURRICULUM: Module[] = [
 
 export default async function ProgramDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string; enrollerror?: string; review?: string } }) {
   const p = await getProgram(params.id, { preview: searchParams?.preview === "1" });
-  const enrolled = p ? await isEnrolledInProgram(p.id) : false;
+  const role = await currentUserRole();
+  const isMentee = role === "mentee" || role === null; // logged-out visitors are treated as prospective mentees
+  const enrolled = p && isMentee ? await isEnrolledInProgram(p.id) : false;
   const enrolledCount = p ? await countEnrollments(p.id) : 0;
   const progress = p ? await getProgramProgress(p.id) : null;
   const completedLessons = p && enrolled ? await getCompletedLessons(p.id) : [];
@@ -174,7 +177,11 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
                 <span className="text-sm text-slate-400 line-through mb-1">KES 15,000</span>
               </div>
               <p className="text-xs text-teal-600 font-medium mt-1">Free during launch - limited time</p>
-              <EnrollButton slug={p.id} enrolled={enrolled} />
+              {isMentee ? (
+                <EnrollButton slug={p.id} enrolled={enrolled} />
+              ) : (
+                <p className="mt-4 text-center text-sm text-slate-500 bg-slate-50 rounded-lg py-3">Enrolling is for mentees. {role === "mentor" ? "You're viewing this as a mentor." : "Switch to a mentee account to enroll."}</p>
+              )}
               <ul className="mt-5 pt-5 border-t border-slate-100 space-y-3 text-sm">
                 <li className="flex justify-between"><span className="text-slate-500">Duration</span><span className="font-semibold text-navy">{duration}</span></li>
                 <li className="flex justify-between"><span className="text-slate-500">Lessons</span><span className="font-semibold text-navy">{p.lessons} lessons</span></li>
