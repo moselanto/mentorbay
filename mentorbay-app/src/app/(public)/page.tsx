@@ -198,21 +198,44 @@ export default async function HomePage() {
           <h2 className="text-2xl lg:text-3xl font-extrabold text-navy">Success Stories</h2>
           <p className="text-slate-500 mt-2">Real people, real growth. See how MentorBay transformed careers across Kenya.</p>
         </div>
-        <div className="grid md:grid-cols-3 gap-6">
-          {(featuredStories.length ? featuredStories : SUCCESS_STORIES).map((s, i) => (
-            <div key={("id" in s ? s.id : s.name) + String(i)} className="bg-white rounded-2xl shadow-card p-6 border border-slate-50">
-              <div className="text-amber-400 text-sm mb-3">{"\u2605".repeat(("rating" in s ? s.rating : 5))}</div>
-              <p className="text-slate-600 text-sm leading-relaxed">&quot;{s.quote}&quot;</p>
-              <div className="flex items-center gap-3 mt-5">
-                <span className="w-10 h-10 rounded-full bg-gradient-to-br from-navy to-teal grid place-items-center text-white font-bold">{s.name.charAt(0)}</span>
-                <div>
-                  <p className="font-bold text-navy text-sm">{s.name}</p>
-                  <p className="text-xs text-slate-500">{"role" in s ? s.role : (s.mentor ? `Mentored by ${s.mentor}` : "MentorBay mentee")}</p>
+        {featuredStories.length === 0 ? (
+          <div className="grid md:grid-cols-3 gap-6">
+            {SUCCESS_STORIES.map((s, i) => (
+              <div key={s.name + String(i)} className="bg-white rounded-2xl shadow-card p-6 border border-slate-50">
+                <div className="text-amber-400 text-sm mb-3">{"\u2605".repeat(5)}</div>
+                <p className="text-slate-600 text-sm leading-relaxed">&quot;{s.quote}&quot;</p>
+                <div className="flex items-center gap-3 mt-5">
+                  <span className="w-10 h-10 rounded-full bg-gradient-to-br from-navy to-teal grid place-items-center text-white font-bold">{s.name.charAt(0)}</span>
+                  <div>
+                    <p className="font-bold text-navy text-sm">{s.name}</p>
+                    <p className="text-xs text-slate-500">{s.role}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 scroll-smooth">
+            {featuredStories.map((s) => (
+              <div key={s.id} className="snap-start shrink-0 w-[calc(100%-1rem)] sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] bg-white rounded-2xl shadow-card p-6 border border-slate-50">
+                <div className="text-amber-400 text-sm mb-3">{"\u2605".repeat(s.rating)}</div>
+                <p className="text-slate-600 text-sm leading-relaxed">&quot;{s.quote}&quot;</p>
+                <div className="flex items-center gap-3 mt-5">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {s.avatar ? (
+                    <img src={s.avatar} alt={s.name} className="w-10 h-10 rounded-full object-cover" />
+                  ) : (
+                    <span className="w-10 h-10 rounded-full bg-gradient-to-br from-navy to-teal grid place-items-center text-white font-bold">{s.name.charAt(0)}</span>
+                  )}
+                  <div>
+                    <p className="font-bold text-navy text-sm">{s.name}</p>
+                    <p className="text-xs text-slate-500">{s.mentor ? `Mentored by ${s.mentor}` : "MentorBay mentee"}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* CTA */}
