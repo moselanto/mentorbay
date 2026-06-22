@@ -43,6 +43,7 @@ export async function updateProfileAction(formData: FormData) {
   };
   if (formData.get("interests") !== null) patch.interests = list("interests");
   if (formData.get("goals") !== null) patch.goals = list("goals");
+  if (formData.get("experience_years") !== null) patch.experience_years = Math.max(0, Math.min(60, Number(formData.get("experience_years") ?? 0)));
   await supabase.from("profiles").update(patch).eq("id", user.id);
   revalidatePath("/mentee/settings");
   revalidatePath("/mentor/settings");
