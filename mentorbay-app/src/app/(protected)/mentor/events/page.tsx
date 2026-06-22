@@ -3,6 +3,7 @@ import { getMyEvents } from "@/lib/events";
 import { getEventRegistrants } from "@/lib/registrations";
 import { deleteEventAction } from "@/app/actions";
 import ConfirmButton from "@/components/ConfirmButton";
+import AttendeeList from "@/components/AttendeeList";
 
 function statusStyle(status: string): { label: string; cls: string } {
   switch (status) {
@@ -44,7 +45,10 @@ export default async function MentorEventsPage({ searchParams }: { searchParams:
                   <h3 className="font-bold text-navy mt-1 leading-snug">{e.title}</h3>
                   <p className="text-xs text-slate-500 mt-1">{e.date} · {e.time}</p>
                   <p className="text-xs text-slate-400 mt-1 truncate">{e.loc}</p>
-                  <p className="text-xs font-semibold text-teal-600 mt-2">{regBySlug.get(e.id)?.count ?? 0} attending{(regBySlug.get(e.id)?.names.length ?? 0) > 0 ? `: ${regBySlug.get(e.id)!.names.slice(0, 3).join(", ")}${(regBySlug.get(e.id)!.count ?? 0) > 3 ? " +" + ((regBySlug.get(e.id)!.count) - 3) + " more" : ""}` : ""}</p>
+                  <div className="mt-2">
+                    <span className="text-xs font-semibold text-teal-600">{regBySlug.get(e.id)?.count ?? 0} attending</span>
+                    <AttendeeList names={regBySlug.get(e.id)?.names ?? []} />
+                  </div>
                   <Link href={`/events/${e.id}`} target="_blank" className="mt-3 block text-center py-2 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">View event</Link>
                   <div className="mt-2 grid grid-cols-2 gap-2">
                     <Link href={`/mentor/events/${e.id}/edit`} className="block text-center py-2 border border-slate-200 text-navy text-sm font-semibold rounded-lg hover:border-teal transition">Edit</Link>
