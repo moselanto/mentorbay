@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { MENTORS } from "@/lib/data";
 import { getMyEnrollments } from "@/lib/enrollments";
