@@ -4,7 +4,8 @@ import type { Metadata } from "next";
 import { getProgram, getPrograms } from "@/lib/programs";
 import Accordion, { type Module } from "@/components/Accordion";
 import EnrollButton from "@/components/EnrollButton";
-import { isEnrolledInProgram, countEnrollments } from "@/lib/enrollments";
+import { isEnrolledInProgram, countEnrollments, getProgramProgress } from "@/lib/enrollments";
+import ProgramProgressPanel from "@/components/ProgramProgressPanel";
 import ProgramCard from "@/components/ProgramCard";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -33,6 +34,7 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
   const p = await getProgram(params.id, { preview: searchParams?.preview === "1" });
   const enrolled = p ? await isEnrolledInProgram(p.id) : false;
   const enrolledCount = p ? await countEnrollments(p.id) : 0;
+  const progress = p ? await getProgramProgress(p.id) : null;
   if (!p) notFound();
   const all = await getPrograms();
   const learn = p.learn && p.learn.length ? p.learn : LEARN;
@@ -122,6 +124,9 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
         </div>
 
         <aside className="lg:sticky lg:top-24 space-y-4">
+          {enrolled && progress && (
+            <ProgramProgressPanel slug={p.id} pct={progress.pct} status={progress.status} lessons={p.lessons} />
+          )}
           <div className="bg-white rounded-2xl shadow-card overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={p.img} alt="" className="w-full h-36 object-cover" />

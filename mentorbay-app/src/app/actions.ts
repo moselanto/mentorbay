@@ -683,3 +683,17 @@ export async function sendMessageAction(formData: FormData) {
   revalidatePath(redirectTo);
   redirect(`${redirectTo}?with=${recipientId}`);
 }
+
+// ---------- Mentee: update program progress ----------
+export async function setProgressAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const slug = String(formData.get("slug") ?? "");
+  const pct = Math.max(0, Math.min(100, Number(formData.get("progress") ?? 0)));
+  if (!slug) return;
+  await supabase.from("enrollments").update({ progress: pct, status: pct >= 100 ? "completed" : "active" }).eq("user_id", user.id).eq("program_slug", slug);
+  revalidatePath(`/programs/${slug}`);
+  revalidatePath("/mentee/programs");
+  revalidatePath("/mentee");
+}
