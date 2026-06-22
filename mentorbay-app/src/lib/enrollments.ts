@@ -14,20 +14,37 @@ export async function getMyEnrollments(): Promise<MyEnrollment[]> {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
-    const { data, error } = await supabase
+    // 1) The user's enrollment rows (no embed - always reliable).
+    const { data: enr } = await supabase
       .from("enrollments")
-      .select("program_slug, progress, status, programs!left(title, category, cover_url, mentors(name))")
+      .select("program_slug, progress, status")
       .eq("user_id", user.id);
-    if (error || !data) return [];
-    return (data as unknown as Row[]).filter((r) => r.programs).map((r) => ({
-      slug: r.program_slug,
-      title: r.programs?.title ?? r.program_slug,
-      category: r.programs?.category ?? "",
-      img: r.programs?.cover_url ?? "",
-      mentor: r.programs?.mentors?.name ?? "",
-      pct: r.progress,
-      status: r.status,
-    }));
+    const rows = (enr as { program_slug: string; progress: number; status: string }[] | null) ?? [];
+    if (rows.length === 0) return [];
+    // 2) Fetch the matching programs separately and join in JS.
+    const slugs = rows.map((r) => r.program_slug);
+    const { data: progs } = await supabase
+      .from("programs")
+      .select("slug, title, category, cover_url, mentors(name)")
+      .in("slug", slugs);
+    const bySlug = new Map(
+      ((progs as unknown as { slug: string; title: string; category: string; cover_url: string | null; mentors: { name: string } | null }[] | null) ?? [])
+        .map((p) => [p.slug, p])
+    );
+    return rows
+      .filter((r) => bySlug.has(r.program_slug)) // skip orphaned enrollments
+      .map((r) => {
+        const p = bySlug.get(r.program_slug)!;
+        return {
+          slug: r.program_slug,
+          title: p.title ?? r.program_slug,
+          category: p.category ?? "",
+          img: p.cover_url ?? "",
+          mentor: p.mentors?.name ?? "",
+          pct: r.progress,
+          status: r.status,
+        };
+      });
   } catch {
     return [];
   }
