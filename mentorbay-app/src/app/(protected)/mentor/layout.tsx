@@ -4,6 +4,7 @@ import { requireRole } from "@/lib/dashboard-access";
 const NAV: NavItem[] = [
   { label: "Dashboard", href: "/mentor", icon: "home" },
   { label: "Mentees", href: "/mentor/mentees", icon: "users" },
+  { label: "Messages", href: "/mentor/messages", icon: "mail" },
   { label: "Applications", href: "/mentor/applications", icon: "clipboard" },
   { label: "Programs", href: "/mentor/programs", icon: "book" },
   { label: "Create Program", href: "/mentor/create-program", icon: "plus" },

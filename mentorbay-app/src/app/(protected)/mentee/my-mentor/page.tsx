@@ -30,7 +30,10 @@ export default async function MyMentorPage({ searchParams }: { searchParams: { a
             {apps.map((a) => (
               <li key={a.mentorId} className="flex items-center justify-between py-3">
                 <div><p className="font-semibold text-navy text-sm">{a.mentorName}</p></div>
-                {statusPill(a.status)}
+                <div className="flex items-center gap-3">
+                  {a.status === "accepted" && <a href={`/mentee/messages?with=${a.mentorId}`} className="text-sm font-semibold text-teal-600 hover:underline">Message</a>}
+                  {statusPill(a.status)}
+                </div>
               </li>
             ))}
           </ul>

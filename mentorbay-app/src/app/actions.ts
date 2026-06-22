@@ -663,3 +663,17 @@ export async function bookSessionAction(formData: FormData) {
   revalidatePath("/mentee");
   redirect("/mentee/sessions?booked=1");
 }
+
+// ---------- Send a direct message to a connected mentor/mentee ----------
+export async function sendMessageAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const recipientId = String(formData.get("recipient_id") ?? "").trim();
+  const body = String(formData.get("body") ?? "").trim();
+  const redirectTo = String(formData.get("redirect") ?? "/mentee/messages");
+  if (!recipientId || !body) redirect(`${redirectTo}?with=${recipientId}`);
+  await supabase.from("messages").insert({ sender_id: user.id, recipient_id: recipientId, body });
+  revalidatePath(redirectTo);
+  redirect(`${redirectTo}?with=${recipientId}`);
+}

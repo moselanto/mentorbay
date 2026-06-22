@@ -1,9 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 
-export type MentorApplication = { id: string; name: string; note: string; when: string; status: string };
+export type MentorApplication = { id: string; personId: string | null; name: string; note: string; when: string; status: string };
 
 type Row = {
-  id: string; note: string | null; status: string; created_at: string;
+  id: string; mentee_id: string | null; note: string | null; status: string; created_at: string;
   mentee: { full_name: string | null } | null;
 };
 
@@ -28,7 +28,7 @@ async function fetchByStatus(status: "pending" | "accepted"): Promise<MentorAppl
       .order("created_at", { ascending: false });
     if (error || !data) return [];
     return (data as unknown as Row[]).map((r) => ({
-      id: r.id, name: r.mentee?.full_name ?? "Mentee", note: r.note ?? "", when: ago(r.created_at), status: r.status,
+      id: r.id, personId: r.mentee_id, name: r.mentee?.full_name ?? "Mentee", note: r.note ?? "", when: ago(r.created_at), status: r.status,
     }));
   } catch {
     return [];
