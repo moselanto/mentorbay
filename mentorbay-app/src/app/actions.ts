@@ -68,6 +68,8 @@ export async function createProgramAction(formData: FormData) {
   const weeks = weeksMatch ? Number(weeksMatch[1]) : 0;
   const lessons = Number(formData.get("lessons") ?? 0) || curriculum.reduce((n, m) => n + m.lessons.length, 0);
 
+  const { data: mrow } = await supabase.from("mentors").select("slug").eq("profile_id", user.id).maybeSingle();
+  const mentorSlug = mrow?.slug ?? null;
   const { error } = await supabase.from("programs").insert({
     slug: slugify(title), title,
     category: String(formData.get("category") ?? "Leadership"),
@@ -77,6 +79,7 @@ export async function createProgramAction(formData: FormData) {
     about: String(formData.get("about") ?? ""),
     learn, curriculum, requirements, duration_label: durationLabel || null,
     cover_url: String(formData.get("cover_url") ?? "") || null,
+    mentor_slug: mentorSlug,
     status: "pending", created_by: user.id, rating: 0, enrolled: 0,
   });
   if (error) redirect("/mentor/create-program?error=save");
@@ -333,6 +336,7 @@ export async function updateProgramAction(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
   const slug = String(formData.get("slug") ?? "");
+  const { data: mrow2 } = await supabase.from("mentors").select("slug").eq("profile_id", user.id).maybeSingle();
   if (!slug) redirect("/mentor/programs");
   const learn = String(formData.get("learn") ?? "").split("\n").map((s) => s.trim()).filter(Boolean);
   const requirements = String(formData.get("requirements") ?? "").split("\n").map((s) => s.trim()).filter(Boolean);
@@ -352,6 +356,7 @@ export async function updateProgramAction(formData: FormData) {
     about: String(formData.get("about") ?? ""),
     learn, curriculum, requirements, duration_label: durationLabel || null,
     cover_url: String(formData.get("cover_url") ?? "") || null,
+    mentor_slug: mrow2?.slug ?? null,
   }).eq("slug", slug).eq("created_by", user.id);
   revalidatePath("/mentor/programs");
   revalidatePath(`/programs/${slug}`);
