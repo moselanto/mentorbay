@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { registerEventAction } from "@/app/actions";
 import type { EventItem } from "@/lib/data";
 
@@ -66,6 +67,10 @@ export default function EventRegister({ event, registered, goingCount = 0 }: { e
             <p className="text-xs text-slate-400 mt-1">Present this QR at the entrance</p>
           </div>
           <p className="text-xs text-center text-teal-600 mt-3 font-medium">&#10003; You&apos;re registered! We emailed you the event link.</p>
+          <div className="mt-4 space-y-2">
+            <a href={`/events/${event.id}/calendar.ics`} className="block text-center py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">Add to calendar</a>
+            <Link href="/mentee/events" className="block text-center py-2.5 border border-slate-200 text-navy text-sm font-semibold rounded-lg hover:border-teal transition">View my events</Link>
+          </div>
         </div>
       )}
     </div>

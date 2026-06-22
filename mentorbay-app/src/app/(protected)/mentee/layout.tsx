@@ -5,6 +5,7 @@ const NAV: NavItem[] = [
   { label: "Dashboard", href: "/mentee", icon: "home" },
   { label: "My Mentor", href: "/mentee/my-mentor", icon: "user" },
   { label: "Programs", href: "/mentee/programs", icon: "book" },
+  { label: "Events", href: "/mentee/events", icon: "calendar" },
   { label: "Progress", href: "/mentee/progress", icon: "chart" },
   { label: "Sessions", href: "/mentee/sessions", icon: "calendar" },
   { label: "Certificates", href: "/mentee/certificates", icon: "award" },
