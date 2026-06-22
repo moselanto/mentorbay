@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { getMyMentorApplications } from "@/lib/registrations";
-import { getConversation } from "@/lib/messages";
+import { getConversation, getMyMessageThreads } from "@/lib/messages";
 import ConversationPanel from "@/components/ConversationPanel";
 
 export default async function MessagesPage({ searchParams }: { searchParams: { with?: string } }) {
-  const apps = await getMyMentorApplications();
-  const connections = apps.filter((a) => a.status === "accepted");
+  const [apps, threads] = await Promise.all([getMyMentorApplications(), getMyMessageThreads()]);
+  const map = new Map<string, { mentorId: string; mentorName: string }>();
+  for (const a of apps.filter((x) => x.status === "accepted")) map.set(a.mentorId, { mentorId: a.mentorId, mentorName: a.mentorName });
+  for (const t of threads) if (!map.has(t.personId)) map.set(t.personId, { mentorId: t.personId, mentorName: t.name });
+  const connections = Array.from(map.values());
   const activeId = searchParams.with && connections.some((c) => c.mentorId === searchParams.with)
     ? searchParams.with
     : connections[0]?.mentorId;

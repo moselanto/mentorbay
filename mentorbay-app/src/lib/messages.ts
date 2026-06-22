@@ -23,3 +23,29 @@ export async function getConversation(counterpartId: string): Promise<ChatMessag
       .map((m) => ({ id: m.id, fromMe: m.sender_id === user.id, body: m.body, at: fmt(m.created_at) }));
   } catch { return []; }
 }
+
+
+export type Thread = { personId: string; name: string };
+
+/** Distinct people the signed-in user has exchanged messages with. */
+export async function getMyMessageThreads(): Promise<Thread[]> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data } = await supabase
+      .from("messages")
+      .select("sender_id, recipient_id, sender:profiles!messages_sender_id_fkey(full_name), recipient:profiles!messages_recipient_id_fkey(full_name)")
+      .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
+      .order("created_at", { ascending: false });
+    const rows = (data as unknown as { sender_id: string; recipient_id: string; sender: { full_name: string | null } | null; recipient: { full_name: string | null } | null }[] | null ?? []);
+    const byPerson = new Map<string, Thread>();
+    for (const r of rows) {
+      const isSender = r.sender_id === user.id;
+      const personId = isSender ? r.recipient_id : r.sender_id;
+      const name = (isSender ? r.recipient?.full_name : r.sender?.full_name) ?? "User";
+      if (!byPerson.has(personId)) byPerson.set(personId, { personId, name });
+    }
+    return Array.from(byPerson.values());
+  } catch { return []; }
+}
