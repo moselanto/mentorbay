@@ -19,7 +19,7 @@ export async function getMyEnrollments(): Promise<MyEnrollment[]> {
       .select("program_slug, progress, status, programs!left(title, category, cover_url, mentors(name))")
       .eq("user_id", user.id);
     if (error || !data) return [];
-    return (data as unknown as Row[]).map((r) => ({
+    return (data as unknown as Row[]).filter((r) => r.programs).map((r) => ({
       slug: r.program_slug,
       title: r.programs?.title ?? r.program_slug,
       category: r.programs?.category ?? "",
