@@ -37,3 +37,24 @@ async function fetchByStatus(status: "pending" | "accepted"): Promise<MentorAppl
 
 export const getPendingApplications = () => fetchByStatus("pending");
 export const getAcceptedMentees = () => fetchByStatus("accepted");
+
+
+export type MentorReview = { id: string; author: string; rating: number; body: string; status: string };
+
+/** Reviews left for the signed-in mentor (by their public mentor slug). */
+export async function getMyMentorReviews(): Promise<MentorReview[]> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data: m } = await supabase.from("mentors").select("slug").eq("profile_id", user.id).maybeSingle();
+    const slug = m?.slug;
+    if (!slug) return [];
+    const { data } = await supabase.from("reviews")
+      .select("id, author_name, rating, body, status")
+      .eq("mentor_slug", slug).eq("status", "visible")
+      .order("created_at", { ascending: false });
+    return (data as { id: string; author_name: string | null; rating: number; body: string; status: string }[] | null ?? [])
+      .map((r) => ({ id: r.id, author: r.author_name ?? "Mentee", rating: r.rating, body: r.body, status: r.status }));
+  } catch { return []; }
+}

@@ -75,3 +75,20 @@ export async function countRegistrations(slug: string): Promise<number> {
     return count ?? 0;
   } catch { return 0; }
 }
+
+
+export type Registrant = { name: string };
+
+/** Registrants (names) for an event by slug. Visible to the event owner/admin via RLS. */
+export async function getEventRegistrants(slug: string): Promise<{ count: number; names: string[] }> {
+  try {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("event_registrations")
+      .select("user:profiles!event_registrations_user_id_fkey(full_name)")
+      .eq("event_slug", slug);
+    const names = (data as unknown as { user: { full_name: string | null } | null }[] | null ?? [])
+      .map((r) => r.user?.full_name ?? "Mentee");
+    return { count: names.length, names };
+  } catch { return { count: 0, names: [] }; }
+}
