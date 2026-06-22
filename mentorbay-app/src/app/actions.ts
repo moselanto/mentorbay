@@ -697,3 +697,28 @@ export async function setProgressAction(formData: FormData) {
   revalidatePath("/mentee/programs");
   revalidatePath("/mentee");
 }
+
+// ---------- Mentee: toggle a curriculum lesson complete (auto-updates progress) ----------
+export async function toggleLessonAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const slug = String(formData.get("slug") ?? "");
+  const key = String(formData.get("lesson_key") ?? "");
+  const total = Math.max(1, Number(formData.get("total_lessons") ?? 1));
+  if (!slug || !key) return;
+  const { data: row } = await supabase.from("enrollments").select("completed_lessons").eq("user_id", user.id).eq("program_slug", slug).maybeSingle();
+  const current: string[] = (row?.completed_lessons as string[] | null) ?? [];
+  const set = new Set(current);
+  if (set.has(key)) set.delete(key); else set.add(key);
+  const completed = Array.from(set);
+  const pct = Math.min(100, Math.round((completed.length / total) * 100));
+  await supabase.from("enrollments").update({
+    completed_lessons: completed,
+    progress: pct,
+    status: pct >= 100 ? "completed" : "active",
+  }).eq("user_id", user.id).eq("program_slug", slug);
+  revalidatePath(`/programs/${slug}`);
+  revalidatePath("/mentee/programs");
+  revalidatePath("/mentee");
+}

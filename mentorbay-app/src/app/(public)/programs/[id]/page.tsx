@@ -6,6 +6,8 @@ import Accordion, { type Module } from "@/components/Accordion";
 import EnrollButton from "@/components/EnrollButton";
 import { isEnrolledInProgram, countEnrollments, getProgramProgress } from "@/lib/enrollments";
 import ProgramProgressPanel from "@/components/ProgramProgressPanel";
+import CurriculumTracker from "@/components/CurriculumTracker";
+import { getCompletedLessons } from "@/lib/enrollments";
 import ProgramCard from "@/components/ProgramCard";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -35,6 +37,7 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
   const enrolled = p ? await isEnrolledInProgram(p.id) : false;
   const enrolledCount = p ? await countEnrollments(p.id) : 0;
   const progress = p ? await getProgramProgress(p.id) : null;
+  const completedLessons = p && enrolled ? await getCompletedLessons(p.id) : [];
   if (!p) notFound();
   const all = await getPrograms();
   const learn = p.learn && p.learn.length ? p.learn : LEARN;
@@ -97,7 +100,7 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
               <h3 className="text-lg font-bold text-navy">Curriculum</h3>
               <span className="text-sm text-slate-500">{p.lessons} lessons</span>
             </div>
-            <Accordion items={curriculum} />
+            {enrolled ? <CurriculumTracker slug={p.id} modules={curriculum} completed={completedLessons} /> : <Accordion items={curriculum} />}
           </div>
 
           {requirements.length > 0 && (

@@ -79,3 +79,15 @@ export async function getMyEnrolledSlugs(): Promise<string[]> {
     return (data as { program_slug: string }[] | null ?? []).map((r) => r.program_slug);
   } catch { return []; }
 }
+
+
+/** Completed-lesson keys for the signed-in mentee on a program (empty if not enrolled). */
+export async function getCompletedLessons(slug: string): Promise<string[]> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data } = await supabase.from("enrollments").select("completed_lessons").eq("user_id", user.id).eq("program_slug", slug).maybeSingle();
+    return (data?.completed_lessons as string[] | null) ?? [];
+  } catch { return []; }
+}
