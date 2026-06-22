@@ -99,7 +99,7 @@ export default async function MentorProfilePage({ params, searchParams }: { para
         </div>
       </section>
 
-      <MentorProfileTabs mentor={m} programs={programs} signedIn={signedIn} reviewForm={<ReviewForm mentorSlug={m.id} signedIn={signedIn} redirectTo={here} />} />
+      <MentorProfileTabs mentor={m} programs={programs} signedIn={signedIn} reviewForm={<ReviewForm mentorSlug={m.id} signedIn={signedIn} redirectTo={here} submitted={searchParams?.review === "thanks"} />} />
 
       <section className="cta-gradient mt-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col md:flex-row items-center justify-between gap-6">
