@@ -32,7 +32,7 @@ const CURRICULUM: Module[] = [
   { title: "Module 5 - Capstone Project", lessons: ["Action plan", "Peer presentation", "Certification"] },
 ];
 
-export default async function ProgramDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string } }) {
+export default async function ProgramDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string; enrollerror?: string } }) {
   const p = await getProgram(params.id, { preview: searchParams?.preview === "1" });
   const enrolled = p ? await isEnrolledInProgram(p.id) : false;
   const enrolledCount = p ? await countEnrollments(p.id) : 0;
@@ -49,6 +49,11 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
 
   return (
     <div className="bg-slate-50">
+      {searchParams?.enrollerror && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          <p className="text-sm text-rose-600 bg-rose-50 px-4 py-2.5 rounded-lg">Could not enroll - this program may not be available. Please try another program.</p>
+        </div>
+      )}
       <section className="cta-gradient">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-white">
           <nav className="text-sm text-teal-50/80 mb-4">

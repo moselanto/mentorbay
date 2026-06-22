@@ -550,7 +550,11 @@ export async function enrollProgramAction(formData: FormData) {
   if (action === "unenroll") {
     await supabase.from("enrollments").delete().eq("user_id", user.id).eq("program_slug", slug);
   } else {
-    await supabase.from("enrollments").upsert({ user_id: user.id, program_slug: slug }, { onConflict: "user_id,program_slug" });
+    const { error } = await supabase.from("enrollments").upsert({ user_id: user.id, program_slug: slug }, { onConflict: "user_id,program_slug" });
+    if (error) {
+      // Most common cause: the program isn't a real published row (FK violation).
+      redirect(`/programs/${slug}?enrollerror=1`);
+    }
   }
   revalidatePath(`/programs/${slug}`);
   revalidatePath("/mentee/programs");
