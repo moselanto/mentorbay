@@ -16,7 +16,7 @@ export async function getMyEnrollments(): Promise<MyEnrollment[]> {
     if (!user) return [];
     const { data, error } = await supabase
       .from("enrollments")
-      .select("program_slug, progress, status, programs(title, category, cover_url, mentors(name))")
+      .select("program_slug, progress, status, programs!left(title, category, cover_url, mentors(name))")
       .eq("user_id", user.id);
     if (error || !data) return [];
     return (data as unknown as Row[]).map((r) => ({
