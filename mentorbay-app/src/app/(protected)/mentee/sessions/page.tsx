@@ -13,7 +13,23 @@ export default async function SessionsPage({ searchParams }: { searchParams: { b
     <div className="space-y-6">
       <h1 className="text-2xl font-extrabold text-navy">Sessions</h1>
 
-      {searchParams.booked && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Session booked. Your mentor will confirm it.</p>}
+      {searchParams.booked && (
+        <div className="bg-white rounded-2xl shadow-card border border-teal/30 p-6">
+          <div className="flex items-start gap-4">
+            <div className="w-11 h-11 rounded-full bg-teal-50 grid place-items-center shrink-0">
+              <svg className="w-6 h-6 text-teal" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-navy">Session request sent! Here&apos;s what happens next</h3>
+              <ol className="mt-3 space-y-2 text-sm text-slate-600">
+                <li className="flex gap-2"><span className="font-bold text-teal-600">1.</span> Your mentor reviews and confirms the time - it appears under <span className="font-semibold text-navy">Upcoming</span> below.</li>
+                <li className="flex gap-2"><span className="font-bold text-teal-600">2.</span> Once confirmed, a <span className="font-semibold text-navy">Join link</span> (Google Meet / Zoom) shows up on the session so you can join at the scheduled time.</li>
+                <li className="flex gap-2"><span className="font-bold text-teal-600">3.</span> Need to share context first? <a href="/mentee/messages" className="text-teal-600 font-semibold hover:underline">Message your mentor</a> ahead of the session.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      )}
       {searchParams.error === "missing" && <p className="text-sm text-rose-600 bg-rose-50 px-4 py-2.5 rounded-lg">Please choose a mentor, topic and time.</p>}
       {searchParams.error === "notconnected" && <p className="text-sm text-rose-600 bg-rose-50 px-4 py-2.5 rounded-lg">You can only book sessions with mentors you&apos;re connected to.</p>}
       {searchParams.error === "save" && <p className="text-sm text-rose-600 bg-rose-50 px-4 py-2.5 rounded-lg">Could not book the session. Please try again.</p>}
