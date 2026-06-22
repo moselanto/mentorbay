@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import DashboardShell, { type NavItem } from "@/components/DashboardShell";
 import { requireRole } from "@/lib/dashboard-access";
 import { getUnreadCount } from "@/lib/messages";
