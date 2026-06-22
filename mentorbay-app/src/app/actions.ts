@@ -640,3 +640,26 @@ export async function featureReviewAction(formData: FormData) {
   revalidatePath("/success-stories");
   revalidatePath("/");
 }
+
+// ---------- Mentee: book a session with a connected mentor ----------
+export async function bookSessionAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login?redirect=/mentee/sessions");
+  const mentorId = String(formData.get("mentor_id") ?? "").trim();
+  const topic = String(formData.get("topic") ?? "").trim();
+  const when = String(formData.get("scheduled_at") ?? "");
+  if (!mentorId || !topic || !when) redirect("/mentee/sessions?error=missing");
+  // Only allow booking with a mentor the mentee is actually connected to (accepted).
+  const { data: conn } = await supabase.from("applications").select("id").eq("mentee_id", user.id).eq("mentor_id", mentorId).eq("status", "accepted").maybeSingle();
+  if (!conn) redirect("/mentee/sessions?error=notconnected");
+  const { error } = await supabase.from("sessions").insert({
+    mentor_id: mentorId, mentee_id: user.id, topic,
+    mode: String(formData.get("mode") ?? "Google Meet"),
+    scheduled_at: new Date(when).toISOString(), status: "upcoming",
+  });
+  if (error) redirect("/mentee/sessions?error=save");
+  revalidatePath("/mentee/sessions");
+  revalidatePath("/mentee");
+  redirect("/mentee/sessions?booked=1");
+}

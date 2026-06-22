@@ -58,3 +58,13 @@ export async function getMyMentorApplications(): Promise<MyMentorApplication[]> 
     return Array.from(byMentor.values());
   } catch { return []; }
 }
+
+
+/** How many people are registered for an event. */
+export async function countRegistrations(slug: string): Promise<number> {
+  try {
+    const supabase = createClient();
+    const { count } = await supabase.from("event_registrations").select("id", { count: "exact", head: true }).eq("event_slug", slug);
+    return count ?? 0;
+  } catch { return 0; }
+}

@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { getProgram, getPrograms } from "@/lib/programs";
 import Accordion, { type Module } from "@/components/Accordion";
 import EnrollButton from "@/components/EnrollButton";
-import { isEnrolledInProgram } from "@/lib/enrollments";
+import { isEnrolledInProgram, countEnrollments } from "@/lib/enrollments";
 import ProgramCard from "@/components/ProgramCard";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -32,6 +32,7 @@ const CURRICULUM: Module[] = [
 export default async function ProgramDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string } }) {
   const p = await getProgram(params.id, { preview: searchParams?.preview === "1" });
   const enrolled = p ? await isEnrolledInProgram(p.id) : false;
+  const enrolledCount = p ? await countEnrollments(p.id) : 0;
   if (!p) notFound();
   const all = await getPrograms();
   const learn = p.learn && p.learn.length ? p.learn : LEARN;
@@ -64,7 +65,7 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
               <Link href={`/mentors/${p.mentorId}`} className="font-semibold text-white hover:underline">{p.mentor}</Link>
             </span>
             <span className="flex items-center gap-1"><span className="text-amber-300">★</span> {p.rating}</span>
-            <span>{p.enrolled.toLocaleString()} enrolled</span>
+            <span>{enrolledCount.toLocaleString()} enrolled</span>
             <span>{duration}</span>
           </div>
         </div>

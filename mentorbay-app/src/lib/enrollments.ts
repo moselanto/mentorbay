@@ -44,3 +44,13 @@ export async function isEnrolledInProgram(slug: string): Promise<boolean> {
     return !!data;
   } catch { return false; }
 }
+
+
+/** How many mentees are enrolled in a program. */
+export async function countEnrollments(slug: string): Promise<number> {
+  try {
+    const supabase = createClient();
+    const { count } = await supabase.from("enrollments").select("id", { count: "exact", head: true }).eq("program_slug", slug);
+    return count ?? 0;
+  } catch { return 0; }
+}

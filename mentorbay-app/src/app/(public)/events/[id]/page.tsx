@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getEvent, getEvents } from "@/lib/events";
-import { isRegisteredForEvent } from "@/lib/registrations";
+import { isRegisteredForEvent, countRegistrations } from "@/lib/registrations";
 import { MENTORS } from "@/lib/data";
 import EventRegister from "@/components/EventRegister";
 import EventCard from "@/components/EventCard";
@@ -34,6 +34,7 @@ const AGENDA = [
 export default async function EventDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string } }) {
   const e = await getEvent(params.id, { preview: searchParams?.preview === "1" });
   const registered = e ? await isRegisteredForEvent(e.id) : false;
+  const goingCount = e ? await countRegistrations(e.id) : 0;
   if (!e) notFound();
 
   const speakers = (e.speakers && e.speakers.length
@@ -58,7 +59,7 @@ export default async function EventDetailPage({ params, searchParams }: { params
           </div>
           <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight max-w-3xl">{e.title}</h1>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-4 text-sm text-teal-50/90">
-            <span>📅 {e.date}</span><span>🕘 {e.time} EAT</span><span>📍 {e.loc}</span><span>👥 {e.going}+ attending</span>
+            <span>📅 {e.date}</span><span>🕘 {e.time} EAT</span><span>📍 {e.loc}</span><span>👥 {goingCount} attending</span>
           </div>
         </div>
       </section>
@@ -119,7 +120,7 @@ export default async function EventDetailPage({ params, searchParams }: { params
         </div>
 
         <aside>
-          <EventRegister event={e} registered={registered} />
+          <EventRegister event={e} registered={registered} goingCount={goingCount} />
         </aside>
       </div>
 

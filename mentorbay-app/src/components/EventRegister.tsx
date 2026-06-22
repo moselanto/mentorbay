@@ -31,14 +31,14 @@ function FakeQR() {
   );
 }
 
-export default function EventRegister({ event, registered }: { event: EventItem; registered: boolean }) {
+export default function EventRegister({ event, registered, goingCount = 0 }: { event: EventItem; registered: boolean; goingCount?: number }) {
   return (
     <div className="bg-white rounded-2xl shadow-card p-6 lg:sticky lg:top-24">
       <div className="flex items-end gap-2">
         <span className="text-3xl font-extrabold text-navy">Free</span>
         <span className="text-sm text-slate-400 mb-1">&middot; entry</span>
       </div>
-      <p className="text-xs text-teal-600 font-medium mt-1">Only 30 spots left of {event.going + 30}</p>
+      <p className="text-xs text-teal-600 font-medium mt-1">{goingCount} registered so far</p>
       <ul className="mt-4 space-y-3 text-sm">
         <li className="flex items-center gap-3"><span className="text-teal">&#128197;</span><span>{event.date}</span></li>
         <li className="flex items-center gap-3"><span className="text-teal">&#128336;</span><span>{event.time} EAT</span></li>
