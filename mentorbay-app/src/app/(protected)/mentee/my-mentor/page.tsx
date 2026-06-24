@@ -12,7 +12,10 @@ export default async function MyMentorPage({ searchParams }: { searchParams: { a
   const [mentors, apps] = await Promise.all([getMentors(), getMyMentorApplications()]);
   const appliedIds = new Set(apps.map((a) => a.mentorId));
   // Available mentors the mentee hasn't applied to yet.
-  const available = mentors.filter((m) => m.profileId && !appliedIds.has(m.profileId)).filter((m) => m.avail === "Available");
+  // Open discovery: every approved mentor the mentee hasn't already applied to is
+  // browsable here (availability is shown as a badge rather than hiding the mentor),
+  // so the platform markets all mentors and their programs more widely.
+  const available = mentors.filter((m) => m.profileId && !appliedIds.has(m.profileId));
 
   return (
     <div className="space-y-6">
@@ -64,7 +67,10 @@ export default async function MyMentorPage({ searchParams }: { searchParams: { a
                   {m.img ? <img src={m.img} alt={m.name} className="w-12 h-12 rounded-full object-cover" /> : <div className="w-12 h-12 rounded-full bg-gradient-to-br from-navy to-teal grid place-items-center text-white font-bold">{m.name.charAt(0)}</div>}
                   <div><p className="font-bold text-navy">{m.name}</p><p className="text-xs text-slate-500">{m.role}</p></div>
                 </Link>
-                {m.skills[0] && <span className="inline-block mt-3 text-xs font-medium text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full">{m.skills[0]}</span>}
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {m.skills[0] && <span className="inline-block text-xs font-medium text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full">{m.skills[0]}</span>}
+                  <span className={"inline-block text-xs font-medium px-2.5 py-1 rounded-full " + (m.avail === "Available" ? "text-emerald-700 bg-emerald-50" : "text-slate-500 bg-slate-100")}>{m.avail === "Available" ? "Available" : "Currently busy"}</span>
+                </div>
                 <Link href={`/mentors/${m.id}`} className="mt-4 block w-full text-center py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">Apply for mentorship</Link>
               </div>
             ))}
