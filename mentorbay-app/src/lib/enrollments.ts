@@ -261,7 +261,7 @@ export async function getMentorEnrollmentRequests(): Promise<EnrollmentRequest[]
     const slugs = list.map((p) => p.slug);
     const { data: enr } = await supabase
       .from("enrollments")
-      .select("id, program_slug, created_at, user:profiles!enrollments_user_id_fkey(full_name)")
+      .select("id, program_slug, created_at, mentee_phone, mentee_email, user:profiles!enrollments_user_id_fkey(full_name)")
       .in("program_slug", slugs).eq("status", "pending")
       .order("created_at", { ascending: false });
     return (enr as unknown as { id: string; program_slug: string; created_at: string; mentee_phone: string | null; mentee_email: string | null; user: { full_name: string | null } | null }[] | null ?? [])

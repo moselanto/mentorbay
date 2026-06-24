@@ -23,7 +23,7 @@ async function fetchByStatus(status: "pending" | "accepted"): Promise<MentorAppl
     if (!user) return [];
     const { data, error } = await supabase
       .from("applications")
-      .select("id, note, status, created_at, mentee:profiles!applications_mentee_id_fkey(full_name)")
+      .select("id, mentee_id, note, status, created_at, mentee_phone, mentee_email, confirmed_requirements, mentee:profiles!applications_mentee_id_fkey(full_name)")
       .eq("mentor_id", user.id)
       .eq("status", status)
       .order("created_at", { ascending: false });
