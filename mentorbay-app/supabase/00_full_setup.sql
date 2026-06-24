@@ -915,3 +915,19 @@ create policy "Mentor manages own program enrollments" on public.enrollments for
 -- Migration 30: Application decline reason (folded in)
 -- ============================================================
 alter table public.applications add column if not exists decline_reason text;
+
+-- ============================================================
+-- Migration 31: Purge leftover demo mentors (folded in)
+-- ============================================================
+delete from public.mentors
+where slug in (
+  'jane-wanjiku','john-kamau','sarah-mwangi','david-ochieng','lillian-anyango',
+  'mary-achieng','samuel-njoroge','brian-otieno','grace-wairimu','kevin-mwangi',
+  'aisha-hassan','daniel-kiprop'
+);
+delete from public.mentors where profile_id is null;
+delete from public.programs where created_by is null;
+delete from public.events   where created_by is null;
+delete from public.reviews r
+where r.mentor_slug is not null
+  and not exists (select 1 from public.mentors m where m.slug = r.mentor_slug);
