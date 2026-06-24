@@ -32,7 +32,7 @@ export async function isSignedIn(): Promise<boolean> {
 }
 
 
-export type MyMentorApplication = { mentorId: string; mentorName: string; mentorSlug: string | null; status: string };
+export type MyMentorApplication = { mentorId: string; mentorName: string; mentorSlug: string | null; status: string; declineReason?: string | null };
 
 /** The signed-in mentee's mentorship applications with mentor names. */
 export async function getMyMentorApplications(): Promise<MyMentorApplication[]> {
@@ -44,14 +44,14 @@ export async function getMyMentorApplications(): Promise<MyMentorApplication[]> 
       .from("applications")
       .select("mentor_id, status, mentor:profiles!applications_mentor_id_fkey(full_name)")
       .eq("mentee_id", user.id);
-    const rows = (data as unknown as { mentor_id: string | null; status: string; mentor: { full_name: string | null } | null }[] | null ?? [])
+    const rows = (data as unknown as { mentor_id: string | null; status: string; decline_reason: string | null; mentor: { full_name: string | null } | null }[] | null ?? [])
       .filter((r) => r.mentor_id);
     // Dedupe by mentor so each connection shows once (accepted wins over pending).
     const byMentor = new Map<string, MyMentorApplication>();
     const rank = (s: string) => (s === "accepted" ? 2 : s === "pending" ? 1 : 0);
     for (const r of rows) {
       const id = r.mentor_id as string;
-      const cand: MyMentorApplication = { mentorId: id, mentorName: r.mentor?.full_name ?? "Mentor", mentorSlug: null, status: r.status };
+      const cand: MyMentorApplication = { mentorId: id, mentorName: r.mentor?.full_name ?? "Mentor", mentorSlug: null, status: r.status, declineReason: r.decline_reason ?? null };
       const cur = byMentor.get(id);
       if (!cur || rank(cand.status) > rank(cur.status)) byMentor.set(id, cand);
     }

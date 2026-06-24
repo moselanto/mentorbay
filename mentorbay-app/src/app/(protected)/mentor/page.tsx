@@ -3,6 +3,7 @@ import { getPendingApplications, getAcceptedMentees } from "@/lib/applications";
 import { getMySessions } from "@/lib/sessions";
 import { getMentorEnrollmentRequests } from "@/lib/enrollments";
 import { setApplicationStatusAction } from "@/app/actions";
+import DeclineApplicationButton from "@/components/DeclineApplicationButton";
 
 export const dynamic = "force-dynamic";
 
@@ -79,7 +80,7 @@ export default async function MentorDashboard() {
                   <div className="flex-1 min-w-0"><p className="font-semibold text-navy text-sm truncate">{a.name}</p><p className="text-xs text-slate-500 truncate">{a.note}</p></div>
                   <div className="flex gap-2 shrink-0">
                     <form action={setApplicationStatusAction}><input type="hidden" name="id" value={a.id} /><input type="hidden" name="status" value="accepted" /><button className="px-3 py-1.5 bg-teal text-white text-xs font-semibold rounded-lg">Accept</button></form>
-                    <form action={setApplicationStatusAction}><input type="hidden" name="id" value={a.id} /><input type="hidden" name="status" value="declined" /><button className="px-3 py-1.5 border border-slate-200 text-slate-500 text-xs font-semibold rounded-lg">Decline</button></form>
+                    <DeclineApplicationButton applicationId={a.id} className="px-3 py-1.5 border border-slate-200 text-slate-500 text-xs font-semibold rounded-lg hover:border-rose-300 hover:text-rose-500 transition" />
                   </div>
                 </div>
               ))}

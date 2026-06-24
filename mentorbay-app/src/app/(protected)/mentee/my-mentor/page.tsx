@@ -28,12 +28,22 @@ export default async function MyMentorPage({ searchParams }: { searchParams: { a
         ) : (
           <ul className="divide-y divide-slate-100">
             {apps.map((a) => (
-              <li key={a.mentorId} className="flex items-center justify-between py-3">
-                <div>{a.mentorSlug ? <Link href={`/mentors/${a.mentorSlug}`} className="font-semibold text-navy text-sm hover:text-teal hover:underline">{a.mentorName}</Link> : <p className="font-semibold text-navy text-sm">{a.mentorName}</p>}</div>
-                <div className="flex items-center gap-3">
-                  {a.status === "accepted" && <a href={`/mentee/messages?with=${a.mentorId}`} className="text-sm font-semibold text-teal-600 hover:underline">Message</a>}
-                  {statusPill(a.status)}
+              <li key={a.mentorId} className="py-3">
+                <div className="flex items-center justify-between">
+                  <div>{a.mentorSlug ? <Link href={`/mentors/${a.mentorSlug}`} className="font-semibold text-navy text-sm hover:text-teal hover:underline">{a.mentorName}</Link> : <p className="font-semibold text-navy text-sm">{a.mentorName}</p>}</div>
+                  <div className="flex items-center gap-3">
+                    {a.status === "accepted" && <a href={`/mentee/messages?with=${a.mentorId}`} className="text-sm font-semibold text-teal-600 hover:underline">Message</a>}
+                    {statusPill(a.status)}
+                  </div>
                 </div>
+                {a.status === "declined" && (
+                  <div className="mt-2 rounded-lg bg-rose-50/60 border border-rose-100 px-3 py-2">
+                    {a.declineReason
+                      ? <p className="text-sm text-slate-600"><span className="font-semibold text-navy">Mentor&apos;s note:</span> {a.declineReason}</p>
+                      : <p className="text-sm text-slate-500">This mentor isn&apos;t able to take you on right now.</p>}
+                    <Link href="/mentee/my-mentor" className="mt-1 inline-block text-xs font-semibold text-teal-600 hover:underline">Browse other mentors below</Link>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

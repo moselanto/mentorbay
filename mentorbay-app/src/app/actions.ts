@@ -178,6 +178,33 @@ export async function setApplicationStatusAction(formData: FormData) {
   revalidatePath("/mentor");
 }
 
+// ---------- Mentor: decline an application with an optional reason ----------
+export async function mentorDeclineApplicationAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "").trim();
+  const reason = String(formData.get("reason") ?? "").trim();
+  if (!id) return;
+  const { data: app } = await supabase.from("applications")
+    .update({ status: "declined", decline_reason: reason || null })
+    .eq("id", id).eq("mentor_id", user.id)
+    .select("mentee_id").maybeSingle();
+  if (app?.mentee_id) {
+    const mentee = await getUserContact(supabase, app.mentee_id as string);
+    const me = await getUserContact(supabase, user.id);
+    const note = reason ? `<p><strong>Note from ${me.name}:</strong> ${reason}</p>` : "";
+    await sendNotificationEmail({ to: mentee.email,
+      subject: "Update on your MentorBay mentorship request",
+      html: `<p>Hi ${mentee.name},</p><p>Thank you for your interest in working with ${me.name}. They aren&apos;t able to take this mentorship on at the moment.</p>${note}<p>There are other great mentors on MentorBay who may be a strong fit.</p><p><a href="https://mentorbay.vercel.app/mentors">Browse mentors</a></p>` });
+  }
+  revalidatePath("/mentor/applications");
+  revalidatePath("/mentor/mentees");
+  revalidatePath("/mentor");
+  revalidatePath("/mentee/my-mentor");
+  redirect("/mentor/applications?declined=1");
+}
+
 // ---------- Admin: approve/reject a user ----------
 export async function setApprovalAction(formData: FormData) {
   const supabase = createClient();

@@ -910,3 +910,8 @@ create policy "Mentor manages own program enrollments" on public.enrollments for
   with check (
     exists (select 1 from public.programs p where p.slug = enrollments.program_slug and p.created_by = auth.uid())
   );
+
+-- ============================================================
+-- Migration 30: Application decline reason (folded in)
+-- ============================================================
+alter table public.applications add column if not exists decline_reason text;
