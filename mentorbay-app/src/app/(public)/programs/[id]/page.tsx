@@ -5,7 +5,7 @@ import { getProgram, getPrograms, getProgramReviews, hasReviewedProgram } from "
 import ProgramReviewForm from "@/components/ProgramReviewForm";
 import Accordion, { type Module } from "@/components/Accordion";
 import EnrollButton from "@/components/EnrollButton";
-import { isEnrolledInProgram, countEnrollments, getProgramProgress } from "@/lib/enrollments";
+import { countEnrollments, getProgramProgress } from "@/lib/enrollments";
 import { currentUserRole } from "@/lib/is-admin";
 import ProgramProgressPanel from "@/components/ProgramProgressPanel";
 import CurriculumTracker from "@/components/CurriculumTracker";
@@ -39,12 +39,14 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
   const p = await getProgram(params.id, { preview: searchParams?.preview === "1" });
   const role = await currentUserRole();
   const isMentee = role === "mentee" || role === null; // logged-out visitors are treated as prospective mentees
-  const enrollment = p && isMentee ? await isEnrolledInProgram(p.id) : false;
   const enrolledCount = p ? await countEnrollments(p.id) : 0;
-  const progress = p ? await getProgramProgress(p.id) : null;
-  // A row exists, but it only counts as "enrolled" once the mentor approves it.
-  const pendingEnroll = enrollment && progress?.status === "pending";
-  const enrolled = enrollment && !pendingEnroll;
+  const progress = p && isMentee ? await getProgramProgress(p.id) : null;
+  // Derive state from the enrollment row status (source of truth):
+  //  - a row with status "pending" => requested, awaiting mentor approval (no content access)
+  //  - a row with any other non-rejected status (active/completed) => approved, full access
+  const hasRow = !!progress;
+  const pendingEnroll = hasRow && progress?.status === "pending";
+  const enrolled = hasRow && progress?.status !== "pending" && progress?.status !== "rejected";
   const payState = p && enrolled ? await getMyPaymentState(p.id) : null;
   const completedLessons = p && enrolled ? await getCompletedLessons(p.id) : [];
   const programReviews = p ? await getProgramReviews(p.id) : [];
