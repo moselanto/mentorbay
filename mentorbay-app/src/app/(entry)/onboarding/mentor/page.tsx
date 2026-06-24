@@ -7,21 +7,41 @@ import { createClient } from "@/lib/supabase/client";
 import { LogoWordmark } from "@/components/Logo";
 
 const EXPERTISE = ["Technology", "Software Engineering", "Product", "Data Science", "Business Strategy", "Marketing", "Finance", "Design", "Leadership", "Entrepreneurship", "HR & People", "Sales"];
+const EXPERIENCE = ["3-5 years", "6-10 years", "11-15 years", "15+ years"];
+// Map the experience range to a stored number (lower bound) for experience_years.
+const EXP_YEARS: Record<string, number> = { "3-5 years": 3, "6-10 years": 6, "11-15 years": 11, "15+ years": 15 };
 
 export default function MentorOnboarding() {
   const router = useRouter();
+  const [title, setTitle] = useState("");
+  const [experience, setExperience] = useState(EXPERIENCE[0]);
+  const [location, setLocation] = useState("");
   const [expertise, setExpertise] = useState<string[]>([]);
+  const [bio, setBio] = useState("");
+  const [linkedin, setLinkedin] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const toggle = (v: string) => setExpertise((a) => (a.includes(v) ? a.filter((x) => x !== v) : [...a, v]));
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    setError("");
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (user) await supabase.from("profiles").update({ onboarded: true }).eq("id", user.id);
+    if (!user) { setError("Your session expired. Please log in again."); setSaving(false); return; }
+    const { error: saveErr } = await supabase.from("profiles").update({
+      title: title.trim() || null,
+      experience_years: EXP_YEARS[experience] ?? 0,
+      location: location.trim() || null,
+      interests: expertise,            // expertise syncs into mentors.skills on approval
+      bio: bio.trim() || null,
+      headline: linkedin.trim() || null,
+      onboarded: true,
+    }).eq("id", user.id);
+    if (saveErr) { setError("Could not save your details. Please try again."); setSaving(false); return; }
     setSubmitted(true);
     setSaving(false);
   }
@@ -50,10 +70,11 @@ export default function MentorOnboarding() {
             <div className="bg-white rounded-2xl shadow-card p-6 sm:p-8">
               <h1 className="text-2xl font-extrabold text-navy">Mentor application</h1>
               <p className="text-slate-500 mt-1">Tell us about your professional background.</p>
+              {error && <p className="mt-4 text-sm text-rose-600 bg-rose-50 px-4 py-2.5 rounded-lg">{error}</p>}
               <div className="grid sm:grid-cols-2 gap-4 mt-6">
-                <div className="sm:col-span-2"><label className="block text-sm font-semibold text-navy mb-1">Professional title</label><input required type="text" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="e.g. Senior Software Engineer" /></div>
-                <div><label className="block text-sm font-semibold text-navy mb-1">Years of experience</label><select className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none"><option>3-5 years</option><option>6-10 years</option><option>11-15 years</option><option>15+ years</option></select></div>
-                <div><label className="block text-sm font-semibold text-navy mb-1">Location</label><input type="text" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="e.g. Nairobi, Kenya" /></div>
+                <div className="sm:col-span-2"><label className="block text-sm font-semibold text-navy mb-1">Professional title</label><input value={title} onChange={(e) => setTitle(e.target.value)} required type="text" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="e.g. Senior Software Engineer" /></div>
+                <div><label className="block text-sm font-semibold text-navy mb-1">Years of experience</label><select value={experience} onChange={(e) => setExperience(e.target.value)} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none">{EXPERIENCE.map((x) => <option key={x}>{x}</option>)}</select></div>
+                <div><label className="block text-sm font-semibold text-navy mb-1">Location</label><input value={location} onChange={(e) => setLocation(e.target.value)} type="text" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="e.g. Nairobi, Kenya" /></div>
               </div>
               <label className="block text-sm font-semibold text-navy mt-4 mb-2">Areas of expertise</label>
               <div className="flex flex-wrap gap-2">
@@ -61,8 +82,8 @@ export default function MentorOnboarding() {
                   <button type="button" key={x} onClick={() => toggle(x)} className={`px-4 py-2 rounded-full border text-sm font-medium transition ${expertise.includes(x) ? "bg-teal text-white border-teal" : "border-slate-200 text-slate-600 hover:border-teal"}`}>{x}</button>
                 ))}
               </div>
-              <div className="mt-5"><label className="block text-sm font-semibold text-navy mb-1">Short bio</label><textarea rows={4} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="Tell mentees about your experience and how you can help..." /></div>
-              <div className="mt-4"><label className="block text-sm font-semibold text-navy mb-1">LinkedIn profile</label><input type="url" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="https://linkedin.com/in/..." /></div>
+              <div className="mt-5"><label className="block text-sm font-semibold text-navy mb-1">Short bio</label><textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={4} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="Tell mentees about your experience and how you can help..." /></div>
+              <div className="mt-4"><label className="block text-sm font-semibold text-navy mb-1">LinkedIn profile</label><input value={linkedin} onChange={(e) => setLinkedin(e.target.value)} type="url" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="https://linkedin.com/in/..." /></div>
             </div>
             <button disabled={saving} className="px-6 py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition disabled:opacity-60">{saving ? "Submitting..." : "Submit Application"}</button>
           </form>
