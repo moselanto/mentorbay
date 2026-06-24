@@ -92,6 +92,8 @@ export type Program = {
   about?: string; learn?: string[]; curriculum?: { title: string; lessons: string[] }[];
   durationLabel?: string; status?: string; requirements?: string[];
   isPaid?: boolean; priceKes?: number; maxInstallments?: number;
+  meetingType?: "online" | "physical"; meetingProvider?: string; meetingUrl?: string; programLocation?: string;
+  cohortStart?: string; cohortStatus?: string;
 };
 
 export const PROGRAMS: Program[] = [

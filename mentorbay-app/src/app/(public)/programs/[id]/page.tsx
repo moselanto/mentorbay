@@ -202,6 +202,13 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
                 <li className="flex justify-between"><span className="text-slate-500">Lessons</span><span className="font-semibold text-navy">{p.lessons} lessons</span></li>
                 <li className="flex justify-between"><span className="text-slate-500">Level</span><span className="font-semibold text-navy">{p.level}</span></li>
                 <li className="flex justify-between"><span className="text-slate-500">Certificate</span><span className="font-semibold text-navy">Yes</span></li>
+                {p.cohortStart && (
+                  <li className="flex justify-between"><span className="text-slate-500">Starts</span><span className="font-semibold text-navy">{new Date(p.cohortStart).toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" })}</span></li>
+                )}
+                <li className="flex justify-between gap-3"><span className="text-slate-500">Delivery</span><span className="font-semibold text-navy text-right">{p.meetingType === "physical" ? (p.programLocation ? `In person - ${p.programLocation}` : "In person") : (p.meetingProvider === "zoom" ? "Online - Zoom" : "Online - Google Meet")}</span></li>
+                {enrolled && p.meetingType !== "physical" && p.meetingUrl && (
+                  <li className="flex justify-between gap-3"><span className="text-slate-500">Join link</span><a href={p.meetingUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-teal-600 hover:underline truncate max-w-[160px]">Open meeting</a></li>
+                )}
               </ul>
             </div>
           </div>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getMyPrograms } from "@/lib/programs";
 import { getProgramEnrollees, getMentorEnrollmentRequests, getMentorCompletionRequests } from "@/lib/enrollments";
-import { deleteProgramAction, mentorApproveEnrollmentAction, mentorApproveCompletionAction } from "@/app/actions";
+import { deleteProgramAction, mentorApproveEnrollmentAction, mentorApproveCompletionAction, rescheduleCohortAction } from "@/app/actions";
 import ConfirmButton from "@/components/ConfirmButton";
 import EnrolleeList from "@/components/EnrolleeList";
 import DeclineEnrollmentButton from "@/components/DeclineEnrollmentButton";
@@ -18,7 +18,7 @@ function statusStyle(status?: string): { label: string; cls: string } {
   }
 }
 
-export default async function MentorProgramsPage({ searchParams }: { searchParams: { submitted?: string; updated?: string; deleted?: string; enrollapproved?: string; enrolldeclined?: string; completionapproved?: string; completiondeclined?: string; error?: string } }) {
+export default async function MentorProgramsPage({ searchParams }: { searchParams: { submitted?: string; updated?: string; deleted?: string; enrollapproved?: string; enrolldeclined?: string; completionapproved?: string; completiondeclined?: string; cohort?: string; error?: string } }) {
   const [mine, requests, completionRequests] = await Promise.all([getMyPrograms(), getMentorEnrollmentRequests(), getMentorCompletionRequests()]);
   const enrolleeLists = await Promise.all(mine.map((p) => getProgramEnrollees(p.id)));
   const byProgram = new Map(mine.map((p, i) => [p.id, enrolleeLists[i]]));
@@ -31,6 +31,7 @@ export default async function MentorProgramsPage({ searchParams }: { searchParam
       </div>
       {searchParams.submitted && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Program submitted. An admin will review it before it goes live.</p>}
       {searchParams.updated && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Program updated.</p>}
+      {searchParams.cohort && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Cohort schedule updated.</p>}
       {searchParams.deleted && <p className="text-sm text-slate-600 bg-slate-100 px-4 py-2.5 rounded-lg">Program deleted.</p>}
       {searchParams.enrollapproved && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Enrollment approved. The mentee has been notified and the program now shows in their My Programs.</p>}
       {searchParams.enrolldeclined && <p className="text-sm text-slate-700 bg-slate-100 px-4 py-2.5 rounded-lg">Enrollment request declined. The mentee has been notified.</p>}
@@ -125,6 +126,29 @@ export default async function MentorProgramsPage({ searchParams }: { searchParam
                   </div>
                 </div>
                 <EnrolleeList enrollees={enrollees} />
+                <div className="mt-4 pt-4 border-t border-slate-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-semibold text-navy">Cohort schedule</p>
+                    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${p.cohortStatus === "running" ? "bg-teal-50 text-teal-700" : p.cohortStatus === "finished" ? "bg-slate-100 text-slate-500" : "bg-amber-50 text-amber-600"}`}>{p.cohortStatus === "running" ? "Running" : p.cohortStatus === "finished" ? "Finished" : "Scheduled"}</span>
+                  </div>
+                  <form action={rescheduleCohortAction} className="flex flex-wrap items-end gap-2">
+                    <input type="hidden" name="slug" value={p.id} />
+                    <div>
+                      <label className="block text-[11px] text-slate-500 mb-0.5">Start date</label>
+                      <input name="cohort_start" type="date" defaultValue={p.cohortStart ?? ""} className="px-3 py-1.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-teal outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] text-slate-500 mb-0.5">Status</label>
+                      <select name="cohort_status" defaultValue={p.cohortStatus ?? "scheduled"} className="px-3 py-1.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-teal outline-none">
+                        <option value="scheduled">Scheduled</option>
+                        <option value="running">Running</option>
+                        <option value="finished">Finished</option>
+                      </select>
+                    </div>
+                    <button type="submit" className="px-3 py-1.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">Update</button>
+                    <span className="text-[11px] text-slate-400 ml-auto">When a batch finishes, set the next start date to run a fresh cohort.</span>
+                  </form>
+                </div>
               </div>
             );
           })}

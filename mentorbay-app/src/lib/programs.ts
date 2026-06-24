@@ -14,6 +14,8 @@ type ProgramRow = {
   cover_url: string | null; description: string | null;
   about: string | null; learn: string[] | null; curriculum: unknown; duration_label: string | null; status: string | null; requirements: string[] | null;
   is_free: boolean | null; price_kes: number | null; max_installments: number | null;
+  meeting_type: string | null; meeting_provider: string | null; meeting_url: string | null; program_location: string | null;
+  cohort_start: string | null; cohort_status: string | null;
   mentors: { name: string; avatar_url: string | null } | null;
 };
 
@@ -29,6 +31,9 @@ function rowToProgram(r: ProgramRow): Program {
     about: r.about ?? undefined, learn: r.learn ?? undefined, curriculum,
     durationLabel: r.duration_label ?? undefined, status: r.status ?? undefined, requirements: r.requirements ?? undefined,
     isPaid: r.is_free === false, priceKes: Number(r.price_kes ?? 0), maxInstallments: r.max_installments ?? 1,
+    meetingType: (r.meeting_type === "physical" ? "physical" : "online"), meetingProvider: r.meeting_provider ?? undefined,
+    meetingUrl: r.meeting_url ?? undefined, programLocation: r.program_location ?? undefined,
+    cohortStart: r.cohort_start ?? undefined, cohortStatus: r.cohort_status ?? undefined,
   };
 }
 

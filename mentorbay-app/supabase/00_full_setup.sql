@@ -1023,3 +1023,25 @@ drop policy if exists "Recipient updates own messages" on public.messages;
 create policy "Recipient updates own messages" on public.messages for update
   using (auth.uid() = recipient_id)
   with check (auth.uid() = recipient_id);
+
+
+-- ============================================================
+-- 37_program_cohort_meeting.sql
+-- ============================================================
+-- MentorBay - cohort scheduling (batch start dates with reschedule / next cohort)
+-- and delivery mode (Zoom / Google Meet link or a physical location) per program.
+-- All idempotent.
+
+-- Delivery mode: how the program is delivered.
+--   'online'   -> a meeting link (Zoom / Google Meet) in meeting_url
+--   'physical' -> an in-person venue in program_location
+alter table public.programs add column if not exists meeting_type text not null default 'online';   -- online | physical
+alter table public.programs add column if not exists meeting_provider text;                          -- zoom | google_meet (when online)
+alter table public.programs add column if not exists meeting_url text;                               -- join link (when online)
+alter table public.programs add column if not exists program_location text;                          -- venue (when physical)
+
+-- Cohort schedule: the mentor sets a start date so mentees learn as a batch.
+-- When a cohort finishes, the mentor can set the next start date (reschedule),
+-- so the program runs in successive batches.
+alter table public.programs add column if not exists cohort_start date;
+alter table public.programs add column if not exists cohort_status text not null default 'scheduled'; -- scheduled | running | finished

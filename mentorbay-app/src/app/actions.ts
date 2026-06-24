@@ -399,6 +399,25 @@ export async function updateProgramAction(formData: FormData) {
   redirect("/mentor/programs?updated=1");
 }
 
+// ---------- Mentor: reschedule / advance a program cohort ----------
+// Batches run in sequence: set a start date for the next cohort, or mark the
+// current one running/finished. When one finishes the mentor sets the next date.
+export async function rescheduleCohortAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const slug = String(formData.get("slug") ?? "").trim();
+  if (!slug) redirect("/mentor/programs");
+  const cohortStart = String(formData.get("cohort_start") ?? "").trim() || null;
+  const rawStatus = String(formData.get("cohort_status") ?? "scheduled").trim();
+  const cohortStatus = ["scheduled", "running", "finished"].includes(rawStatus) ? rawStatus : "scheduled";
+  await supabase.from("programs").update({ cohort_start: cohortStart, cohort_status: cohortStatus })
+    .eq("slug", slug).eq("created_by", user.id);
+  revalidatePath("/mentor/programs");
+  revalidatePath(`/programs/${slug}`);
+  redirect("/mentor/programs?cohort=1");
+}
+
 // ---------- Edit own event ----------
 export async function updateEventAction(formData: FormData) {
   const supabase = createClient();
