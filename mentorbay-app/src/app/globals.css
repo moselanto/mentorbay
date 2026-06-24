@@ -13,3 +13,25 @@ html {
 .cta-gradient {
   background: linear-gradient(120deg, #0b2a4a 0%, #16487a 60%, #178098 100%);
 }
+
+/* ---------- Certificate print isolation ----------
+   When printing a certificate, show ONLY the .cert-print-area and drop the
+   dashboard chrome / margins so the certificate alone fills the page. */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .cert-print-area,
+  .cert-print-area * {
+    visibility: visible !important;
+  }
+  .cert-print-area {
+    position: absolute !important;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+}

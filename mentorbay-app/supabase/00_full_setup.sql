@@ -944,3 +944,9 @@ alter table public.applications add column if not exists confirmed_requirements 
 -- ============================================================
 alter table public.enrollments add column if not exists completion_status text;
 alter table public.enrollments add column if not exists completion_decline_reason text;
+
+-- ============================================================
+-- Migration 34: Enrollment contact details (folded in)
+-- ============================================================
+alter table public.enrollments add column if not exists mentee_phone text;
+alter table public.enrollments add column if not exists mentee_email text;

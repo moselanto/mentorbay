@@ -587,7 +587,9 @@ export async function enrollProgramAction(formData: FormData) {
     // Explicit check-then-insert (more robust than upsert onConflict across PostgREST versions).
     const { data: existing } = await supabase.from("enrollments").select("id").eq("user_id", user.id).eq("program_slug", slug).maybeSingle();
     if (!existing) {
-      const { error } = await supabase.from("enrollments").insert({ user_id: user.id, program_slug: slug, status: "pending" });
+      const phone = String(formData.get("phone") ?? "").trim();
+      const email = String(formData.get("email") ?? "").trim();
+      const { error } = await supabase.from("enrollments").insert({ user_id: user.id, program_slug: slug, status: "pending", mentee_phone: phone || null, mentee_email: email || null });
       // 23505 = unique violation (already enrolled) is fine; any other error is real (e.g. FK / RLS).
       if (error && error.code !== "23505") {
         redirect(`/programs/${slug}?enrollerror=1`);

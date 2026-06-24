@@ -1,4 +1,5 @@
 import { enrollProgramAction } from "@/app/actions";
+import ProgramEnrollForm from "@/components/ProgramEnrollForm";
 
 // Server-action enroll/unenroll. `enrolled` reflects persisted APPROVED state.
 // `pending` means the mentee requested enrollment but the mentor hasn't approved yet.
@@ -20,16 +21,16 @@ export default function EnrollButton({ slug, enrolled, pending = false }: { slug
       </div>
     );
   }
-  return (
-    <form action={enrollProgramAction} className="mt-4">
-      <input type="hidden" name="slug" value={slug} />
-      <input type="hidden" name="action" value={enrolled ? "unenroll" : "enroll"} />
-      <input type="hidden" name="redirect" value={`/programs/${slug}`} />
-      <button
-        className={`w-full py-3 text-white font-semibold rounded-lg transition ${enrolled ? "bg-teal hover:bg-teal-600" : "bg-navy hover:bg-navy-700"}`}
-      >
-        {enrolled ? "Enrolled \u2713 - Leave program" : "Enroll Now"}
-      </button>
-    </form>
-  );
+  // Enrolled (approved): allow leaving. Not enrolled: open the contact form to request enrollment.
+  if (enrolled) {
+    return (
+      <form action={enrollProgramAction} className="mt-4">
+        <input type="hidden" name="slug" value={slug} />
+        <input type="hidden" name="action" value="unenroll" />
+        <input type="hidden" name="redirect" value={`/programs/${slug}`} />
+        <button className="w-full py-3 text-white font-semibold rounded-lg transition bg-teal hover:bg-teal-600">Enrolled \u2713 - Leave program</button>
+      </form>
+    );
+  }
+  return <ProgramEnrollForm slug={slug} />;
 }

@@ -1,14 +1,14 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { MENTORS } from "@/lib/data";
 import { getMyEnrollments } from "@/lib/enrollments";
 import { getMySessions } from "@/lib/sessions";
+import { getMyMentorApplications } from "@/lib/registrations";
 
 export default async function MenteeDashboard() {
-  const [enrollments, sessions] = await Promise.all([getMyEnrollments(), getMySessions()]);
+  const [enrollments, sessions, apps] = await Promise.all([getMyEnrollments(), getMySessions(), getMyMentorApplications()]);
   const upcoming = sessions.filter((s) => s.upcoming);
-  const mentor = MENTORS[0];
+  const mentor = apps.find((a) => a.status === "accepted") ?? null;
 
   const avg = enrollments.length ? Math.round(enrollments.reduce((s, e) => s + e.pct, 0) / enrollments.length) : 0;
   const STATS = [
@@ -85,11 +85,25 @@ export default async function MenteeDashboard() {
         <aside className="space-y-6">
           <section className="bg-white rounded-2xl shadow-card p-6 text-center">
             <h2 className="font-bold text-navy mb-4 text-left">Your mentor</h2>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={mentor.img} alt={mentor.name} className="w-20 h-20 rounded-full object-cover mx-auto" />
-            <p className="font-bold text-navy mt-3">{mentor.name}</p>
-            <p className="text-xs text-slate-500">{mentor.role}</p>
-            <Link href={`/mentors/${mentor.id}`} className="inline-block mt-4 w-full py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">View profile</Link>
+            {mentor ? (
+              <>
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-navy to-teal grid place-items-center text-white text-2xl font-bold mx-auto">{mentor.mentorName.charAt(0)}</div>
+                <p className="font-bold text-navy mt-3">{mentor.mentorName}</p>
+                <p className="text-xs text-slate-500">Your mentor</p>
+                <div className="mt-4 space-y-2">
+                  {mentor.mentorSlug && <Link href={`/mentors/${mentor.mentorSlug}`} className="block w-full py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">View profile</Link>}
+                  <Link href={`/mentee/messages?with=${mentor.mentorId}`} className="block w-full py-2.5 border border-slate-200 text-navy text-sm font-semibold rounded-lg hover:border-teal hover:text-teal transition">Message</Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="w-20 h-20 rounded-full bg-slate-100 grid place-items-center text-slate-400 mx-auto">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-6 8-6s8 2 8 6" /></svg>
+                </div>
+                <p className="text-sm text-slate-500 mt-3">You haven&apos;t connected with a mentor yet.</p>
+                <Link href="/mentee/my-mentor" className="inline-block mt-4 w-full py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">Find a mentor</Link>
+              </>
+            )}
           </section>
           <div className="rounded-2xl p-6 cta-gradient text-white">
             <p className="font-bold">Free during launch</p>

@@ -240,7 +240,7 @@ export async function getMyDeclinedEnrollments(): Promise<MyEnrollment[]> {
 }
 
 
-export type EnrollmentRequest = { id: string; menteeName: string; programTitle: string; programSlug: string; requestedAt: string };
+export type EnrollmentRequest = { id: string; menteeName: string; programTitle: string; programSlug: string; requestedAt: string; phone: string | null; email: string | null };
 
 /** Pending enrollment requests across all programs owned by the signed-in mentor. */
 export async function getMentorEnrollmentRequests(): Promise<EnrollmentRequest[]> {
@@ -259,13 +259,15 @@ export async function getMentorEnrollmentRequests(): Promise<EnrollmentRequest[]
       .select("id, program_slug, created_at, user:profiles!enrollments_user_id_fkey(full_name)")
       .in("program_slug", slugs).eq("status", "pending")
       .order("created_at", { ascending: false });
-    return (enr as unknown as { id: string; program_slug: string; created_at: string; user: { full_name: string | null } | null }[] | null ?? [])
+    return (enr as unknown as { id: string; program_slug: string; created_at: string; mentee_phone: string | null; mentee_email: string | null; user: { full_name: string | null } | null }[] | null ?? [])
       .map((r) => ({
         id: r.id,
         menteeName: r.user?.full_name ?? "Mentee",
         programTitle: titleBySlug.get(r.program_slug) ?? r.program_slug,
         programSlug: r.program_slug,
         requestedAt: r.created_at ? new Date(r.created_at).toLocaleDateString("en-KE", { month: "short", day: "numeric" }) : "",
+        phone: r.mentee_phone ?? null,
+        email: r.mentee_email ?? null,
       }));
   } catch { return []; }
 }

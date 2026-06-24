@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getMyCertificates } from "@/lib/enrollments";
 import { requireRole } from "@/lib/dashboard-access";
 import PrintButton from "@/components/PrintButton";
+import { Logo } from "@/components/Logo";
 
 export const dynamic = "force-dynamic";
 
@@ -19,10 +20,13 @@ export default async function CertificatePage({ params }: { params: { slug: stri
         <PrintButton />
       </div>
 
-      {/* The certificate itself */}
-      <div className="bg-white rounded-2xl shadow-card mx-auto max-w-3xl print:shadow-none">
+      {/* The certificate itself - this is the only thing that prints (see cert-print-area in globals.css) */}
+      <div className="cert-print-area bg-white rounded-2xl shadow-card mx-auto max-w-3xl print:shadow-none">
         <div className="m-3 border-4 border-double border-navy/40 rounded-xl p-10 text-center">
-          <p className="text-sm tracking-[0.3em] text-teal-600 font-semibold uppercase">MentorBay</p>
+          <div className="flex flex-col items-center">
+            <Logo className="h-14 w-14" />
+            <p className="mt-2 text-lg font-extrabold text-navy">Mentor<span className="text-teal">Bay</span></p>
+          </div>
           <h1 className="text-3xl font-extrabold text-navy mt-6">Certificate of Completion</h1>
           <p className="text-slate-500 mt-6">This certifies that</p>
           <p className="text-2xl font-bold text-navy mt-2">{userName}</p>
@@ -35,7 +39,8 @@ export default async function CertificatePage({ params }: { params: { slug: stri
               <p className="text-xs text-slate-400 mt-1">Date issued</p>
             </div>
             <div className="text-center">
-              <p className="text-sm font-semibold text-navy border-t border-slate-300 pt-1 px-6">MentorBay</p>
+              <Logo className="h-8 w-8 mx-auto" />
+              <p className="text-sm font-semibold text-navy border-t border-slate-300 pt-1 px-6 mt-1">MentorBay</p>
               <p className="text-xs text-slate-400 mt-1">Issued by</p>
             </div>
           </div>

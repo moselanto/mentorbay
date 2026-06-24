@@ -51,6 +51,10 @@ export default async function MentorProgramsPage({ searchParams }: { searchParam
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-navy truncate"><span className="text-navy">{r.menteeName}</span> wants to join</p>
                   <p className="text-xs text-slate-500 truncate">{r.programTitle}{r.requestedAt ? ` · requested ${r.requestedAt}` : ""}</p>
+                  <div className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-xs">
+                    {r.phone ? <a href={`tel:${r.phone}`} className="font-semibold text-teal-600 hover:underline">{r.phone}</a> : <span className="text-slate-400">No phone</span>}
+                    {r.email ? <a href={`mailto:${r.email}`} className="font-semibold text-teal-600 hover:underline">{r.email}</a> : <span className="text-slate-400">No email</span>}
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <Link href={`/programs/${r.programSlug}`} target="_blank" className="text-sm font-semibold text-navy hover:text-teal hover:underline">View program</Link>
