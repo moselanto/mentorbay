@@ -1,6 +1,8 @@
 import { getSettings } from "@/lib/settings";
 import { saveSettingsAction } from "@/app/actions";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminSettingsPage({ searchParams }: { searchParams: { saved?: string } }) {
   const { platformName, supportEmail, commissionPct, adminBalance } = await getSettings();
   return (

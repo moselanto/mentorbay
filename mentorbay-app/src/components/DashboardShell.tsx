@@ -87,7 +87,7 @@ export default function DashboardShell({
       {/* Sidebar (desktop) */}
       <aside className={`hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 ${sidebar}`}>
         <div className="h-16 flex items-center px-5 shrink-0">
-          <Link href="/"><LogoWordmark /></Link>
+          <Link href="/"><LogoWordmark light={dark} /></Link>
         </div>
         <div className="flex-1 overflow-y-auto py-4">{links}</div>
         <div className={`p-4 text-xs ${dark ? "text-slate-400 border-t border-white/10" : "text-slate-400 border-t border-slate-100"}`}>{roleLabel} workspace</div>
@@ -98,7 +98,7 @@ export default function DashboardShell({
         <div className="lg:hidden fixed inset-0 z-40">
           <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
           <aside className={`absolute inset-y-0 left-0 w-64 flex flex-col ${sidebar}`}>
-            <div className="h-16 flex items-center px-5"><LogoWordmark /></div>
+            <div className="h-16 flex items-center px-5"><LogoWordmark light={dark} /></div>
             <div className="flex-1 overflow-y-auto py-4">{links}</div>
           </aside>
         </div>
