@@ -896,3 +896,17 @@ alter table enrollments add column if not exists completed_at timestamptz;
 alter table sessions add column if not exists decline_reason text;
 alter table sessions alter column approval_status set default 'pending';
 update sessions set approval_status = 'pending' where approval_status is null;
+
+-- ============================================================
+-- Migration 29: Enrollment approval flow (folded in)
+-- ============================================================
+alter table public.enrollments add column if not exists decline_reason text;
+
+drop policy if exists "Mentor manages own program enrollments" on public.enrollments;
+create policy "Mentor manages own program enrollments" on public.enrollments for update
+  using (
+    exists (select 1 from public.programs p where p.slug = enrollments.program_slug and p.created_by = auth.uid())
+  )
+  with check (
+    exists (select 1 from public.programs p where p.slug = enrollments.program_slug and p.created_by = auth.uid())
+  );

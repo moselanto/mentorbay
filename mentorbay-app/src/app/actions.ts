@@ -560,7 +560,7 @@ export async function enrollProgramAction(formData: FormData) {
     // Explicit check-then-insert (more robust than upsert onConflict across PostgREST versions).
     const { data: existing } = await supabase.from("enrollments").select("id").eq("user_id", user.id).eq("program_slug", slug).maybeSingle();
     if (!existing) {
-      const { error } = await supabase.from("enrollments").insert({ user_id: user.id, program_slug: slug });
+      const { error } = await supabase.from("enrollments").insert({ user_id: user.id, program_slug: slug, status: "pending" });
       // 23505 = unique violation (already enrolled) is fine; any other error is real (e.g. FK / RLS).
       if (error && error.code !== "23505") {
         redirect(`/programs/${slug}?enrollerror=1`);
@@ -728,6 +728,63 @@ export async function mentorDeclineSessionAction(formData: FormData) {
   revalidatePath("/mentor");
   revalidatePath("/mentee/sessions");
   redirect("/mentor/sessions?declined=1");
+}
+
+// ---------- Mentor: approve / decline a program enrollment request ----------
+async function ownsEnrollmentProgram(supabase: ServerClient, enrollmentId: string, mentorId: string): Promise<{ ok: boolean; menteeId: string | null; slug: string | null }> {
+  const { data: enr } = await supabase.from("enrollments").select("program_slug, user_id").eq("id", enrollmentId).maybeSingle();
+  if (!enr) return { ok: false, menteeId: null, slug: null };
+  const { data: prog } = await supabase.from("programs").select("slug").eq("slug", enr.program_slug as string).eq("created_by", mentorId).maybeSingle();
+  return { ok: !!prog, menteeId: (enr.user_id as string) ?? null, slug: (enr.program_slug as string) ?? null };
+}
+
+export async function mentorApproveEnrollmentAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) return;
+  const owns = await ownsEnrollmentProgram(supabase, id, user.id);
+  if (!owns.ok) redirect("/mentor/programs?error=notyours");
+  await supabase.from("enrollments").update({ status: "active" }).eq("id", id);
+  if (owns.menteeId && owns.slug) {
+    const mentee = await getUserContact(supabase, owns.menteeId);
+    const { data: prog } = await supabase.from("programs").select("title").eq("slug", owns.slug).maybeSingle();
+    const title = (prog?.title as string) ?? "the program";
+    await sendNotificationEmail({ to: mentee.email,
+      subject: `You're in! Enrollment approved for "${title}"`,
+      html: `<p>Hi ${mentee.name},</p><p>Your enrollment in <strong>${title}</strong> has been approved. It now appears under My Programs and you can start learning.</p><p><a href="https://mentorbay.vercel.app/mentee/programs">Go to My Programs</a></p>` });
+  }
+  revalidatePath("/mentor/programs");
+  revalidatePath("/mentor");
+  revalidatePath("/mentee/programs");
+  revalidatePath("/mentee");
+  redirect("/mentor/programs?enrollapproved=1");
+}
+
+export async function mentorDeclineEnrollmentAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "").trim();
+  const reason = String(formData.get("reason") ?? "").trim();
+  if (!id) return;
+  const owns = await ownsEnrollmentProgram(supabase, id, user.id);
+  if (!owns.ok) redirect("/mentor/programs?error=notyours");
+  await supabase.from("enrollments").update({ status: "rejected", decline_reason: reason || null }).eq("id", id);
+  if (owns.menteeId && owns.slug) {
+    const mentee = await getUserContact(supabase, owns.menteeId);
+    const { data: prog } = await supabase.from("programs").select("title").eq("slug", owns.slug).maybeSingle();
+    const title = (prog?.title as string) ?? "the program";
+    const note = reason ? `<p><strong>Note from the mentor:</strong> ${reason}</p>` : "";
+    await sendNotificationEmail({ to: mentee.email,
+      subject: `Update on your enrollment request for "${title}"`,
+      html: `<p>Hi ${mentee.name},</p><p>Your request to enrol in <strong>${title}</strong> was not approved at this time.</p>${note}<p>You can browse other programs that may be a better fit.</p><p><a href="https://mentorbay.vercel.app/programs">Browse programs</a></p>` });
+  }
+  revalidatePath("/mentor/programs");
+  revalidatePath("/mentor");
+  revalidatePath("/mentee/programs");
+  redirect("/mentor/programs?enrolldeclined=1");
 }
 
 // ---------- Send a direct message to a connected mentor/mentee ----------

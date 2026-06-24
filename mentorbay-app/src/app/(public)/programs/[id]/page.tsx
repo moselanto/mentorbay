@@ -38,9 +38,12 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
   const p = await getProgram(params.id, { preview: searchParams?.preview === "1" });
   const role = await currentUserRole();
   const isMentee = role === "mentee" || role === null; // logged-out visitors are treated as prospective mentees
-  const enrolled = p && isMentee ? await isEnrolledInProgram(p.id) : false;
+  const enrollment = p && isMentee ? await isEnrolledInProgram(p.id) : false;
   const enrolledCount = p ? await countEnrollments(p.id) : 0;
   const progress = p ? await getProgramProgress(p.id) : null;
+  // A row exists, but it only counts as "enrolled" once the mentor approves it.
+  const pendingEnroll = enrollment && progress?.status === "pending";
+  const enrolled = enrollment && !pendingEnroll;
   const completedLessons = p && enrolled ? await getCompletedLessons(p.id) : [];
   const programReviews = p ? await getProgramReviews(p.id) : [];
   const reviewedAlready = p && enrolled ? await hasReviewedProgram(p.id) : false;
@@ -178,7 +181,7 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
               </div>
               <p className="text-xs text-teal-600 font-medium mt-1">Free during launch - limited time</p>
               {isMentee ? (
-                <EnrollButton slug={p.id} enrolled={enrolled} />
+                <EnrollButton slug={p.id} enrolled={enrolled} pending={!!pendingEnroll} />
               ) : (
                 <p className="mt-4 text-center text-sm text-slate-500 bg-slate-50 rounded-lg py-3">Enrolling is for mentees. {role === "mentor" ? "You're viewing this as a mentor." : "Switch to a mentee account to enroll."}</p>
               )}

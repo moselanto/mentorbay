@@ -1,10 +1,10 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { getMyEnrollments } from "@/lib/enrollments";
+import { getMyEnrollments, getMyPendingEnrollments } from "@/lib/enrollments";
 
 export default async function MenteeProgramsPage() {
-  const enrolled = await getMyEnrollments();
+  const [enrolled, pending] = await Promise.all([getMyEnrollments(), getMyPendingEnrollments()]);
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -12,9 +12,29 @@ export default async function MenteeProgramsPage() {
         <Link href="/programs" className="px-4 py-2 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">Browse programs</Link>
       </div>
 
+      {pending.length > 0 && (
+        <section className="bg-white rounded-2xl shadow-card p-6">
+          <h3 className="font-bold text-navy mb-1">Pending approval <span className="text-sm font-normal text-slate-400">- waiting for the mentor to confirm you meet the requirements</span></h3>
+          <p className="text-xs text-slate-500 mb-4">These won&apos;t appear as active programs until your mentor approves your enrollment.</p>
+          <div className="space-y-3">
+            {pending.map((p) => (
+              <div key={p.slug} className="flex flex-wrap items-center gap-4 p-4 rounded-xl bg-amber-50/60 border border-amber-100">
+                <div className="w-11 h-11 rounded-lg bg-amber-100 text-amber-700 grid place-items-center font-bold shrink-0">{(p.title[0] ?? "P")}</div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-navy truncate">{p.title}</p>
+                  <p className="text-xs text-slate-500">{p.category}{p.mentor ? ` · ${p.mentor}` : ""}</p>
+                </div>
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">Awaiting approval</span>
+                <Link href={`/programs/${p.slug}`} className="text-xs font-semibold text-teal-600 hover:underline shrink-0">View program</Link>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {enrolled.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-card p-10 text-center">
-          <p className="text-slate-500">You&apos;re not enrolled in any programs yet.</p>
+          <p className="text-slate-500">{pending.length > 0 ? "No approved programs yet - your requests above are awaiting mentor approval." : "You're not enrolled in any programs yet."}</p>
           <Link href="/programs" className="inline-block mt-4 px-5 py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">Explore programs</Link>
         </div>
       ) : (

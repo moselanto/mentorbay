@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { getPendingApplications, getAcceptedMentees } from "@/lib/applications";
 import { getMySessions } from "@/lib/sessions";
+import { getMentorEnrollmentRequests } from "@/lib/enrollments";
 import { setApplicationStatusAction } from "@/app/actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function MentorDashboard() {
-  const [pending, mentees, sessions] = await Promise.all([
-    getPendingApplications(), getAcceptedMentees(), getMySessions(),
+  const [pending, mentees, sessions, enrollRequests] = await Promise.all([
+    getPendingApplications(), getAcceptedMentees(), getMySessions(), getMentorEnrollmentRequests(),
   ]);
   // Only mentor-confirmed future sessions count as upcoming.
   const upcoming = sessions.filter((s) => s.upcoming && s.approvalStatus === "approved");
@@ -19,6 +20,7 @@ export default async function MentorDashboard() {
     { label: "Session requests", value: String(sessionRequests.length), href: "/mentor/sessions", highlight: sessionRequests.length > 0 },
     { label: "Upcoming Sessions", value: String(upcoming.length), href: "/mentor/sessions" },
     { label: "Pending Applications", value: String(pending.length), href: "/mentor/applications" },
+    { label: "Enrollment requests", value: String(enrollRequests.length), href: "/mentor/programs", highlight: enrollRequests.length > 0 },
   ];
 
   return (
@@ -51,6 +53,16 @@ export default async function MentorDashboard() {
             <p className="text-sm text-amber-700 mt-0.5">Confirm the time or let the mentee know you&apos;re not available.</p>
           </div>
           <Link href="/mentor/sessions" className="px-4 py-2 bg-amber-500 text-white text-sm font-semibold rounded-lg hover:bg-amber-600 transition shrink-0">Review requests</Link>
+        </div>
+      )}
+
+      {enrollRequests.length > 0 && (
+        <div className="rounded-2xl p-5 bg-amber-50 border border-amber-200 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="font-bold text-amber-800">{enrollRequests.length} enrollment {enrollRequests.length === 1 ? "request needs" : "requests need"} your approval</p>
+            <p className="text-sm text-amber-700 mt-0.5">Approve mentees into your programs or decline if they don&apos;t meet the requirements.</p>
+          </div>
+          <Link href="/mentor/programs" className="px-4 py-2 bg-amber-500 text-white text-sm font-semibold rounded-lg hover:bg-amber-600 transition shrink-0">Review requests</Link>
         </div>
       )}
 
