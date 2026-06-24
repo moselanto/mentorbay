@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import DashboardShell, { type NavItem } from "@/components/DashboardShell";
 import { requireRole } from "@/lib/dashboard-access";
 import { getUnreadCount } from "@/lib/messages";
+import MessagesRealtime from "@/components/MessagesRealtime";
 
 const NAV: NavItem[] = [
   { label: "Dashboard", href: "/mentor", icon: "home" },
@@ -20,10 +21,12 @@ const NAV: NavItem[] = [
 ];
 
 export default async function MentorLayout({ children }: { children: React.ReactNode }) {
-  const { userName, avatarUrl, approvalStatus } = await requireRole("mentor");
+  const { userId, userName, avatarUrl, approvalStatus } = await requireRole("mentor");
   const unread = await getUnreadCount();
   const nav = NAV.map((n) => (n.href === "/mentor/messages" ? { ...n, badge: unread } : n));
   return (
+    <>
+    <MessagesRealtime userId={userId} />
     <DashboardShell roleLabel="Mentor" nav={nav} userName={userName} avatarUrl={avatarUrl}>
       {approvalStatus !== "approved" && (
         <div className={`mb-6 rounded-xl border p-4 text-sm ${approvalStatus === "rejected" ? "bg-rose-50 border-rose-200 text-rose-800" : "bg-amber-50 border-amber-200 text-amber-800"}`}>
@@ -36,5 +39,6 @@ export default async function MentorLayout({ children }: { children: React.React
       )}
       {children}
     </DashboardShell>
+    </>
   );
 }

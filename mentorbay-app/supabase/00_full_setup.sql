@@ -950,3 +950,76 @@ alter table public.enrollments add column if not exists completion_decline_reaso
 -- ============================================================
 alter table public.enrollments add column if not exists mentee_phone text;
 alter table public.enrollments add column if not exists mentee_email text;
+
+-- ============================================================
+-- Migration 35: Payments + revenue split (folded in)
+-- ============================================================
+alter table public.programs add column if not exists price_kes numeric(12,2) not null default 0;
+alter table public.programs add column if not exists max_installments int not null default 1;
+alter table public.enrollments add column if not exists amount_paid_kes numeric(12,2) not null default 0;
+alter table public.enrollments add column if not exists payment_plan int not null default 1;
+alter table public.enrollments add column if not exists fully_paid boolean not null default false;
+alter table public.enrollments add column if not exists payout_released boolean not null default false;
+alter table public.app_settings add column if not exists commission_pct numeric(5,2) not null default 15;
+alter table public.app_settings add column if not exists admin_balance_kes numeric(14,2) not null default 0;
+alter table public.profiles add column if not exists wallet_balance_kes numeric(14,2) not null default 0;
+alter table public.profiles add column if not exists payout_phone text;
+
+create table if not exists public.payments (
+  id uuid primary key default gen_random_uuid(),
+  mentee_id uuid not null references public.profiles(id) on delete cascade,
+  mentor_id uuid references public.profiles(id) on delete set null,
+  program_slug text not null,
+  amount_kes numeric(12,2) not null,
+  kind text not null default 'installment',
+  provider text not null default 'simulated',
+  reference text,
+  created_at timestamptz not null default now()
+);
+alter table public.payments enable row level security;
+drop policy if exists "Mentee reads own payments" on public.payments;
+create policy "Mentee reads own payments" on public.payments for select using (auth.uid() = mentee_id);
+drop policy if exists "Mentor reads payments for them" on public.payments;
+create policy "Mentor reads payments for them" on public.payments for select using (auth.uid() = mentor_id);
+drop policy if exists "Mentee inserts own payments" on public.payments;
+create policy "Mentee inserts own payments" on public.payments for insert with check (auth.uid() = mentee_id);
+drop policy if exists "Admin reads all payments" on public.payments;
+create policy "Admin reads all payments" on public.payments for select using (is_admin());
+
+create table if not exists public.withdrawals (
+  id uuid primary key default gen_random_uuid(),
+  mentor_id uuid not null references public.profiles(id) on delete cascade,
+  amount_kes numeric(14,2) not null,
+  status text not null default 'requested',
+  payout_phone text,
+  note text,
+  created_at timestamptz not null default now(),
+  resolved_at timestamptz
+);
+alter table public.withdrawals enable row level security;
+drop policy if exists "Mentor manages own withdrawals" on public.withdrawals;
+create policy "Mentor manages own withdrawals" on public.withdrawals for all
+  using (auth.uid() = mentor_id) with check (auth.uid() = mentor_id);
+drop policy if exists "Admin reads withdrawals" on public.withdrawals;
+create policy "Admin reads withdrawals" on public.withdrawals for select using (is_admin());
+drop policy if exists "Admin updates withdrawals" on public.withdrawals;
+create policy "Admin updates withdrawals" on public.withdrawals for update using (is_admin()) with check (is_admin());
+
+
+-- ============================================================
+-- 36_message_read_rls.sql
+-- ============================================================
+-- MentorBay - FIX: messages had RLS enabled with SELECT + INSERT policies but
+-- NO UPDATE policy, so every "mark as read" (UPDATE messages SET read_at=...)
+-- was silently blocked by RLS and the unread badge never cleared.
+-- This adds an UPDATE policy letting a RECIPIENT update only their own received
+-- messages (e.g. set read_at / delivered_at). Idempotent.
+
+-- delivered_at supports the Sent -> Delivered -> Read status indicator.
+alter table public.messages add column if not exists delivered_at timestamptz;
+
+-- Recipient may update messages addressed to them (and only those).
+drop policy if exists "Recipient updates own messages" on public.messages;
+create policy "Recipient updates own messages" on public.messages for update
+  using (auth.uid() = recipient_id)
+  with check (auth.uid() = recipient_id);
