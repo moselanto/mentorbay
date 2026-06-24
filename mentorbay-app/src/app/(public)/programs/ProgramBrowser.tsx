@@ -6,7 +6,7 @@ import ProgramCard from "@/components/ProgramCard";
 
 type Sort = "popular" | "rating" | "newest";
 
-export default function ProgramBrowser({ programs, enrolledSlugs = [] }: { programs: Program[]; enrolledSlugs?: string[] }) {
+export default function ProgramBrowser({ programs, enrolledSlugs = [], enrolledCounts = {} }: { programs: Program[]; enrolledSlugs?: string[]; enrolledCounts?: Record<string, number> }) {
   const enrolledSet = new Set(enrolledSlugs);
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("");
@@ -25,14 +25,16 @@ export default function ProgramBrowser({ programs, enrolledSlugs = [] }: { progr
       if (dur === "short" && p.weeks > 4) return false;
       if (dur === "mid" && (p.weeks < 5 || p.weeks > 8)) return false;
       if (dur === "long" && p.weeks < 9) return false;
-      if (price === "Paid") return false;
+      const paid = !!p.isPaid && (p.priceKes ?? 0) > 0;
+      if (price === "Paid" && !paid) return false;
+      if (price === "Free" && paid) return false;
       return true;
     });
     if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
     else if (sort === "newest") list = [...list].sort((a, b) => programs.indexOf(b) - programs.indexOf(a));
-    else list = [...list].sort((a, b) => b.enrolled - a.enrolled);
+    else list = [...list].sort((a, b) => (enrolledCounts[b.id] ?? b.enrolled ?? 0) - (enrolledCounts[a.id] ?? a.enrolled ?? 0));
     return list;
-  }, [programs, q, cat, level, dur, price, sort]);
+  }, [programs, q, cat, level, dur, price, sort, enrolledCounts]);
 
   const clearAll = () => { setQ(""); setCat(""); setLevel(""); setDur(""); setPrice(""); setSort("popular"); };
   const select = "w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none";
@@ -92,7 +94,7 @@ export default function ProgramBrowser({ programs, enrolledSlugs = [] }: { progr
                 <select value={price} onChange={(e) => setPrice(e.target.value)} className={select}>
                   <option value="">Any</option><option>Free</option><option>Paid</option>
                 </select>
-                <p className="text-xs text-slate-400 mt-1">All programs are free during launch.</p>
+                
               </div>
             </div>
           </div>
@@ -102,7 +104,7 @@ export default function ProgramBrowser({ programs, enrolledSlugs = [] }: { progr
           <p className="text-sm text-slate-500 mb-5"><span className="font-semibold text-navy">{results.length}</span> programs found</p>
           {results.length > 0 ? (
             <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {results.map((p) => <ProgramCard key={p.id} program={p} enrolled={enrolledSet.has(p.id)} />)}
+              {results.map((p) => <ProgramCard key={p.id} program={p} enrolled={enrolledSet.has(p.id)} liveEnrolled={enrolledCounts[p.id]} />)}
             </div>
           ) : (
             <div className="text-center py-20">

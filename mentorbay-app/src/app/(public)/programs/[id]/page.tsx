@@ -171,7 +171,7 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
 
         <aside className="lg:sticky lg:top-24 space-y-4">
           {payState && (
-            <ProgramPaymentPanel slug={p.id} price={payState.price} paid={payState.paid} balance={payState.balance} fullyPaid={payState.fullyPaid} maxInstallments={payState.maxInstallments} />
+            <ProgramPaymentPanel slug={p.id} price={payState.price} paid={payState.paid} balance={payState.balance} fullyPaid={payState.fullyPaid} maxInstallments={payState.maxInstallments} approved={payState.approved} />
           )}
           {enrolled && progress && (
             <ProgramProgressPanel slug={p.id} pct={progress.pct} status={progress.status} lessons={p.lessons} />

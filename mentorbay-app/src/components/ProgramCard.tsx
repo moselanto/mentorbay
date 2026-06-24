@@ -1,7 +1,9 @@
 import Link from "next/link";
 import type { Program } from "@/lib/data";
 
-export default function ProgramCard({ program: p, enrolled = false }: { program: Program; enrolled?: boolean }) {
+export default function ProgramCard({ program: p, enrolled = false, liveEnrolled }: { program: Program; enrolled?: boolean; liveEnrolled?: number }) {
+  const enrolledCount = typeof liveEnrolled === "number" ? liveEnrolled : (p.enrolled ?? 0);
+  const isPaid = p.isPaid && (p.priceKes ?? 0) > 0;
   return (
     <Link href={`/programs/${p.id}`} className="bg-white rounded-2xl shadow-card overflow-hidden hover:-translate-y-1 transition block">
       <div className="relative">
@@ -28,9 +30,9 @@ export default function ProgramCard({ program: p, enrolled = false }: { program:
           <span className="flex items-center gap-1 text-sm">
             <span className="text-amber-400">★</span>
             <span className="font-semibold text-navy">{p.rating}</span>
-            <span className="text-slate-400">· {p.enrolled.toLocaleString()} enrolled</span>
+            <span className="text-slate-400">· {enrolledCount.toLocaleString()} enrolled</span>
           </span>
-          <span className="text-sm font-bold text-teal-600">Free</span>
+          <span className="text-sm font-bold text-teal-600">{isPaid ? `KES ${(p.priceKes ?? 0).toLocaleString("en-KE")}` : "Free"}</span>
         </div>
       </div>
     </Link>

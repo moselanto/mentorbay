@@ -58,8 +58,13 @@ export async function isEnrolledInProgram(slug: string): Promise<boolean> {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return false;
-    const { data } = await supabase.from("enrollments").select("id").eq("user_id", user.id).eq("program_slug", slug).maybeSingle();
-    return !!data;
+    // A row exists for pending requests too, but only mentor-APPROVED enrollments
+    // count as "enrolled" for content access. Return true for any non-pending,
+    // non-rejected row (active / completed).
+    const { data } = await supabase.from("enrollments").select("status").eq("user_id", user.id).eq("program_slug", slug).maybeSingle();
+    if (!data) return false;
+    const st = (data.status as string) ?? "active";
+    return st !== "pending" && st !== "rejected";
   } catch { return false; }
 }
 
