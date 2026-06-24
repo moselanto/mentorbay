@@ -607,14 +607,24 @@ export async function applyMentorshipAction(formData: FormData) {
   const redirectTo = String(formData.get("redirect") ?? "/mentors");
   if (!user) redirect(`/login?redirect=${encodeURIComponent(redirectTo)}`);
   if (!mentorId) redirect(`${redirectTo}?applyerror=1`);
+  const phone = String(formData.get("phone") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim();
+  const confirmed = formData.getAll("confirmed_requirements").map((v) => String(v)).filter(Boolean);
   const { data: existing } = await supabase.from("applications").select("id").eq("mentee_id", user.id).eq("mentor_id", mentorId).maybeSingle();
   if (!existing) {
     const { error } = await supabase.from("applications").insert({
       mentee_id: user.id,
       mentor_id: mentorId,
       note: String(formData.get("note") ?? "").trim() || null,
+      mentee_phone: phone || null,
+      mentee_email: email || null,
+      confirmed_requirements: confirmed,
     });
     if (error) { revalidatePath(redirectTo); redirect(`${redirectTo}?applyerror=1`); }
+  } else {
+    await supabase.from("applications").update({
+      mentee_phone: phone || null, mentee_email: email || null, confirmed_requirements: confirmed,
+    }).eq("id", existing.id as string);
   }
   revalidatePath(redirectTo);
   revalidatePath("/mentee/my-mentor");

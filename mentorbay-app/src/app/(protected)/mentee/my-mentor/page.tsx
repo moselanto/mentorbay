@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getMentors } from "@/lib/mentors";
 import { getMyMentorApplications } from "@/lib/registrations";
-import { applyMentorshipAction } from "@/app/actions";
 
 function statusPill(status: string) {
   if (status === "accepted") return <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-teal-50 text-teal-700">Connected</span>;
@@ -66,11 +65,7 @@ export default async function MyMentorPage({ searchParams }: { searchParams: { a
                   <div><p className="font-bold text-navy">{m.name}</p><p className="text-xs text-slate-500">{m.role}</p></div>
                 </Link>
                 {m.skills[0] && <span className="inline-block mt-3 text-xs font-medium text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full">{m.skills[0]}</span>}
-                <form action={applyMentorshipAction} className="mt-4">
-                  <input type="hidden" name="mentor_id" value={m.profileId ?? ""} />
-                  <input type="hidden" name="redirect" value="/mentee/my-mentor" />
-                  <button className="w-full py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">Apply for mentorship</button>
-                </form>
+                <Link href={`/mentors/${m.id}`} className="mt-4 block w-full text-center py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">Apply for mentorship</Link>
               </div>
             ))}
           </div>

@@ -8,6 +8,7 @@ import MentorProfileTabs from "./MentorProfileTabs";
 import ReviewForm from "@/components/ReviewForm";
 import { isSignedIn, hasAppliedToMentor } from "@/lib/registrations";
 import { applyMentorshipAction } from "@/app/actions";
+import ApplyMentorshipForm from "@/components/ApplyMentorshipForm";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const m = await getMentorBySlug(params.id);
@@ -18,6 +19,7 @@ export default async function MentorProfilePage({ params, searchParams }: { para
   const m = await getMentorBySlug(params.id);
   if (!m) notFound();
   const programs = await getProgramsByMentor(m.id);
+  const requirements = Array.from(new Set(programs.flatMap((pr) => pr.requirements ?? []).filter(Boolean)));
   const signedIn = await isSignedIn();
   const applied = signedIn && m.profileId ? await hasAppliedToMentor(m.profileId) : false;
   const here = `/mentors/${m.id}`;
@@ -72,11 +74,7 @@ export default async function MentorProfilePage({ params, searchParams }: { para
                 applied ? (
                   <div className="text-center py-3 bg-teal-50 text-teal-700 font-semibold rounded-lg">✓ Application sent</div>
                 ) : (
-                  <form action={applyMentorshipAction}>
-                    <input type="hidden" name="mentor_id" value={m.profileId ?? ""} />
-                    <input type="hidden" name="redirect" value={here} />
-                    <button className="w-full py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">✦ Apply for Mentorship</button>
-                  </form>
+                  <ApplyMentorshipForm mentorProfileId={m.profileId ?? ""} redirectTo={here} requirements={requirements} />
                 )
               ) : (
                 <Link href={`/login?redirect=${encodeURIComponent(here)}`} className="block text-center py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">✦ Apply for Mentorship</Link>

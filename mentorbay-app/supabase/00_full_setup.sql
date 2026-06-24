@@ -931,3 +931,10 @@ delete from public.events   where created_by is null;
 delete from public.reviews r
 where r.mentor_slug is not null
   and not exists (select 1 from public.mentors m where m.slug = r.mentor_slug);
+
+-- ============================================================
+-- Migration 32: Application contact + confirmed requirements (folded in)
+-- ============================================================
+alter table public.applications add column if not exists mentee_phone text;
+alter table public.applications add column if not exists mentee_email text;
+alter table public.applications add column if not exists confirmed_requirements text[] default '{}';
