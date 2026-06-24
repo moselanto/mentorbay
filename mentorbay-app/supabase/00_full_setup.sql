@@ -938,3 +938,9 @@ where r.mentor_slug is not null
 alter table public.applications add column if not exists mentee_phone text;
 alter table public.applications add column if not exists mentee_email text;
 alter table public.applications add column if not exists confirmed_requirements text[] default '{}';
+
+-- ============================================================
+-- Migration 33: Completion approval flow (folded in)
+-- ============================================================
+alter table public.enrollments add column if not exists completion_status text;
+alter table public.enrollments add column if not exists completion_decline_reason text;

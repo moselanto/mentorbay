@@ -139,7 +139,7 @@ export async function getMyCertificates(): Promise<Certificate[]> {
     const { data: rows } = await supabase
       .from("enrollments")
       .select("program_slug, completed_at")
-      .eq("user_id", user.id).eq("certificate_issued", true);
+      .eq("user_id", user.id).eq("certificate_issued", true).eq("completion_status", "approved");
     const list = (rows as { program_slug: string; completed_at: string | null }[] | null) ?? [];
     if (list.length === 0) return [];
     const slugs = list.map((r) => r.program_slug);
@@ -167,9 +167,12 @@ export async function getCompletableEnrollments(): Promise<CompletableEnrollment
     if (!user) return [];
     const { data: rows } = await supabase
       .from("enrollments")
-      .select("program_slug, progress, certificate_issued")
+      .select("program_slug, progress, certificate_issued, completion_status, status")
       .eq("user_id", user.id).eq("certificate_issued", false);
-    const list = (rows as { program_slug: string; progress: number; certificate_issued: boolean }[] | null) ?? [];
+    const list = ((rows as { program_slug: string; progress: number; certificate_issued: boolean; completion_status: string | null; status: string }[] | null) ?? [])
+      // Only active (mentor-approved enrollment), and not already awaiting/declined completion sign-off.
+      .filter((r) => r.status !== "pending" && r.status !== "rejected")
+      .filter((r) => r.completion_status !== "pending" && r.completion_status !== "approved");
     if (list.length === 0) return [];
     const slugs = list.map((r) => r.program_slug);
     const { data: progs } = await supabase.from("programs").select("slug, title").in("slug", slugs);
@@ -264,5 +267,69 @@ export async function getMentorEnrollmentRequests(): Promise<EnrollmentRequest[]
         programSlug: r.program_slug,
         requestedAt: r.created_at ? new Date(r.created_at).toLocaleDateString("en-KE", { month: "short", day: "numeric" }) : "",
       }));
+  } catch { return []; }
+}
+
+
+export type CompletionItem = { slug: string; title: string; mentor: string; reason: string | null };
+
+/** Mentee completion requests still awaiting the mentor. */
+export async function getMyPendingCompletions(): Promise<CompletionItem[]> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data: rows } = await supabase
+      .from("enrollments")
+      .select("program_slug, completion_status")
+      .eq("user_id", user.id).eq("completion_status", "pending");
+    const list = (rows as { program_slug: string }[] | null) ?? [];
+    if (list.length === 0) return [];
+    const slugs = list.map((r) => r.program_slug);
+    const { data: progs } = await supabase.from("programs").select("slug, title, mentors(name)").in("slug", slugs);
+    const bySlug = new Map(((progs as unknown as { slug: string; title: string; mentors: { name: string } | null }[] | null) ?? []).map((p) => [p.slug, p]));
+    return list.filter((r) => bySlug.has(r.program_slug)).map((r) => { const p = bySlug.get(r.program_slug)!; return { slug: r.program_slug, title: p.title, mentor: p.mentors?.name ?? "MentorBay", reason: null }; });
+  } catch { return []; }
+}
+
+/** Mentee completion requests the mentor declined, with the reason. */
+export async function getMyDeclinedCompletions(): Promise<CompletionItem[]> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data: rows } = await supabase
+      .from("enrollments")
+      .select("program_slug, completion_decline_reason")
+      .eq("user_id", user.id).eq("completion_status", "rejected");
+    const list = (rows as { program_slug: string; completion_decline_reason: string | null }[] | null) ?? [];
+    if (list.length === 0) return [];
+    const slugs = list.map((r) => r.program_slug);
+    const { data: progs } = await supabase.from("programs").select("slug, title, mentors(name)").in("slug", slugs);
+    const bySlug = new Map(((progs as unknown as { slug: string; title: string; mentors: { name: string } | null }[] | null) ?? []).map((p) => [p.slug, p]));
+    return list.filter((r) => bySlug.has(r.program_slug)).map((r) => { const p = bySlug.get(r.program_slug)!; return { slug: r.program_slug, title: p.title, mentor: p.mentors?.name ?? "MentorBay", reason: r.completion_decline_reason ?? null }; });
+  } catch { return []; }
+}
+
+export type CompletionRequest = { id: string; menteeName: string; programTitle: string; programSlug: string };
+
+/** Completion requests awaiting the signed-in mentor across programs they own. */
+export async function getMentorCompletionRequests(): Promise<CompletionRequest[]> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data: progs } = await supabase.from("programs").select("slug, title").eq("created_by", user.id);
+    const list = (progs as { slug: string; title: string }[] | null) ?? [];
+    if (list.length === 0) return [];
+    const titleBySlug = new Map(list.map((p) => [p.slug, p.title]));
+    const slugs = list.map((p) => p.slug);
+    const { data: enr } = await supabase
+      .from("enrollments")
+      .select("id, program_slug, user:profiles!enrollments_user_id_fkey(full_name)")
+      .in("program_slug", slugs).eq("completion_status", "pending")
+      .order("completed_at", { ascending: false });
+    return (enr as unknown as { id: string; program_slug: string; user: { full_name: string | null } | null }[] | null ?? [])
+      .map((r) => ({ id: r.id, menteeName: r.user?.full_name ?? "Mentee", programTitle: titleBySlug.get(r.program_slug) ?? r.program_slug, programSlug: r.program_slug }));
   } catch { return []; }
 }

@@ -912,12 +912,78 @@ export async function confirmCompletionAction(formData: FormData) {
   const slug = String(formData.get("slug") ?? "");
   const redirectTo = String(formData.get("redirect") ?? "/mentee/certificates");
   if (!slug) return;
-  // Only the enrolled mentee can confirm completion of their own enrollment.
+  // Mentee REQUESTS completion; the certificate is only issued after the mentor approves.
   await supabase.from("enrollments").update({
-    status: "completed", progress: 100, certificate_issued: true, completed_at: new Date().toISOString(),
+    progress: 100, completion_status: "pending", completion_decline_reason: null,
   }).eq("user_id", user.id).eq("program_slug", slug);
+  // Notify the program owner (mentor) that a completion needs review.
+  const { data: prog } = await supabase.from("programs").select("title, created_by").eq("slug", slug).maybeSingle();
+  if (prog?.created_by) {
+    const mentor = await getUserContact(supabase, prog.created_by as string);
+    const me = await getUserContact(supabase, user.id);
+    const title = (prog.title as string) ?? "a program";
+    await sendNotificationEmail({ to: mentor.email,
+      subject: `${me.name} is requesting completion sign-off for "${title}"`,
+      html: `<p>Hi ${mentor.name},</p><p><strong>${me.name}</strong> has marked <strong>${title}</strong> as finished and is requesting your approval to issue their certificate.</p><p><a href="https://mentorbay.vercel.app/mentor/programs">Review completion requests</a></p>` });
+  }
   revalidatePath("/mentee/certificates");
   revalidatePath("/mentee/programs");
+  revalidatePath("/mentor/programs");
   revalidatePath(`/programs/${slug}`);
-  redirect(`${redirectTo}?granted=1`);
+  redirect(`${redirectTo}?requested=1`);
+}
+
+// ---------- Mentor: approve a completion request -> issue certificate ----------
+export async function mentorApproveCompletionAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) return;
+  const owns = await ownsEnrollmentProgram(supabase, id, user.id);
+  if (!owns.ok) redirect("/mentor/programs?error=notyours");
+  await supabase.from("enrollments").update({
+    status: "completed", certificate_issued: true, completion_status: "approved",
+    completion_decline_reason: null, completed_at: new Date().toISOString(),
+  }).eq("id", id);
+  if (owns.menteeId && owns.slug) {
+    const mentee = await getUserContact(supabase, owns.menteeId);
+    const { data: prog } = await supabase.from("programs").select("title").eq("slug", owns.slug).maybeSingle();
+    const title = (prog?.title as string) ?? "the program";
+    await sendNotificationEmail({ to: mentee.email,
+      subject: `Your certificate for "${title}" is ready`,
+      html: `<p>Hi ${mentee.name},</p><p>Your mentor confirmed you completed <strong>${title}</strong>. Your certificate has been issued - you can view and print it now.</p><p><a href="https://mentorbay.vercel.app/mentee/certificates">View your certificate</a></p>` });
+  }
+  revalidatePath("/mentor/programs");
+  revalidatePath("/mentee/certificates");
+  revalidatePath("/mentee/programs");
+  redirect("/mentor/programs?completionapproved=1");
+}
+
+// ---------- Mentor: decline a completion request (with reason) ----------
+export async function mentorDeclineCompletionAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "").trim();
+  const reason = String(formData.get("reason") ?? "").trim();
+  if (!id) return;
+  const owns = await ownsEnrollmentProgram(supabase, id, user.id);
+  if (!owns.ok) redirect("/mentor/programs?error=notyours");
+  await supabase.from("enrollments").update({
+    completion_status: "rejected", completion_decline_reason: reason || null, certificate_issued: false,
+  }).eq("id", id);
+  if (owns.menteeId && owns.slug) {
+    const mentee = await getUserContact(supabase, owns.menteeId);
+    const { data: prog } = await supabase.from("programs").select("title").eq("slug", owns.slug).maybeSingle();
+    const title = (prog?.title as string) ?? "the program";
+    const note = reason ? `<p><strong>Note from your mentor:</strong> ${reason}</p>` : "";
+    await sendNotificationEmail({ to: mentee.email,
+      subject: `Update on your completion request for "${title}"`,
+      html: `<p>Hi ${mentee.name},</p><p>Your mentor reviewed your completion of <strong>${title}</strong> and it isn&apos;t signed off yet.</p>${note}<p>Once you&apos;ve addressed the note, you can request completion again.</p><p><a href="https://mentorbay.vercel.app/mentee/certificates">View your programs</a></p>` });
+  }
+  revalidatePath("/mentor/programs");
+  revalidatePath("/mentee/certificates");
+  revalidatePath("/mentee/programs");
+  redirect("/mentor/programs?completiondeclined=1");
 }
