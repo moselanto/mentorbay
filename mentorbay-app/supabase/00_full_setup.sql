@@ -882,3 +882,17 @@ $$;
 -- Backfill: re-sync approved mentors so experience flows through.
 update public.profiles set approval_status = approval_status
   where role = 'mentor' and approval_status = 'approved';
+
+-- ============================================================
+-- Migration 27: Certificates (folded in)
+-- ============================================================
+alter table sessions add column if not exists certificate_issued boolean not null default false;
+alter table enrollments add column if not exists certificate_issued boolean not null default false;
+alter table enrollments add column if not exists completed_at timestamptz;
+
+-- ============================================================
+-- Migration 28: Session confirmation flow (folded in)
+-- ============================================================
+alter table sessions add column if not exists decline_reason text;
+alter table sessions alter column approval_status set default 'pending';
+update sessions set approval_status = 'pending' where approval_status is null;

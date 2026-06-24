@@ -3,17 +3,22 @@ import { getPendingApplications, getAcceptedMentees } from "@/lib/applications";
 import { getMySessions } from "@/lib/sessions";
 import { setApplicationStatusAction } from "@/app/actions";
 
+export const dynamic = "force-dynamic";
+
 export default async function MentorDashboard() {
   const [pending, mentees, sessions] = await Promise.all([
     getPendingApplications(), getAcceptedMentees(), getMySessions(),
   ]);
-  const upcoming = sessions.filter((s) => s.upcoming);
+  // Only mentor-confirmed future sessions count as upcoming.
+  const upcoming = sessions.filter((s) => s.upcoming && s.approvalStatus === "approved");
+  // Session requests from mentees awaiting this mentor's decision.
+  const sessionRequests = sessions.filter((s) => s.approvalStatus === "pending");
 
-  const STATS = [
+  const STATS: { label: string; value: string; href?: string; highlight?: boolean }[] = [
     { label: "Active Mentees", value: String(mentees.length) },
-    { label: "Pending Applications", value: String(pending.length) },
-    { label: "Upcoming Sessions", value: String(upcoming.length) },
-    { label: "Total Sessions", value: String(sessions.length) },
+    { label: "Session requests", value: String(sessionRequests.length), href: "/mentor/sessions", highlight: sessionRequests.length > 0 },
+    { label: "Upcoming Sessions", value: String(upcoming.length), href: "/mentor/sessions" },
+    { label: "Pending Applications", value: String(pending.length), href: "/mentor/applications" },
   ];
 
   return (
@@ -27,10 +32,27 @@ export default async function MentorDashboard() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {STATS.map((s) => (
-          <div key={s.label} className="bg-white rounded-2xl shadow-card p-5"><p className="text-2xl font-extrabold text-navy">{s.value}</p><p className="text-sm text-slate-500 mt-1">{s.label}</p></div>
-        ))}
+        {STATS.map((s) => {
+          const card = (
+            <div className={`bg-white rounded-2xl shadow-card p-5 h-full ${s.highlight ? "ring-2 ring-amber-300" : ""} ${s.href ? "hover:shadow-md transition cursor-pointer" : ""}`}>
+              <p className="text-2xl font-extrabold text-navy">{s.value}</p>
+              <p className="text-sm text-slate-500 mt-1">{s.label}</p>
+              {s.highlight && <p className="text-xs font-semibold text-amber-600 mt-1">Tap to review</p>}
+            </div>
+          );
+          return s.href ? <Link key={s.label} href={s.href}>{card}</Link> : <div key={s.label}>{card}</div>;
+        })}
       </div>
+
+      {sessionRequests.length > 0 && (
+        <div className="rounded-2xl p-5 bg-amber-50 border border-amber-200 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="font-bold text-amber-800">{sessionRequests.length} session {sessionRequests.length === 1 ? "request needs" : "requests need"} your response</p>
+            <p className="text-sm text-amber-700 mt-0.5">Confirm the time or let the mentee know you&apos;re not available.</p>
+          </div>
+          <Link href="/mentor/sessions" className="px-4 py-2 bg-amber-500 text-white text-sm font-semibold rounded-lg hover:bg-amber-600 transition shrink-0">Review requests</Link>
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-2 gap-6">
         <section className="bg-white rounded-2xl shadow-card p-6">
@@ -54,9 +76,9 @@ export default async function MentorDashboard() {
         </section>
 
         <section className="bg-white rounded-2xl shadow-card p-6">
-          <h2 className="font-bold text-navy mb-4">Upcoming sessions</h2>
+          <div className="flex items-center justify-between mb-4"><h2 className="font-bold text-navy">Upcoming sessions</h2><Link href="/mentor/sessions" className="text-sm text-teal-600 font-semibold hover:underline">View all</Link></div>
           {upcoming.length === 0 ? (
-            <p className="text-sm text-slate-500 py-4 text-center">No upcoming sessions.</p>
+            <p className="text-sm text-slate-500 py-4 text-center">No confirmed upcoming sessions.</p>
           ) : (
             <div className="space-y-3">
               {upcoming.slice(0, 4).map((s) => (

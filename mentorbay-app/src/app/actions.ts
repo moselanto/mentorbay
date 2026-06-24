@@ -672,11 +672,62 @@ export async function bookSessionAction(formData: FormData) {
     mentor_id: mentorId, mentee_id: user.id, topic,
     mode: String(formData.get("mode") ?? "Google Meet"),
     scheduled_at: new Date(when).toISOString(), status: "upcoming",
+    approval_status: "pending",
   });
   if (error) redirect("/mentee/sessions?error=save");
   revalidatePath("/mentee/sessions");
   revalidatePath("/mentee");
   redirect("/mentee/sessions?booked=1");
+}
+
+// ---------- Mentor: confirm a session a mentee requested ----------
+export async function mentorConfirmSessionAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) return;
+  const { data: sess } = await supabase.from("sessions")
+    .update({ approval_status: "approved", decline_reason: null })
+    .eq("id", id).eq("mentor_id", user.id)
+    .select("topic, mentee_id").maybeSingle();
+  if (sess?.mentee_id) {
+    const mentee = await getUserContact(supabase, sess.mentee_id as string);
+    const topic = (sess.topic as string) ?? "your session";
+    await sendNotificationEmail({ to: mentee.email,
+      subject: `Your session "${topic}" is confirmed`,
+      html: `<p>Hi ${mentee.name},</p><p>Good news - your mentor confirmed your session <strong>${topic}</strong>. It now appears under Upcoming.</p><p><a href="https://mentorbay.vercel.app/mentee/sessions">View your sessions</a></p>` });
+  }
+  revalidatePath("/mentor/sessions");
+  revalidatePath("/mentor");
+  revalidatePath("/mentee/sessions");
+  redirect("/mentor/sessions?confirmed=1");
+}
+
+// ---------- Mentor: decline a session (not available) with a reason ----------
+export async function mentorDeclineSessionAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "").trim();
+  const reason = String(formData.get("reason") ?? "").trim();
+  if (!id) return;
+  if (!reason) redirect("/mentor/sessions?error=reason");
+  const { data: sess } = await supabase.from("sessions")
+    .update({ approval_status: "rejected", decline_reason: reason })
+    .eq("id", id).eq("mentor_id", user.id)
+    .select("topic, mentee_id").maybeSingle();
+  if (sess?.mentee_id) {
+    const mentee = await getUserContact(supabase, sess.mentee_id as string);
+    const topic = (sess.topic as string) ?? "your session";
+    await sendNotificationEmail({ to: mentee.email,
+      subject: `Update on your session request "${topic}"`,
+      html: `<p>Hi ${mentee.name},</p><p>Your mentor is not available for <strong>${topic}</strong> at the requested time.</p><p><strong>Note from your mentor:</strong> ${reason}</p><p>You can pick another time from your sessions page.</p><p><a href="https://mentorbay.vercel.app/mentee/sessions">Book another time</a></p>` });
+  }
+  revalidatePath("/mentor/sessions");
+  revalidatePath("/mentor");
+  revalidatePath("/mentee/sessions");
+  redirect("/mentor/sessions?declined=1");
 }
 
 // ---------- Send a direct message to a connected mentor/mentee ----------

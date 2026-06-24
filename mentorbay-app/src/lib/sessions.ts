@@ -1,12 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 
 export type MySession = {
-  id: string; topic: string; mode: string; when: string; counterpart: string; upcoming: boolean; approvalStatus: string; meetingUrl: string | null;
+  id: string; topic: string; mode: string; when: string; counterpart: string; upcoming: boolean; approvalStatus: string; meetingUrl: string | null; declineReason: string | null;
 };
 
 type Row = {
   id: string; topic: string; mode: string; scheduled_at: string; mentor_id: string | null; mentee_id: string | null;
-  approval_status: string | null; meeting_url: string | null;
+  approval_status: string | null; meeting_url: string | null; decline_reason: string | null;
   mentor: { full_name: string | null } | null;
   mentee: { full_name: string | null } | null;
 };
@@ -34,14 +34,15 @@ export async function getMySessions(): Promise<MySession[]> {
       return {
         id: r.id, topic: r.topic, mode: r.mode, when: fmt(r.scheduled_at),
         counterpart, upcoming: new Date(r.scheduled_at).getTime() >= now,
-        approvalStatus: r.approval_status ?? "approved", meetingUrl: r.meeting_url ?? null,
+        approvalStatus: r.approval_status ?? "pending", meetingUrl: r.meeting_url ?? null,
+        declineReason: r.decline_reason ?? null,
       };
     });
   } catch { return []; }
 }
 
 
-export type MentorSession = { id: string; topic: string; mode: string; when: string; mentee: string; upcoming: boolean; approvalStatus: string; meetingUrl: string | null };
+export type MentorSession = { id: string; topic: string; mode: string; when: string; mentee: string; menteeId: string | null; upcoming: boolean; approvalStatus: string; meetingUrl: string | null; declineReason: string | null };
 
 /** Sessions where the signed-in user is the MENTOR, with the mentee's name. */
 export async function getMyMentorSessions(): Promise<MentorSession[]> {
@@ -55,14 +56,16 @@ export async function getMyMentorSessions(): Promise<MentorSession[]> {
       .eq("mentor_id", user.id)
       .order("scheduled_at", { ascending: true });
     const now = Date.now();
-    return (data as unknown as { id: string; topic: string; mode: string; scheduled_at: string; approval_status: string | null; meeting_url: string | null; mentee: { full_name: string | null } | null }[] | null ?? [])
+    return (data as unknown as { id: string; topic: string; mode: string; scheduled_at: string; approval_status: string | null; meeting_url: string | null; decline_reason: string | null; mentee_id: string | null; mentee: { full_name: string | null } | null }[] | null ?? [])
       .map((r) => ({
         id: r.id, topic: r.topic, mode: r.mode,
         when: fmt(r.scheduled_at),
         mentee: r.mentee?.full_name ?? "Mentee",
+        menteeId: r.mentee_id ?? null,
         upcoming: new Date(r.scheduled_at).getTime() >= now,
-        approvalStatus: r.approval_status ?? "approved",
+        approvalStatus: r.approval_status ?? "pending",
         meetingUrl: r.meeting_url ?? null,
+        declineReason: r.decline_reason ?? null,
       }));
   } catch { return []; }
 }
