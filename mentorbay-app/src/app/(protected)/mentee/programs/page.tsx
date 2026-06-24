@@ -1,10 +1,10 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { getMyEnrollments, getMyPendingEnrollments } from "@/lib/enrollments";
+import { getMyEnrollments, getMyPendingEnrollments, getMyDeclinedEnrollments } from "@/lib/enrollments";
 
 export default async function MenteeProgramsPage() {
-  const [enrolled, pending] = await Promise.all([getMyEnrollments(), getMyPendingEnrollments()]);
+  const [enrolled, pending, declined] = await Promise.all([getMyEnrollments(), getMyPendingEnrollments(), getMyDeclinedEnrollments()]);
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -26,6 +26,29 @@ export default async function MenteeProgramsPage() {
                 </div>
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">Awaiting approval</span>
                 <Link href={`/programs/${p.slug}`} className="text-xs font-semibold text-teal-600 hover:underline shrink-0">View program</Link>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {declined.length > 0 && (
+        <section className="bg-white rounded-2xl shadow-card p-6">
+          <h3 className="font-bold text-navy mb-1">Not approved <span className="text-sm font-normal text-slate-400">- the mentor couldn&apos;t accept this enrollment</span></h3>
+          <p className="text-xs text-slate-500 mb-4">You can browse other programs that may be a better fit.</p>
+          <div className="space-y-3">
+            {declined.map((p) => (
+              <div key={p.slug} className="p-4 rounded-xl bg-rose-50/60 border border-rose-100">
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="w-11 h-11 rounded-lg bg-rose-100 text-rose-600 grid place-items-center font-bold shrink-0">{(p.title[0] ?? "P")}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-navy truncate">{p.title}</p>
+                    <p className="text-xs text-slate-500">{p.category}{p.mentor ? ` · ${p.mentor}` : ""}</p>
+                  </div>
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-rose-100 text-rose-600 shrink-0">Not approved</span>
+                </div>
+                {p.declineReason && <p className="mt-2 text-sm text-slate-600"><span className="font-semibold text-navy">Mentor&apos;s note:</span> {p.declineReason}</p>}
+                <Link href="/programs" className="mt-2 inline-block text-xs font-semibold text-teal-600 hover:underline">Browse other programs</Link>
               </div>
             ))}
           </div>

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 export type MyEnrollment = {
-  slug: string; title: string; category: string; img: string; mentor: string; pct: number; status: string;
+  slug: string; title: string; category: string; img: string; mentor: string; pct: number; status: string; declineReason?: string | null;
 };
 
 type Row = {
@@ -203,6 +203,35 @@ export async function getMyPendingEnrollments(): Promise<MyEnrollment[]> {
     return rows.filter((r) => bySlug.has(r.program_slug)).map((r) => {
       const p = bySlug.get(r.program_slug)!;
       return { slug: r.program_slug, title: p.title ?? r.program_slug, category: p.category ?? "", img: p.cover_url ?? "", mentor: p.mentors?.name ?? "", pct: r.progress, status: r.status };
+    });
+  } catch { return []; }
+}
+
+
+/** Programs the mentee REQUESTED but the mentor declined, with the mentor's note. */
+export async function getMyDeclinedEnrollments(): Promise<MyEnrollment[]> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data: enr } = await supabase
+      .from("enrollments")
+      .select("program_slug, progress, status, decline_reason")
+      .eq("user_id", user.id).eq("status", "rejected");
+    const rows = (enr as { program_slug: string; progress: number; status: string; decline_reason: string | null }[] | null) ?? [];
+    if (rows.length === 0) return [];
+    const slugs = rows.map((r) => r.program_slug);
+    const { data: progs } = await supabase
+      .from("programs")
+      .select("slug, title, category, cover_url, mentors(name)")
+      .in("slug", slugs);
+    const bySlug = new Map(
+      ((progs as unknown as { slug: string; title: string; category: string; cover_url: string | null; mentors: { name: string } | null }[] | null) ?? [])
+        .map((p) => [p.slug, p])
+    );
+    return rows.filter((r) => bySlug.has(r.program_slug)).map((r) => {
+      const p = bySlug.get(r.program_slug)!;
+      return { slug: r.program_slug, title: p.title ?? r.program_slug, category: p.category ?? "", img: p.cover_url ?? "", mentor: p.mentors?.name ?? "", pct: r.progress, status: r.status, declineReason: r.decline_reason ?? null };
     });
   } catch { return []; }
 }
