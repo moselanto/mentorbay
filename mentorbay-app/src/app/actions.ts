@@ -71,6 +71,9 @@ export async function createProgramAction(formData: FormData) {
 
   const { data: mrow } = await supabase.from("mentors").select("slug").eq("profile_id", user.id).maybeSingle();
   const mentorSlug = mrow?.slug ?? null;
+  const isPaid = String(formData.get("is_paid") ?? "") === "true";
+  const priceKes = isPaid ? Math.max(0, Number(formData.get("price_kes") ?? 0)) : 0;
+  const maxInstallments = isPaid ? Math.max(1, Math.min(4, Number(formData.get("max_installments") ?? 1))) : 1;
   const { error } = await supabase.from("programs").insert({
     slug: slugify(title), title,
     category: String(formData.get("category") ?? "Leadership"),
@@ -82,6 +85,7 @@ export async function createProgramAction(formData: FormData) {
     cover_url: String(formData.get("cover_url") ?? "") || null,
     mentor_slug: mentorSlug,
     status: "pending", created_by: user.id, rating: 0, enrolled: 0,
+    is_free: !isPaid, price_kes: priceKes, max_installments: maxInstallments,
   });
   if (error) redirect("/mentor/create-program?error=save");
   revalidatePath("/mentor/programs");
@@ -375,6 +379,9 @@ export async function updateProgramAction(formData: FormData) {
   const weeksMatch = durationLabel.match(/(\d+)\s*week/i);
   const weeks = weeksMatch ? Number(weeksMatch[1]) : 0;
   const lessons = Number(formData.get("lessons") ?? 0) || curriculum.reduce((n, m) => n + m.lessons.length, 0);
+  const isPaidU = String(formData.get("is_paid") ?? "") === "true";
+  const priceKesU = isPaidU ? Math.max(0, Number(formData.get("price_kes") ?? 0)) : 0;
+  const maxInstallmentsU = isPaidU ? Math.max(1, Math.min(4, Number(formData.get("max_installments") ?? 1))) : 1;
   await supabase.from("programs").update({
     title: String(formData.get("title") ?? ""),
     category: String(formData.get("category") ?? ""),
@@ -385,6 +392,7 @@ export async function updateProgramAction(formData: FormData) {
     learn, curriculum, requirements, duration_label: durationLabel || null,
     cover_url: String(formData.get("cover_url") ?? "") || null,
     mentor_slug: mrow2?.slug ?? null,
+    is_free: !isPaidU, price_kes: priceKesU, max_installments: maxInstallmentsU,
   }).eq("slug", slug).eq("created_by", user.id);
   revalidatePath("/mentor/programs");
   revalidatePath(`/programs/${slug}`);
@@ -442,7 +450,8 @@ export async function saveSettingsAction(formData: FormData) {
   if (prof?.role !== "admin") redirect("/admin/settings");
   const platform_name = String(formData.get("platform_name") ?? "MentorBay").trim() || "MentorBay";
   const support_email = String(formData.get("support_email") ?? "").trim() || null;
-  await supabase.from("app_settings").update({ platform_name, support_email, updated_at: new Date().toISOString() }).eq("id", 1);
+  const commission_pct = Math.max(0, Math.min(100, Number(String(formData.get("commission_pct") ?? "15").trim()) || 15));
+  await supabase.from("app_settings").update({ platform_name, support_email, commission_pct, updated_at: new Date().toISOString() }).eq("id", 1);
   revalidatePath("/admin/settings");
   redirect("/admin/settings?saved=1");
 }
@@ -599,6 +608,118 @@ export async function enrollProgramAction(formData: FormData) {
   revalidatePath(`/programs/${slug}`);
   revalidatePath("/mentee/programs");
   revalidatePath("/mentee");
+}
+
+// ---------- Mentee: pay for a program (simulated; gateway-ready) ----------
+// Commission is taken OFF THE TOP of the program price. The mentor's share is
+// released to their wallet only once the program is FULLY paid; the platform
+// cut accrues to the admin balance at that point. Each payment is recorded in
+// the payments ledger so a real gateway (M-Pesa/Paystack) can reconcile later.
+export async function payProgramAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const slug = String(formData.get("slug") ?? "").trim();
+  const planRaw = String(formData.get("plan") ?? "1");
+  if (!slug) redirect("/mentee/programs");
+  // Load the enrollment (must be the mentee's own, mentor-approved) + program price.
+  const { data: enr } = await supabase.from("enrollments")
+    .select("id, status, amount_paid_kes, fully_paid, payout_released")
+    .eq("user_id", user.id).eq("program_slug", slug).maybeSingle();
+  if (!enr) redirect(`/programs/${slug}?payerror=notenrolled`);
+  if (enr.status === "pending") redirect(`/programs/${slug}?payerror=notapproved`);
+  if (enr.fully_paid) redirect("/mentee/programs?paid=already");
+  const { data: prog } = await supabase.from("programs").select("price_kes, max_installments, created_by, title").eq("slug", slug).maybeSingle();
+  const price = Number(prog?.price_kes ?? 0);
+  if (!prog || price <= 0) redirect(`/programs/${slug}?payerror=free`);
+  const maxInst = Math.max(1, Math.min(4, Number(prog.max_installments ?? 1)));
+  // Chosen plan: number of installments (1 = full). The amount due now is the
+  // remaining balance divided across the remaining installments, rounded.
+  const plan = Math.max(1, Math.min(maxInst, Number(planRaw) || 1));
+  const already = Number(enr.amount_paid_kes ?? 0);
+  const remaining = Math.max(0, price - already);
+  if (remaining <= 0) redirect("/mentee/programs?paid=already");
+  // Per-installment amount (last installment clears any rounding remainder).
+  const perInstallment = plan <= 1 ? remaining : Math.ceil(price / plan);
+  const payNow = Math.min(remaining, perInstallment);
+  const newPaid = already + payNow;
+  const nowFull = newPaid >= price;
+  // 1) Record the (simulated) payment in the ledger.
+  await supabase.from("payments").insert({
+    mentee_id: user.id, mentor_id: (prog.created_by as string) ?? null, program_slug: slug,
+    amount_kes: payNow, kind: nowFull && plan <= 1 ? "full" : "installment", provider: "simulated",
+  });
+  // 2) Update the enrollment running total + plan.
+  await supabase.from("enrollments").update({
+    amount_paid_kes: newPaid, payment_plan: plan, fully_paid: nowFull,
+  }).eq("id", enr.id as string);
+  // 3) On FULL payment, release the split exactly once (guarded by payout_released).
+  if (nowFull && !enr.payout_released) {
+    const { data: setRow } = await supabase.from("app_settings").select("commission_pct, admin_balance_kes").eq("id", 1).maybeSingle();
+    const pct = Math.max(0, Math.min(100, Number(setRow?.commission_pct ?? 15)));
+    const adminCut = Math.round((price * pct) / 100);
+    const mentorShare = price - adminCut;
+    // Admin balance accrues the commission.
+    await supabase.from("app_settings").update({ admin_balance_kes: Number(setRow?.admin_balance_kes ?? 0) + adminCut }).eq("id", 1);
+    // Mentor wallet accrues their share.
+    if (prog.created_by) {
+      const { data: mp } = await supabase.from("profiles").select("wallet_balance_kes").eq("id", prog.created_by as string).maybeSingle();
+      await supabase.from("profiles").update({ wallet_balance_kes: Number(mp?.wallet_balance_kes ?? 0) + mentorShare }).eq("id", prog.created_by as string);
+    }
+    await supabase.from("enrollments").update({ payout_released: true }).eq("id", enr.id as string);
+  }
+  revalidatePath(`/programs/${slug}`);
+  revalidatePath("/mentee/programs");
+  revalidatePath("/mentee");
+  revalidatePath("/mentor/earnings");
+  redirect(nowFull ? "/mentee/programs?paid=full" : "/mentee/programs?paid=installment");
+}
+
+// ---------- Mentor: payout phone + withdrawal requests ----------
+export async function savePayoutPhoneAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const phone = String(formData.get("payout_phone") ?? "").trim();
+  await supabase.from("profiles").update({ payout_phone: phone || null }).eq("id", user.id);
+  revalidatePath("/mentor/earnings");
+  redirect("/mentor/earnings?saved=phone");
+}
+
+export async function requestWithdrawalAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const { data: prof } = await supabase.from("profiles").select("wallet_balance_kes, payout_phone").eq("id", user.id).maybeSingle();
+  const balance = Number(prof?.wallet_balance_kes ?? 0);
+  const phone = (prof?.payout_phone as string | null) ?? null;
+  if (!phone) redirect("/mentor/earnings?wderror=nophone");
+  // Amount: requested amount, capped at available balance; default = full balance.
+  const reqRaw = Number(String(formData.get("amount") ?? "").trim());
+  const amount = reqRaw > 0 ? Math.min(reqRaw, balance) : balance;
+  if (amount <= 0) redirect("/mentor/earnings?wderror=nobalance");
+  // Hold the funds: move out of the wallet into a pending withdrawal (so it cannot be double-requested).
+  await supabase.from("withdrawals").insert({ mentor_id: user.id, amount_kes: amount, phone, status: "pending" });
+  await supabase.from("profiles").update({ wallet_balance_kes: balance - amount }).eq("id", user.id);
+  revalidatePath("/mentor/earnings");
+  revalidatePath("/admin/withdrawals");
+  redirect("/mentor/earnings?wd=requested");
+}
+
+// ---------- Admin: mark a withdrawal as paid ----------
+// Auto-payout-ready: when a real gateway (M-Pesa B2C) is wired in, swap the
+// manual mark-paid for a gateway disbursement call here.
+export async function markWithdrawalPaidAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const { data: prof } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  if (prof?.role !== "admin") redirect("/admin/withdrawals");
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) redirect("/admin/withdrawals");
+  await supabase.from("withdrawals").update({ status: "paid", paid_at: new Date().toISOString() }).eq("id", id).eq("status", "pending");
+  revalidatePath("/admin/withdrawals");
+  redirect("/admin/withdrawals?paid=1");
 }
 
 // ---------- Mentee: apply for mentorship ----------

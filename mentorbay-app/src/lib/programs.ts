@@ -13,6 +13,7 @@ type ProgramRow = {
   mentor_slug: string | null; rating: number; enrolled: number; badge: string | null;
   cover_url: string | null; description: string | null;
   about: string | null; learn: string[] | null; curriculum: unknown; duration_label: string | null; status: string | null; requirements: string[] | null;
+  is_free: boolean | null; price_kes: number | null; max_installments: number | null;
   mentors: { name: string; avatar_url: string | null } | null;
 };
 
@@ -27,6 +28,7 @@ function rowToProgram(r: ProgramRow): Program {
     rating: Number(r.rating), enrolled: r.enrolled, badge: r.badge ?? undefined, description: r.description ?? "",
     about: r.about ?? undefined, learn: r.learn ?? undefined, curriculum,
     durationLabel: r.duration_label ?? undefined, status: r.status ?? undefined, requirements: r.requirements ?? undefined,
+    isPaid: r.is_free === false, priceKes: Number(r.price_kes ?? 0), maxInstallments: r.max_installments ?? 1,
   };
 }
 

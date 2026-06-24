@@ -335,3 +335,27 @@ export async function getMentorCompletionRequests(): Promise<CompletionRequest[]
       .map((r) => ({ id: r.id, menteeName: r.user?.full_name ?? "Mentee", programTitle: titleBySlug.get(r.program_slug) ?? r.program_slug, programSlug: r.program_slug }));
   } catch { return []; }
 }
+
+
+export type PaymentState = { price: number; paid: number; balance: number; fullyPaid: boolean; maxInstallments: number; approved: boolean };
+
+/** Payment state for the signed-in mentee on a given program (null if not a paid program / not enrolled). */
+export async function getMyPaymentState(slug: string): Promise<PaymentState | null> {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    const { data: prog } = await supabase.from("programs").select("price_kes, max_installments, is_free").eq("slug", slug).maybeSingle();
+    const price = Number(prog?.price_kes ?? 0);
+    if (!prog || prog.is_free === true || price <= 0) return null;  // free programs need no payment
+    const { data: enr } = await supabase.from("enrollments").select("amount_paid_kes, fully_paid, status").eq("user_id", user.id).eq("program_slug", slug).maybeSingle();
+    if (!enr) return null;
+    const paid = Number(enr.amount_paid_kes ?? 0);
+    return {
+      price, paid, balance: Math.max(0, price - paid),
+      fullyPaid: !!enr.fully_paid,
+      maxInstallments: Math.max(1, Math.min(4, Number(prog.max_installments ?? 1))),
+      approved: enr.status !== "pending" && enr.status !== "rejected",
+    };
+  } catch { return null; }
+}

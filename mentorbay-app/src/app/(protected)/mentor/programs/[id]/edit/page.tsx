@@ -5,6 +5,7 @@ import CoverUpload from "@/components/CoverUpload";
 import CurriculumBuilder from "@/components/CurriculumBuilder";
 import CategorySelect from "@/components/CategorySelect";
 import LearnEditor from "@/components/LearnEditor";
+import ProgramPricingFields from "@/components/ProgramPricingFields";
 
 const DURATIONS = ["1 day", "2 days", "3 days", "1 week", "2 weeks", "4 weeks", "6 weeks", "8 weeks", "12 weeks"];
 
@@ -31,6 +32,7 @@ export default async function EditProgramPage({ params }: { params: { id: string
             <div><label className="block text-sm font-semibold text-navy mb-1">Level</label><select name="level" defaultValue={p.level} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none"><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>All Levels</option></select></div>
             <div><label className="block text-sm font-semibold text-navy mb-1">Duration</label><select name="duration" defaultValue={duration} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none">{durationOptions.map((d) => <option key={d}>{d}</option>)}</select></div>
             <div><label className="block text-sm font-semibold text-navy mb-1">Number of lessons</label><input name="lessons" type="number" min={1} defaultValue={p.lessons} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /></div>
+            <ProgramPricingFields defaultPaid={p.isPaid ?? false} defaultPrice={p.priceKes ?? 0} defaultMaxInstallments={p.maxInstallments ?? 1} />
           </div>
           <div><label className="block text-sm font-semibold text-navy mb-1">Short tagline</label><input name="description" defaultValue={p.description} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /></div>
         </section>

@@ -9,7 +9,8 @@ import { isEnrolledInProgram, countEnrollments, getProgramProgress } from "@/lib
 import { currentUserRole } from "@/lib/is-admin";
 import ProgramProgressPanel from "@/components/ProgramProgressPanel";
 import CurriculumTracker from "@/components/CurriculumTracker";
-import { getCompletedLessons } from "@/lib/enrollments";
+import { getCompletedLessons, getMyPaymentState } from "@/lib/enrollments";
+import ProgramPaymentPanel from "@/components/ProgramPaymentPanel";
 import ProgramCard from "@/components/ProgramCard";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -44,6 +45,7 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
   // A row exists, but it only counts as "enrolled" once the mentor approves it.
   const pendingEnroll = enrollment && progress?.status === "pending";
   const enrolled = enrollment && !pendingEnroll;
+  const payState = p && enrolled ? await getMyPaymentState(p.id) : null;
   const completedLessons = p && enrolled ? await getCompletedLessons(p.id) : [];
   const programReviews = p ? await getProgramReviews(p.id) : [];
   const reviewedAlready = p && enrolled ? await hasReviewedProgram(p.id) : false;
@@ -168,6 +170,9 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
         </div>
 
         <aside className="lg:sticky lg:top-24 space-y-4">
+          {payState && (
+            <ProgramPaymentPanel slug={p.id} price={payState.price} paid={payState.paid} balance={payState.balance} fullyPaid={payState.fullyPaid} maxInstallments={payState.maxInstallments} />
+          )}
           {enrolled && progress && (
             <ProgramProgressPanel slug={p.id} pct={progress.pct} status={progress.status} lessons={p.lessons} />
           )}
@@ -176,10 +181,17 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
             <img src={p.img} alt="" className="w-full h-36 object-cover" />
             <div className="p-6">
               <div className="flex items-end gap-2">
-                <span className="text-3xl font-extrabold text-navy">Free</span>
-                <span className="text-sm text-slate-400 line-through mb-1">KES 15,000</span>
+                {p.isPaid && (p.priceKes ?? 0) > 0 ? (
+                  <span className="text-3xl font-extrabold text-navy">KES {(p.priceKes ?? 0).toLocaleString("en-KE")}</span>
+                ) : (
+                  <span className="text-3xl font-extrabold text-navy">Free</span>
+                )}
               </div>
-              <p className="text-xs text-teal-600 font-medium mt-1">Free during launch - limited time</p>
+              {p.isPaid && (p.priceKes ?? 0) > 0 ? (
+                <p className="text-xs text-slate-500 font-medium mt-1">{(p.maxInstallments ?? 1) > 1 ? `Pay in full or up to ${p.maxInstallments} installments` : "One-time payment"}</p>
+              ) : (
+                <p className="text-xs text-teal-600 font-medium mt-1">Free program</p>
+              )}
               {isMentee ? (
                 <EnrollButton slug={p.id} enrolled={enrolled} pending={!!pendingEnroll} />
               ) : (

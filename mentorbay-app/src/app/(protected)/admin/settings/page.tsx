@@ -2,7 +2,7 @@ import { getSettings } from "@/lib/settings";
 import { saveSettingsAction } from "@/app/actions";
 
 export default async function AdminSettingsPage({ searchParams }: { searchParams: { saved?: string } }) {
-  const { platformName, supportEmail } = await getSettings();
+  const { platformName, supportEmail, commissionPct, adminBalance } = await getSettings();
   return (
     <div className="space-y-6 max-w-2xl">
       <h1 className="text-2xl font-extrabold text-navy">Platform Settings</h1>
@@ -36,6 +36,22 @@ export default async function AdminSettingsPage({ searchParams }: { searchParams
                 Used as the sender and reply-to address on notification emails to users (approvals, account
                 changes). The sending domain must be verified in Resend for delivery from this exact address.
               </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-white rounded-2xl shadow-card p-6">
+          <h3 className="font-bold text-navy mb-4">Revenue</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-navy mb-1">Platform commission (%)</label>
+              <input name="commission_pct" type="number" min={0} max={100} step={1} defaultValue={commissionPct}
+                className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" />
+              <p className="mt-1.5 text-xs text-slate-500">Taken off the top of each paid program. The mentor receives the remainder once a mentee fully pays.</p>
+            </div>
+            <div className="rounded-lg bg-slate-50 px-4 py-3 flex items-center justify-between">
+              <span className="text-sm text-slate-600">Platform balance (accrued commission)</span>
+              <span className="text-lg font-extrabold text-navy">KES {Math.round(adminBalance).toLocaleString("en-KE")}</span>
             </div>
           </div>
         </section>

@@ -91,6 +91,7 @@ export type Program = {
   badge?: string; description: string;
   about?: string; learn?: string[]; curriculum?: { title: string; lessons: string[] }[];
   durationLabel?: string; status?: string; requirements?: string[];
+  isPaid?: boolean; priceKes?: number; maxInstallments?: number;
 };
 
 export const PROGRAMS: Program[] = [
