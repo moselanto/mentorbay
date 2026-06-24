@@ -23,7 +23,7 @@ export async function getMySessions(): Promise<MySession[]> {
     if (!user) return [];
     const { data, error } = await supabase
       .from("sessions")
-      .select("id, topic, mode, scheduled_at, mentor_id, mentee_id, approval_status, mentor:profiles!sessions_mentor_id_fkey(full_name), mentee:profiles!sessions_mentee_id_fkey(full_name)")
+      .select("id, topic, mode, scheduled_at, mentor_id, mentee_id, approval_status, decline_reason, meeting_url, mentor:profiles!sessions_mentor_id_fkey(full_name), mentee:profiles!sessions_mentee_id_fkey(full_name)")
       .or(`mentee_id.eq.${user.id},mentor_id.eq.${user.id}`)
       .order("scheduled_at", { ascending: true });
     if (error || !data) return [];
