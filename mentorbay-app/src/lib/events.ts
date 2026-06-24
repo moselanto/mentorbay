@@ -10,6 +10,7 @@ type EventRow = {
   slug: string; title: string; when_status: "upcoming" | "past"; category: string; format: "Online" | "In-person";
   mon: string; day: string; date_label: string; time_label: string; location: string;
   speaker: string; speakers: { name: string; role: string }[] | null; face: string; img: string; going: number; featured: boolean;
+  about: string | null; gains: string[] | null; agenda: { time: string; title: string }[] | null;
 };
 
 function rowToEvent(r: EventRow): EventItem {
@@ -17,6 +18,7 @@ function rowToEvent(r: EventRow): EventItem {
     id: r.slug, title: r.title, when: r.when_status, category: r.category, type: r.format,
     mon: r.mon, day: r.day, date: r.date_label, time: r.time_label, loc: r.location,
     speaker: r.speaker, speakers: Array.isArray(r.speakers) ? r.speakers : [], face: r.face, img: r.img, going: r.going, featured: r.featured,
+    about: r.about ?? undefined, gains: Array.isArray(r.gains) ? r.gains : [], agenda: Array.isArray(r.agenda) ? r.agenda : [],
   };
 }
 

@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   return { title: e ? `${e.title} — MentorBay` : "Event — MentorBay" };
 }
 
-const GAINS = [
+const DEFAULT_GAINS = [
   "Insights from industry leaders",
   "Practical, hands-on workshops",
   "High-value networking",
@@ -21,7 +21,7 @@ const GAINS = [
   "Certificate of attendance",
 ];
 
-const AGENDA = [
+const DEFAULT_AGENDA = [
   { t: "9:00 AM", title: "Registration & Welcome Coffee" },
   { t: "9:30 AM", title: "Keynote address" },
   { t: "10:30 AM", title: "Panel discussion" },
@@ -36,6 +36,13 @@ export default async function EventDetailPage({ params, searchParams }: { params
   const registered = e ? await isRegisteredForEvent(e.id) : false;
   const goingCount = e ? await countRegistrations(e.id) : 0;
   if (!e) notFound();
+
+  // Use the mentor-provided details when present; otherwise fall back to sensible defaults.
+  const aboutText = e.about && e.about.trim()
+    ? e.about
+    : `Join professionals, founders, and changemakers for one of Kenya's standout ${e.category.toLowerCase()} events. A day of keynotes, panels, hands-on workshops, and high-value networking with the region's leading mentors.`;
+  const gains = e.gains && e.gains.length ? e.gains : DEFAULT_GAINS;
+  const agenda = e.agenda && e.agenda.length ? e.agenda.map((a) => ({ t: a.time, title: a.title })) : DEFAULT_AGENDA;
 
   const speakers = (e.speakers && e.speakers.length
     ? e.speakers.map((s) => ({ name: s.name, role: s.role || "Speaker", img: "" }))
@@ -71,10 +78,10 @@ export default async function EventDetailPage({ params, searchParams }: { params
 
           <div className="bg-white rounded-2xl shadow-card p-6 sm:p-8">
             <h2 className="text-xl font-bold text-navy mb-3">About this event</h2>
-            <p className="text-slate-600 leading-relaxed">Join professionals, founders, and changemakers for one of Kenya&apos;s standout {e.category.toLowerCase()} events. A day of keynotes, panels, hands-on workshops, and high-value networking with the region&apos;s leading mentors.</p>
+            <p className="text-slate-600 leading-relaxed whitespace-pre-line">{aboutText}</p>
             <h3 className="text-lg font-bold text-navy mt-6 mb-3">What you&apos;ll gain</h3>
             <div className="grid sm:grid-cols-2 gap-3">
-              {GAINS.map((g) => (
+              {gains.map((g) => (
                 <div key={g} className="flex items-start gap-2 text-sm text-slate-600">
                   <svg className="w-5 h-5 text-teal shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" /></svg>
                   <span>{g}</span>
@@ -86,7 +93,7 @@ export default async function EventDetailPage({ params, searchParams }: { params
           <div className="bg-white rounded-2xl shadow-card p-6 sm:p-8">
             <h3 className="text-lg font-bold text-navy mb-5">Agenda</h3>
             <div className="space-y-5">
-              {AGENDA.map((a) => (
+              {agenda.map((a) => (
                 <div key={a.t} className="flex gap-4">
                   <div className="w-20 shrink-0 text-sm font-semibold text-teal-600">{a.t}</div>
                   <div className="relative pl-5 border-l-2 border-slate-100 pb-1">

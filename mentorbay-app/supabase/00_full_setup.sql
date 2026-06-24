@@ -1045,3 +1045,14 @@ alter table public.programs add column if not exists program_location text;     
 -- so the program runs in successive batches.
 alter table public.programs add column if not exists cohort_start date;
 alter table public.programs add column if not exists cohort_status text not null default 'scheduled'; -- scheduled | running | finished
+
+
+-- ============================================================
+-- 38_event_details.sql
+-- ============================================================
+-- MentorBay - the event preview renders About / What you'll gain / Agenda, but
+-- these were hardcoded placeholders with no columns or form inputs. Add real
+-- columns so mentors can edit them and the preview shows their actual content.
+alter table public.events add column if not exists about text;
+alter table public.events add column if not exists gains text[] not null default '{}';      -- "What you'll gain" bullet list
+alter table public.events add column if not exists agenda jsonb not null default '[]'::jsonb; -- [{ "time": "9:00 AM", "title": "Welcome" }, ...]

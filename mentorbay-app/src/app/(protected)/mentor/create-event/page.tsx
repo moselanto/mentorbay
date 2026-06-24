@@ -1,6 +1,7 @@
 import { createEventAction } from "@/app/actions";
 import CoverUpload from "@/components/CoverUpload";
 import SpeakersBuilder from "@/components/SpeakersBuilder";
+import AgendaBuilder from "@/components/AgendaBuilder";
 
 export default function CreateEventPage({ searchParams }: { searchParams: { error?: string } }) {
   const pending = searchParams.error === "pending";
@@ -25,6 +26,16 @@ export default function CreateEventPage({ searchParams }: { searchParams: { erro
           </div>
           <SpeakersBuilder />
           <div><label className="block text-sm font-semibold text-navy mb-1">Location / address</label><input name="location" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="Venue name and full address, or 'Online (Zoom)'" /></div>
+        </section>
+
+        <section className="bg-white rounded-2xl shadow-card p-6 space-y-4">
+          <div><label className="block text-sm font-semibold text-navy mb-1">About this event</label><textarea name="about" rows={4} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="Describe what the event is about and who it is for." /></div>
+          <div>
+            <label className="block text-sm font-semibold text-navy mb-1">What attendees will gain</label>
+            <textarea name="gains" rows={4} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder={"One point per line, e.g.\nInsights from industry leaders\nHigh-value networking"} />
+            <p className="text-xs text-slate-400 mt-1">One point per line.</p>
+          </div>
+          <AgendaBuilder />
         </section>
 
         <div className="flex justify-end">

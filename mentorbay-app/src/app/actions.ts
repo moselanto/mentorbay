@@ -107,6 +107,16 @@ function parseSpeakers(raw: unknown): { name: string; role: string }[] {
   }
 }
 
+function parseAgenda(raw: FormDataEntryValue | null): { time: string; title: string }[] {
+  try {
+    const arr = JSON.parse(String(raw ?? "[]"));
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .map((x) => ({ time: String(x?.time ?? "").trim(), title: String(x?.title ?? "").trim() }))
+      .filter((x) => x.title);
+  } catch { return []; }
+}
+
 // ---------- Create Event ----------
 export async function createEventAction(formData: FormData) {
   const supabase = createClient();
@@ -130,6 +140,9 @@ export async function createEventAction(formData: FormData) {
     location: String(formData.get("location") ?? ""),
     speaker: speakersList[0]?.name ?? String(formData.get("speaker") ?? ""), speakers: speakersList,
     img: String(formData.get("cover_url") ?? "") || "", face: "", going: 0, featured: false,
+    about: String(formData.get("about") ?? "").trim() || null,
+    gains: String(formData.get("gains") ?? "").split("\n").map((x) => x.trim()).filter(Boolean),
+    agenda: parseAgenda(formData.get("agenda")),
     status: "published", created_by: user.id,
   });
   if (error) redirect("/mentor/create-event?error=save");
@@ -441,6 +454,9 @@ export async function updateEventAction(formData: FormData) {
     speaker: parseSpeakers(formData.get("speakers"))[0]?.name ?? String(formData.get("speaker") ?? ""),
     speakers: parseSpeakers(formData.get("speakers")),
     img: String(formData.get("cover_url") ?? "") || "",
+    about: String(formData.get("about") ?? "").trim() || null,
+    gains: String(formData.get("gains") ?? "").split("\n").map((x) => x.trim()).filter(Boolean),
+    agenda: parseAgenda(formData.get("agenda")),
   }).eq("slug", slug).eq("created_by", user.id);
   revalidatePath("/mentor/events");
   revalidatePath(`/events/${slug}`);

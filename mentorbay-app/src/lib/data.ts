@@ -113,6 +113,7 @@ export type EventItem = {
   id: string; title: string; when: "upcoming" | "past"; category: string; type: "Online" | "In-person";
   mon: string; day: string; date: string; time: string; loc: string; speaker: string; speakers?: { name: string; role: string }[]; face: string;
   img: string; going: number; featured?: boolean;
+  about?: string; gains?: string[]; agenda?: { time: string; title: string }[];
 };
 
 export const EVENTS: EventItem[] = [

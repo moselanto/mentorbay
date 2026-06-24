@@ -3,6 +3,7 @@ import { getMyEventBySlug } from "@/lib/events";
 import { updateEventAction } from "@/app/actions";
 import CoverUpload from "@/components/CoverUpload";
 import SpeakersBuilder from "@/components/SpeakersBuilder";
+import AgendaBuilder from "@/components/AgendaBuilder";
 
 export default async function EditEventPage({ params }: { params: { id: string } }) {
   const e = await getMyEventBySlug(params.id);
@@ -26,6 +27,16 @@ export default async function EditEventPage({ params }: { params: { id: string }
             <div className="sm:col-span-2"><SpeakersBuilder initial={(e.speakers && e.speakers.length ? e.speakers : (e.speaker ? [{ name: e.speaker, role: "Speaker" }] : []))} /></div>
           </div>
           <div><label className="block text-sm font-semibold text-navy mb-1">Location / address</label><input name="location" defaultValue={e.loc} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /></div>
+        </section>
+
+        <section className="bg-white rounded-2xl shadow-card p-6 space-y-4">
+          <div><label className="block text-sm font-semibold text-navy mb-1">About this event</label><textarea name="about" rows={4} defaultValue={e.about ?? ""} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /></div>
+          <div>
+            <label className="block text-sm font-semibold text-navy mb-1">What attendees will gain</label>
+            <textarea name="gains" rows={4} defaultValue={(e.gains ?? []).join("\n")} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" />
+            <p className="text-xs text-slate-400 mt-1">One point per line.</p>
+          </div>
+          <AgendaBuilder initial={e.agenda ?? []} />
         </section>
 
         <div className="flex justify-end"><button type="submit" className="px-6 py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">Save changes</button></div>
