@@ -202,7 +202,15 @@ export async function setApplicationStatusAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "");
   if (!id || !["accepted", "declined"].includes(status)) return;
-  await supabase.from("applications").update({ status }).eq("id", id).eq("mentor_id", user.id);
+  const { data: app } = await supabase.from("applications").update({ status }).eq("id", id).eq("mentor_id", user.id).select("mentee_id").maybeSingle();
+  // On acceptance, let the mentee know their request was approved (best-effort, env-gated).
+  if (status === "accepted" && app?.mentee_id) {
+    const mentee = await getUserContact(supabase, app.mentee_id as string);
+    const me = await getUserContact(supabase, user.id);
+    await sendNotificationEmail({ to: mentee.email,
+      subject: "Your MentorBay mentorship request was approved",
+      html: `<p>Hi ${mentee.name},</p><p>Good news - ${me.name} has accepted your mentorship request. You are now connected and can book sessions and message your mentor.</p><p><a href="https://mentorbay.vercel.app/mentee/my-mentor">Go to My Mentor</a></p>` });
+  }
   revalidatePath("/mentor/applications");
   revalidatePath("/mentor/mentees");
   revalidatePath("/mentor");
@@ -688,6 +696,22 @@ export async function enrollProgramAction(formData: FormData) {
       if (error && error.code !== "23505") {
         redirect(`/programs/${slug}?enrollerror=1`);
       }
+      // Notify the program owner that someone requested enrollment (best-effort, env-gated).
+      try {
+        const applicant = await getUserContact(supabase, user.id);
+        const { data: prog } = await supabase.from("programs").select("title, created_by").eq("slug", slug).maybeSingle();
+        if (prog?.created_by) {
+          const owner = await getUserContact(supabase, prog.created_by as string);
+          const ptitle = (prog.title as string) ?? "your program";
+          await sendNotificationEmail({ to: owner.email,
+            subject: `New enrollment request for "${ptitle}"`,
+            html: `<p>Hi ${owner.name},</p><p><strong>${applicant.name}</strong>` +
+              (email ? ` (${email})` : (applicant.email ? ` (${applicant.email})` : ``)) +
+              (phone ? `, phone ${phone},` : ``) +
+              ` has requested to enroll in <strong>${ptitle}</strong> and is awaiting your approval.</p>` +
+              `<p>Log in to review and approve: <a href="https://mentorbay.vercel.app/mentor/programs">My Programs</a></p>` });
+        }
+      } catch { /* best-effort */ }
     }
   }
   revalidatePath(`/programs/${slug}`);
@@ -893,6 +917,19 @@ export async function registerEventAction(formData: FormData) {
             `<strong>Where:</strong> ${whereLine || "To be announced"}</p>` +
             `<p><a href="https://mentorbay.vercel.app/events/${slug}">View the event page</a> - you can also manage or cancel your registration there.</p>` +
             `<p>See you there!</p>` });
+    // Notify the event owner that someone registered (best-effort, env-gated).
+    try {
+      const { data: evOwner } = await supabase.from("events").select("created_by").eq("slug", slug).maybeSingle();
+      if (evOwner?.created_by) {
+        const owner = await getUserContact(supabase, evOwner.created_by as string);
+        await sendNotificationEmail({ to: owner.email,
+          subject: `New registration for "${title}"`,
+          html: `<p>Hi ${owner.name},</p><p><strong>${who.name}</strong>` +
+            (who.email ? ` (${who.email})` : ``) +
+            ` just registered for your event <strong>${title}</strong>.</p>` +
+            `<p><a href="https://mentorbay.vercel.app/events/${slug}">View the event page</a></p>` });
+      }
+    } catch { /* best-effort */ }
   }
   revalidatePath(`/events/${slug}`);
 }
@@ -953,6 +990,16 @@ export async function bookSessionAction(formData: FormData) {
     approval_status: "pending",
   });
   if (error) redirect("/mentee/sessions?error=save");
+  // Notify the mentor that a session was requested (best-effort, env-gated).
+  try {
+    const mentee = await getUserContact(supabase, user.id);
+    const mentor = await getUserContact(supabase, mentorId);
+    await sendNotificationEmail({ to: mentor.email,
+      subject: `New session request from ${mentee.name}: "${topic}"`,
+      html: `<p>Hi ${mentor.name},</p><p><strong>${mentee.name}</strong> has requested a session with you: <strong>${topic}</strong>.</p>` +
+        `<p>Log in to confirm or decline this session request.</p>` +
+        `<p><a href="https://mentorbay.vercel.app/mentor/sessions">View your sessions</a></p>` });
+  } catch { /* best-effort */ }
   revalidatePath("/mentee/sessions");
   revalidatePath("/mentee");
   redirect("/mentee/sessions?booked=1");
