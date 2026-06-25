@@ -26,6 +26,19 @@ async function getUserContact(supabase: ServerClient, id: string): Promise<{ ema
   return { email: (data?.email as string | null) ?? null, name: (data?.full_name as string | null) ?? "there" };
 }
 
+// Returns the email addresses of all admins, plus the ADMIN_NOTIFY_EMAIL env
+// fallback if set. De-duplicated; empty entries dropped. Used to notify admins
+// of events that need their attention (e.g. a new mentorship application).
+async function getAdminEmails(supabase: ServerClient): Promise<string[]> {
+  const { data } = await supabase.from("profiles").select("email").eq("role", "admin");
+  const emails = (data ?? [])
+    .map((r) => (r.email as string | null) ?? null)
+    .filter((e): e is string => Boolean(e) && (e as string).includes("@"));
+  const envTo = process.env.ADMIN_NOTIFY_EMAIL;
+  if (envTo) emails.push(envTo);
+  return Array.from(new Set(emails));
+}
+
 // ---------- Profile (Settings) ----------
 export async function updateProfileAction(formData: FormData) {
   const supabase = createClient();
@@ -820,6 +833,34 @@ export async function applyMentorshipAction(formData: FormData) {
     await supabase.from("applications").update({
       mentee_phone: phone || null, mentee_email: email || null, confirmed_requirements: confirmed,
     }).eq("id", existing.id as string);
+  }
+  // Notify admins that a mentee has applied and needs review (best-effort, env-gated).
+  try {
+    const applicant = await getUserContact(supabase, user.id);
+    const { data: mentorRow } = await supabase
+      .from("mentors")
+      .select("profile_id, name")
+      .eq("profile_id", mentorId)
+      .maybeSingle();
+    const mentorName = (mentorRow?.name as string | null) ?? "a mentor";
+    const adminEmails = await getAdminEmails(supabase);
+    for (const adminTo of adminEmails) {
+      await sendNotificationEmail({
+        to: adminTo,
+        subject: `New mentorship application from ${applicant.name}`,
+        html:
+          `<p>A mentee has applied for mentorship and is awaiting review.</p>` +
+          `<p><strong>Mentee:</strong> ${applicant.name}` +
+          (applicant.email ? ` (${applicant.email})` : ``) +
+          (email ? `<br/><strong>Contact email:</strong> ${email}` : ``) +
+          (phone ? `<br/><strong>Phone:</strong> ${phone}` : ``) +
+          `<br/><strong>Applied to:</strong> ${mentorName}</p>` +
+          `<p>Log in to review and approve this application: ` +
+          `<a href="https://mentorbay.vercel.app/admin/approvals">Approvals dashboard</a></p>`,
+      });
+    }
+  } catch {
+    // best-effort; never block the application on notification failure
   }
   revalidatePath(redirectTo);
   revalidatePath("/mentee/my-mentor");
