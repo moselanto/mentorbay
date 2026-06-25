@@ -78,7 +78,7 @@ export async function countRegistrations(slug: string): Promise<number> {
 
 
 export type Registrant = { name: string };
-export type Attendee = { name: string; userId: string | null; email: string | null; phone: string | null };
+export type Attendee = { name: string; userId: string | null; email: string | null; phone: string | null; registeredAt: string | null };
 
 /** Registrants (names) for an event by slug. Visible to the event owner/admin via RLS. */
 export async function getEventRegistrants(slug: string): Promise<{ count: number; names: string[]; attendees: Attendee[] }> {
@@ -86,10 +86,10 @@ export async function getEventRegistrants(slug: string): Promise<{ count: number
     const supabase = createClient();
     const { data } = await supabase
       .from("event_registrations")
-      .select("user_id, user:profiles!event_registrations_user_id_fkey(full_name, email, payout_phone)")
+      .select("user_id, created_at, user:profiles!event_registrations_user_id_fkey(full_name, email, payout_phone)")
       .eq("event_slug", slug);
-    const rows = (data as unknown as { user_id: string | null; user: { full_name: string | null; email: string | null; payout_phone: string | null } | null }[] | null ?? []);
-    const attendees: Attendee[] = rows.map((r) => ({ name: r.user?.full_name ?? "Mentee", userId: r.user_id ?? null, email: r.user?.email ?? null, phone: r.user?.payout_phone ?? null }));
+    const rows = (data as unknown as { user_id: string | null; created_at: string | null; user: { full_name: string | null; email: string | null; payout_phone: string | null } | null }[] | null ?? []);
+    const attendees: Attendee[] = rows.map((r) => ({ name: r.user?.full_name ?? "Mentee", userId: r.user_id ?? null, email: r.user?.email ?? null, phone: r.user?.payout_phone ?? null, registeredAt: r.created_at ? new Date(r.created_at).toISOString().slice(0, 10) : null }));
     const names = attendees.map((a) => a.name);
     return { count: names.length, names, attendees };
   } catch { return { count: 0, names: [], attendees: [] }; }

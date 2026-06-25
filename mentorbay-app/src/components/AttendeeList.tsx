@@ -7,6 +7,7 @@ type Attendee = {
   userId: string | null;
   email: string | null;
   phone: string | null;
+  registeredAt: string | null;
 };
 
 function csvCell(value: string | null): string {
@@ -15,12 +16,13 @@ function csvCell(value: string | null): string {
 }
 
 function downloadAttendeesCsv(eventTitle: string, attendees: Attendee[]) {
-  const header = ["Event", "Name", "Phone", "Email"];
+  const header = ["Event", "Name", "Phone", "Email", "Registered date"];
   const rows = attendees.map((a) => [
     csvCell(eventTitle),
     csvCell(a.name),
     csvCell(a.phone),
     csvCell(a.email),
+    csvCell(a.registeredAt),
   ].join(","));
   const csv = [header.map(csvCell).join(","), ...rows].join("\r\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -63,6 +65,7 @@ export default function AttendeeList({ attendees = [], eventTitle = "Event" }: {
                 <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[11px]">
                   {a.phone ? <a href={`tel:${a.phone}`} className="font-semibold text-teal-600 hover:underline">{a.phone}</a> : <span className="text-slate-400">No phone</span>}
                   {a.email ? <a href={`mailto:${a.email}`} className="font-semibold text-teal-600 hover:underline truncate">{a.email}</a> : <span className="text-slate-400">No email</span>}
+                  {a.registeredAt ? <span className="text-slate-400">Registered {a.registeredAt}</span> : null}
                 </div>
               </div>
               {a.userId ? (

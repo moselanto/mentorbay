@@ -24,7 +24,7 @@ export default async function MentorProgramsPage({ searchParams }: { searchParam
   const enrolleeLists = await Promise.all(mine.map((p) => getProgramEnrollees(p.id)));
   const byProgram = new Map(mine.map((p, i) => [p.id, enrolleeLists[i]]));
   const allEnrolleeRows: (string | null)[][] = mine.flatMap((p, i) =>
-    (enrolleeLists[i] ?? []).map((e) => [p.title, e.name, e.phone, e.email, `${e.pct}%`, e.status])
+    (enrolleeLists[i] ?? []).map((e) => [p.title, p.cohortStart ?? "", e.name, e.phone, e.email, `${e.pct}%`, e.status, e.enrolledAt, String(e.amountPaid ?? 0), e.plan > 1 ? `${e.plan} installments` : "Full payment", e.fullyPaid ? "Yes" : "No"])
   );
 
   return (
@@ -32,7 +32,7 @@ export default async function MentorProgramsPage({ searchParams }: { searchParam
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-extrabold text-navy">My Programs</h1>
         <div className="flex items-center gap-2">
-          <ExportAllButton header={["Program", "Name", "Phone", "Email", "Progress", "Status"]} rows={allEnrolleeRows} filename="all-programs-enrollees.csv" label="Export all enrollees (CSV)" emptyMessage="No enrollees to export yet." />
+          <ExportAllButton header={["Program", "Cohort", "Name", "Phone", "Email", "Progress", "Status", "Enrolled date", "Amount paid (KES)", "Payment plan", "Fully paid"]} rows={allEnrolleeRows} filename="all-programs-enrollees.csv" label="Export all enrollees (CSV)" emptyMessage="No enrollees to export yet." />
           <Link href="/mentor/create-program" className="px-4 py-2 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">+ Create Program</Link>
         </div>
       </div>
@@ -132,7 +132,7 @@ export default async function MentorProgramsPage({ searchParams }: { searchParam
                     <form action={deleteProgramAction} className="inline"><input type="hidden" name="slug" value={p.id} /><ConfirmButton message="Delete this program? This cannot be undone." className="text-sm font-semibold text-rose-500 hover:underline">Delete</ConfirmButton></form>
                   </div>
                 </div>
-                <EnrolleeList enrollees={enrollees} programTitle={p.title} />
+                <EnrolleeList enrollees={enrollees} programTitle={p.title} cohort={p.cohortStart ?? null} />
                 <div className="mt-4 pt-4 border-t border-slate-100">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-xs font-semibold text-navy">Cohort schedule</p>

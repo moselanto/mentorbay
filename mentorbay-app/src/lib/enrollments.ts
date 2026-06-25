@@ -116,7 +116,7 @@ export async function getCompletedLessons(slug: string): Promise<string[]> {
 }
 
 
-export type Enrollee = { name: string; pct: number; status: string; userId: string | null; phone: string | null; email: string | null };
+export type Enrollee = { name: string; pct: number; status: string; userId: string | null; phone: string | null; email: string | null; enrolledAt: string | null; amountPaid: number; plan: number; fullyPaid: boolean };
 
 /** Mentees enrolled in a given program (visible to the program owner via RLS). */
 export async function getProgramEnrollees(slug: string): Promise<Enrollee[]> {
@@ -124,11 +124,11 @@ export async function getProgramEnrollees(slug: string): Promise<Enrollee[]> {
     const supabase = createClient();
     const { data } = await supabase
       .from("enrollments")
-      .select("progress, status, user_id, mentee_phone, mentee_email, user:profiles!enrollments_user_id_fkey(full_name, email)")
+      .select("progress, status, user_id, mentee_phone, mentee_email, created_at, amount_paid_kes, payment_plan, fully_paid, user:profiles!enrollments_user_id_fkey(full_name, email)")
       .eq("program_slug", slug)
       .order("created_at", { ascending: false });
-    return (data as unknown as { progress: number; status: string; user_id: string | null; mentee_phone: string | null; mentee_email: string | null; user: { full_name: string | null; email: string | null } | null }[] | null ?? [])
-      .map((r) => ({ name: r.user?.full_name ?? "Mentee", pct: r.progress ?? 0, status: r.status ?? "active", userId: r.user_id ?? null, phone: r.mentee_phone ?? null, email: r.mentee_email ?? r.user?.email ?? null }));
+    return (data as unknown as { progress: number; status: string; user_id: string | null; mentee_phone: string | null; mentee_email: string | null; created_at: string | null; amount_paid_kes: number | null; payment_plan: number | null; fully_paid: boolean | null; user: { full_name: string | null; email: string | null } | null }[] | null ?? [])
+      .map((r) => ({ name: r.user?.full_name ?? "Mentee", pct: r.progress ?? 0, status: r.status ?? "active", userId: r.user_id ?? null, phone: r.mentee_phone ?? null, email: r.mentee_email ?? r.user?.email ?? null, enrolledAt: r.created_at ? new Date(r.created_at).toISOString().slice(0, 10) : null, amountPaid: r.amount_paid_kes ?? 0, plan: r.payment_plan ?? 1, fullyPaid: r.fully_paid ?? false }));
   } catch { return []; }
 }
 

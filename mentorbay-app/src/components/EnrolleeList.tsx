@@ -9,6 +9,10 @@ type Enrollee = {
   userId: string | null;
   phone: string | null;
   email: string | null;
+  enrolledAt: string | null;
+  amountPaid: number;
+  plan: number;
+  fullyPaid: boolean;
 };
 
 function csvCell(value: string | null): string {
@@ -16,15 +20,20 @@ function csvCell(value: string | null): string {
   return `"${v}"`;
 }
 
-function downloadEnrolleesCsv(programTitle: string, enrollees: Enrollee[]) {
-  const header = ["Program", "Name", "Phone", "Email", "Progress", "Status"];
+function downloadEnrolleesCsv(programTitle: string, cohort: string | null, enrollees: Enrollee[]) {
+  const header = ["Program", "Cohort", "Name", "Phone", "Email", "Progress", "Status", "Enrolled date", "Amount paid (KES)", "Payment plan", "Fully paid"];
   const rows = enrollees.map((e) => [
     csvCell(programTitle),
+    csvCell(cohort),
     csvCell(e.name),
     csvCell(e.phone),
     csvCell(e.email),
     csvCell(`${e.pct}%`),
     csvCell(e.status),
+    csvCell(e.enrolledAt),
+    csvCell(String(e.amountPaid ?? 0)),
+    csvCell(e.plan > 1 ? `${e.plan} installments` : "Full payment"),
+    csvCell(e.fullyPaid ? "Yes" : "No"),
   ].join(","));
   const csv = [header.map(csvCell).join(","), ...rows].join("\r\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -39,7 +48,7 @@ function downloadEnrolleesCsv(programTitle: string, enrollees: Enrollee[]) {
   URL.revokeObjectURL(url);
 }
 
-export default function EnrolleeList({ enrollees, programTitle = "Program" }: { enrollees: Enrollee[]; programTitle?: string }) {
+export default function EnrolleeList({ enrollees, programTitle = "Program", cohort = null }: { enrollees: Enrollee[]; programTitle?: string; cohort?: string | null }) {
   const [open, setOpen] = useState(false);
   if (enrollees.length === 0) {
     return <p className="mt-3 text-xs text-slate-400">No enrollees yet.</p>;
@@ -51,7 +60,7 @@ export default function EnrolleeList({ enrollees, programTitle = "Program" }: { 
           {open ? "Hide" : "View"} {enrollees.length} enrolled {enrollees.length === 1 ? "mentee" : "mentees"}
         </button>
         <button
-          onClick={() => downloadEnrolleesCsv(programTitle, enrollees)}
+          onClick={() => downloadEnrolleesCsv(programTitle, cohort, enrollees)}
           className="text-xs font-semibold text-navy bg-slate-100 hover:bg-slate-200 transition px-2.5 py-1 rounded-lg"
         >
           Export CSV
@@ -67,6 +76,7 @@ export default function EnrolleeList({ enrollees, programTitle = "Program" }: { 
                 <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px]">
                   {e.phone ? <a href={`tel:${e.phone}`} className="font-semibold text-teal-600 hover:underline">{e.phone}</a> : <span className="text-slate-400">No phone</span>}
                   {e.email ? <a href={`mailto:${e.email}`} className="font-semibold text-teal-600 hover:underline">{e.email}</a> : <span className="text-slate-400">No email</span>}
+                  {e.enrolledAt ? <span className="text-slate-400">Enrolled {e.enrolledAt}</span> : null}
                 </div>
               </div>
               <div className="w-24 shrink-0">
