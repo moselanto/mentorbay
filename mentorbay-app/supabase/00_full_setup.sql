@@ -1120,3 +1120,50 @@ $$;
 
 grant execute on function public.public_program_enrollment_count(text) to anon, authenticated;
 grant execute on function public.public_event_registration_count(text) to anon, authenticated;
+
+-- 41_payment_intents.sql
+-- M-Pesa (Daraja STK Push) payment tracking. A payment_intent records a payment
+-- the mentee STARTED but that Safaricom has not yet confirmed. The Daraja
+-- callback later flips it to 'success' or 'failed'. The money-moving logic
+-- (payments ledger row, enrollment total, commission split) runs ONLY when the
+-- callback confirms success - never at initiation. checkout_request_id is the
+-- Safaricom-issued id used to correlate the async callback back to this intent.
+create table if not exists public.payment_intents (
+  id                   uuid primary key default gen_random_uuid(),
+  mentee_id            uuid not null references public.profiles(id) on delete cascade,
+  mentor_id            uuid references public.profiles(id) on delete set null,
+  program_slug         text not null,
+  amount_kes           numeric(12,2) not null,
+  plan                 int not null default 1,
+  phone                text,
+  provider             text not null default 'mpesa',
+  status               text not null default 'pending',
+  merchant_request_id  text,
+  checkout_request_id  text,
+  result_code          text,
+  result_desc          text,
+  mpesa_receipt        text,
+  applied              boolean not null default false,
+  created_at           timestamptz not null default now(),
+  updated_at           timestamptz not null default now()
+);
+
+create unique index if not exists payment_intents_checkout_uidx
+  on public.payment_intents (checkout_request_id)
+  where checkout_request_id is not null;
+
+create index if not exists payment_intents_mentee_idx on public.payment_intents (mentee_id);
+create index if not exists payment_intents_program_idx on public.payment_intents (program_slug);
+
+alter table public.payment_intents enable row level security;
+
+drop policy if exists "Mentee reads own intents" on public.payment_intents;
+create policy "Mentee reads own intents" on public.payment_intents for select using (auth.uid() = mentee_id);
+
+drop policy if exists "Mentee creates own intents" on public.payment_intents;
+create policy "Mentee creates own intents" on public.payment_intents for insert with check (auth.uid() = mentee_id);
+
+drop policy if exists "Admin reads all intents" on public.payment_intents;
+create policy "Admin reads all intents" on public.payment_intents for select using (is_admin());
+
+alter table public.payments add column if not exists payment_intent_id uuid references public.payment_intents(id) on delete set null;

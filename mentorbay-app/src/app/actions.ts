@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { sendNotificationEmail } from "@/lib/email";
+import { mpesaConfigured, normalizeMpesaPhone, stkPush } from "@/lib/daraja";
 
 type ServerClient = ReturnType<typeof createClient>;
 
@@ -1267,4 +1268,92 @@ export async function mentorDeclineCompletionAction(formData: FormData) {
   revalidatePath("/mentee/certificates");
   revalidatePath("/mentee/programs");
   redirect("/mentor/programs?completiondeclined=1");
+}
+
+
+// ---------- Mentee: pay for a program via M-Pesa (Daraja STK Push) ----------
+// This does NOT move any money or grant access. It computes the amount due for
+// the chosen installment plan, records a PENDING payment_intent, and asks
+// Safaricom to prompt the mentee's phone for their PIN. Safaricom later calls
+// our /api/mpesa/callback route, which is where the payment is actually applied
+// (ledger row + enrollment total + commission split).
+export async function startMpesaProgramPaymentAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const slug = String(formData.get("slug") ?? "").trim();
+  const planRaw = String(formData.get("plan") ?? "1");
+  const phoneRaw = String(formData.get("phone") ?? "").trim();
+  if (!slug) redirect("/mentee/programs");
+
+  if (!mpesaConfigured()) redirect(`/mentee/programs?payerror=mpesa_unconfigured`);
+  const phone = normalizeMpesaPhone(phoneRaw);
+  if (!phone) redirect(`/programs/${slug}?payerror=badphone`);
+
+  const { data: enr } = await supabase.from("enrollments")
+    .select("id, status, amount_paid_kes, fully_paid")
+    .eq("user_id", user.id).eq("program_slug", slug).maybeSingle();
+  if (!enr) redirect(`/programs/${slug}?payerror=notenrolled`);
+  if (enr.status === "pending") redirect(`/programs/${slug}?payerror=notapproved`);
+  if (enr.fully_paid) redirect("/mentee/programs?paid=already");
+
+  const { data: prog } = await supabase.from("programs").select("price_kes, max_installments, created_by, title").eq("slug", slug).maybeSingle();
+  const price = Number(prog?.price_kes ?? 0);
+  if (!prog || price <= 0) redirect(`/programs/${slug}?payerror=free`);
+  const maxInst = Math.max(1, Math.min(4, Number(prog.max_installments ?? 1)));
+  const plan = Math.max(1, Math.min(maxInst, Number(planRaw) || 1));
+  const already = Number(enr.amount_paid_kes ?? 0);
+  const remaining = Math.max(0, price - already);
+  if (remaining <= 0) redirect("/mentee/programs?paid=already");
+  const perInstallment = plan <= 1 ? remaining : Math.ceil(price / plan);
+  const payNow = Math.min(remaining, perInstallment);
+
+  const { data: intent, error: intentErr } = await supabase.from("payment_intents").insert({
+    mentee_id: user.id,
+    mentor_id: (prog.created_by as string) ?? null,
+    program_slug: slug,
+    amount_kes: payNow,
+    plan,
+    phone,
+    provider: "mpesa",
+    status: "pending",
+  }).select("id").maybeSingle();
+  if (intentErr || !intent) redirect(`/programs/${slug}?payerror=intent`);
+
+  const res = await stkPush({
+    phone,
+    amount: payNow,
+    accountRef: slug,
+    description: `MentorBay ${(prog.title as string) ?? "program"}`.slice(0, 60),
+  });
+
+  if (!res.ok || !res.checkoutRequestId) {
+    await supabase.from("payment_intents").update({ status: "failed", result_desc: res.error ?? "stk_failed" }).eq("id", intent.id as string);
+    redirect(`/programs/${slug}?payerror=stk`);
+  }
+
+  await supabase.from("payment_intents").update({
+    merchant_request_id: res.merchantRequestId ?? null,
+    checkout_request_id: res.checkoutRequestId ?? null,
+    updated_at: new Date().toISOString(),
+  }).eq("id", intent.id as string);
+
+  revalidatePath("/mentee/programs");
+  redirect(`/mentee/programs?mpesa=pending&intent=${intent.id}`);
+}
+
+
+// ---------- Mentee: poll an M-Pesa payment intent's status (for waiting UI) ----------
+// Returns the current status of one of the caller's own payment intents so the
+// waiting screen can show pending / success / failed. RLS ensures a mentee only
+// reads their own intents.
+export async function getPaymentIntentStatus(intentId: string): Promise<{ status: string; receipt: string | null; desc: string | null } | null> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || !intentId) return null;
+  const { data } = await supabase.from("payment_intents")
+    .select("status, mpesa_receipt, result_desc")
+    .eq("id", intentId).eq("mentee_id", user.id).maybeSingle();
+  if (!data) return null;
+  return { status: (data.status as string) ?? "pending", receipt: (data.mpesa_receipt as string | null) ?? null, desc: (data.result_desc as string | null) ?? null };
 }
