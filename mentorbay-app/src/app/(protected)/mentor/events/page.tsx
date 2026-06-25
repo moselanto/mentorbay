@@ -4,6 +4,7 @@ import { getEventRegistrants } from "@/lib/registrations";
 import { deleteEventAction } from "@/app/actions";
 import ConfirmButton from "@/components/ConfirmButton";
 import AttendeeList from "@/components/AttendeeList";
+import ExportAllButton from "@/components/ExportAllButton";
 
 function statusStyle(status: string): { label: string; cls: string } {
   switch (status) {
@@ -17,11 +18,17 @@ export default async function MentorEventsPage({ searchParams }: { searchParams:
   const events = await getMyEvents();
   const registrants = await Promise.all(events.map((e) => getEventRegistrants(e.id)));
   const regBySlug = new Map(events.map((e, i) => [e.id, registrants[i]]));
+  const allAttendeeRows: (string | null)[][] = events.flatMap((e, i) =>
+    (registrants[i]?.attendees ?? []).map((a) => [e.title, a.name, a.phone, a.email])
+  );
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-extrabold text-navy">My Events</h1>
-        <Link href="/mentor/create-event" className="px-4 py-2 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">+ Host event</Link>
+        <div className="flex items-center gap-2">
+          <ExportAllButton header={["Event", "Name", "Phone", "Email"]} rows={allAttendeeRows} filename="all-events-attendees.csv" label="Export all attendees (CSV)" emptyMessage="No attendees to export yet." />
+          <Link href="/mentor/create-event" className="px-4 py-2 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">+ Host event</Link>
+        </div>
       </div>
       {searchParams.created && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Event submitted. An admin will review it before it goes live.</p>}
       {searchParams.updated && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Event updated.</p>}

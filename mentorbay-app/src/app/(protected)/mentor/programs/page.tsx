@@ -4,6 +4,7 @@ import { getProgramEnrollees, getMentorEnrollmentRequests, getMentorCompletionRe
 import { deleteProgramAction, mentorApproveEnrollmentAction, mentorApproveCompletionAction, rescheduleCohortAction } from "@/app/actions";
 import ConfirmButton from "@/components/ConfirmButton";
 import EnrolleeList from "@/components/EnrolleeList";
+import ExportAllButton from "@/components/ExportAllButton";
 import DeclineEnrollmentButton from "@/components/DeclineEnrollmentButton";
 import DeclineCompletionButton from "@/components/DeclineCompletionButton";
 
@@ -22,12 +23,18 @@ export default async function MentorProgramsPage({ searchParams }: { searchParam
   const [mine, requests, completionRequests] = await Promise.all([getMyPrograms(), getMentorEnrollmentRequests(), getMentorCompletionRequests()]);
   const enrolleeLists = await Promise.all(mine.map((p) => getProgramEnrollees(p.id)));
   const byProgram = new Map(mine.map((p, i) => [p.id, enrolleeLists[i]]));
+  const allEnrolleeRows: (string | null)[][] = mine.flatMap((p, i) =>
+    (enrolleeLists[i] ?? []).map((e) => [p.title, e.name, e.phone, e.email, `${e.pct}%`, e.status])
+  );
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-extrabold text-navy">My Programs</h1>
-        <Link href="/mentor/create-program" className="px-4 py-2 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">+ Create Program</Link>
+        <div className="flex items-center gap-2">
+          <ExportAllButton header={["Program", "Name", "Phone", "Email", "Progress", "Status"]} rows={allEnrolleeRows} filename="all-programs-enrollees.csv" label="Export all enrollees (CSV)" emptyMessage="No enrollees to export yet." />
+          <Link href="/mentor/create-program" className="px-4 py-2 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">+ Create Program</Link>
+        </div>
       </div>
       {searchParams.submitted && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Program submitted. An admin will review it before it goes live.</p>}
       {searchParams.updated && <p className="text-sm text-teal-700 bg-teal-50 px-4 py-2.5 rounded-lg">Program updated.</p>}
