@@ -125,7 +125,7 @@ export default async function MentorProgramsPage({ searchParams }: { searchParam
                     <form action={deleteProgramAction} className="inline"><input type="hidden" name="slug" value={p.id} /><ConfirmButton message="Delete this program? This cannot be undone." className="text-sm font-semibold text-rose-500 hover:underline">Delete</ConfirmButton></form>
                   </div>
                 </div>
-                <EnrolleeList enrollees={enrollees} />
+                <EnrolleeList enrollees={enrollees} programTitle={p.title} />
                 <div className="mt-4 pt-4 border-t border-slate-100">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-xs font-semibold text-navy">Cohort schedule</p>

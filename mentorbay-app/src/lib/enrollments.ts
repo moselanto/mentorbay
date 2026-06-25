@@ -116,7 +116,7 @@ export async function getCompletedLessons(slug: string): Promise<string[]> {
 }
 
 
-export type Enrollee = { name: string; pct: number; status: string };
+export type Enrollee = { name: string; pct: number; status: string; userId: string | null; phone: string | null; email: string | null };
 
 /** Mentees enrolled in a given program (visible to the program owner via RLS). */
 export async function getProgramEnrollees(slug: string): Promise<Enrollee[]> {
@@ -124,11 +124,11 @@ export async function getProgramEnrollees(slug: string): Promise<Enrollee[]> {
     const supabase = createClient();
     const { data } = await supabase
       .from("enrollments")
-      .select("progress, status, user:profiles!enrollments_user_id_fkey(full_name)")
+      .select("progress, status, user_id, mentee_phone, mentee_email, user:profiles!enrollments_user_id_fkey(full_name, email)")
       .eq("program_slug", slug)
       .order("created_at", { ascending: false });
-    return (data as unknown as { progress: number; status: string; user: { full_name: string | null } | null }[] | null ?? [])
-      .map((r) => ({ name: r.user?.full_name ?? "Mentee", pct: r.progress ?? 0, status: r.status ?? "active" }));
+    return (data as unknown as { progress: number; status: string; user_id: string | null; mentee_phone: string | null; mentee_email: string | null; user: { full_name: string | null; email: string | null } | null }[] | null ?? [])
+      .map((r) => ({ name: r.user?.full_name ?? "Mentee", pct: r.progress ?? 0, status: r.status ?? "active", userId: r.user_id ?? null, phone: r.mentee_phone ?? null, email: r.mentee_email ?? r.user?.email ?? null }));
   } catch { return []; }
 }
 

@@ -78,17 +78,19 @@ export async function countRegistrations(slug: string): Promise<number> {
 
 
 export type Registrant = { name: string };
+export type Attendee = { name: string; userId: string | null; email: string | null; phone: string | null };
 
 /** Registrants (names) for an event by slug. Visible to the event owner/admin via RLS. */
-export async function getEventRegistrants(slug: string): Promise<{ count: number; names: string[] }> {
+export async function getEventRegistrants(slug: string): Promise<{ count: number; names: string[]; attendees: Attendee[] }> {
   try {
     const supabase = createClient();
     const { data } = await supabase
       .from("event_registrations")
-      .select("user:profiles!event_registrations_user_id_fkey(full_name)")
+      .select("user_id, user:profiles!event_registrations_user_id_fkey(full_name, email, payout_phone)")
       .eq("event_slug", slug);
-    const names = (data as unknown as { user: { full_name: string | null } | null }[] | null ?? [])
-      .map((r) => r.user?.full_name ?? "Mentee");
-    return { count: names.length, names };
-  } catch { return { count: 0, names: [] }; }
+    const rows = (data as unknown as { user_id: string | null; user: { full_name: string | null; email: string | null; payout_phone: string | null } | null }[] | null ?? []);
+    const attendees: Attendee[] = rows.map((r) => ({ name: r.user?.full_name ?? "Mentee", userId: r.user_id ?? null, email: r.user?.email ?? null, phone: r.user?.payout_phone ?? null }));
+    const names = attendees.map((a) => a.name);
+    return { count: names.length, names, attendees };
+  } catch { return { count: 0, names: [], attendees: [] }; }
 }

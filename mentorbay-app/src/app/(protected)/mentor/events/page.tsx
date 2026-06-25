@@ -47,7 +47,7 @@ export default async function MentorEventsPage({ searchParams }: { searchParams:
                   <p className="text-xs text-slate-400 mt-1 truncate">{e.loc}</p>
                   <div className="mt-2">
                     <span className="text-xs font-semibold text-teal-600">{regBySlug.get(e.id)?.count ?? 0} attending</span>
-                    <AttendeeList names={regBySlug.get(e.id)?.names ?? []} />
+                    <AttendeeList attendees={regBySlug.get(e.id)?.attendees ?? []} eventTitle={e.title} />
                   </div>
                   <Link href={`/events/${e.id}`} target="_blank" className="mt-3 block text-center py-2 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition">View event</Link>
                   <div className="mt-2 grid grid-cols-2 gap-2">
