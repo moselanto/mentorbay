@@ -69,7 +69,7 @@ export default async function MentorProfilePage({ params, searchParams }: { para
           </div>
 
           <aside className="space-y-4">
-            <div className="bg-white rounded-2xl shadow-card p-6">
+            <div id="apply" className="bg-white rounded-2xl shadow-card p-6 scroll-mt-24">
               {signedIn ? (
                 applied ? (
                   <div className="text-center py-3 bg-teal-50 text-teal-700 font-semibold rounded-lg">✓ Application sent</div>

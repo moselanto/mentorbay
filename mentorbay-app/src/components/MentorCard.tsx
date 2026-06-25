@@ -49,12 +49,20 @@ export default function MentorCard({ mentor }: { mentor: Mentor }) {
           </span>
           <span className="font-semibold text-teal-600">Free</span>
         </div>
-        <Link
-          href={`/mentors/${mentor.id}`}
-          className="block text-center mt-4 py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition"
-        >
-          View Profile
-        </Link>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <Link
+            href={`/mentors/${mentor.id}`}
+            className="text-center py-2.5 border border-slate-200 text-navy text-sm font-semibold rounded-lg hover:border-teal hover:text-teal transition"
+          >
+            View Profile
+          </Link>
+          <Link
+            href={`/mentors/${mentor.id}#apply`}
+            className="text-center py-2.5 bg-navy text-white text-sm font-semibold rounded-lg hover:bg-navy-700 transition"
+          >
+            Apply
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { EventItem } from "@/lib/data";
 
-export default function EventCard({ event: e }: { event: EventItem }) {
+export default function EventCard({ event: e, liveGoing }: { event: EventItem; liveGoing?: number }) {
+  const going = typeof liveGoing === "number" ? liveGoing : (e.going ?? 0);
   const past = e.when === "past";
   return (
     <Link href={`/events/${e.id}`} className="bg-white rounded-2xl shadow-card overflow-hidden hover:-translate-y-1 transition block">
@@ -32,7 +33,7 @@ export default function EventCard({ event: e }: { event: EventItem }) {
         )}
         <p className="text-xs text-slate-500 mt-3">{e.time} · {e.loc}</p>
         <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
-          <span className="text-xs text-slate-500">{e.going}+ {past ? "attended" : "attending"}</span>
+          <span className="text-xs text-slate-500">{going} {past ? "attended" : "attending"}</span>
           {past ? <span className="text-xs font-semibold text-slate-400">Ended</span> : <span className="text-sm font-semibold text-teal-600">Register →</span>}
         </div>
       </div>

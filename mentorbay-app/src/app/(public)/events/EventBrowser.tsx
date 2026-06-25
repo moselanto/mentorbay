@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { EventItem } from "@/lib/data";
 import EventCard from "@/components/EventCard";
 
-export default function EventBrowser({ events }: { events: EventItem[] }) {
+export default function EventBrowser({ events, goingCounts = {} }: { events: EventItem[]; goingCounts?: Record<string, number> }) {
   const [when, setWhen] = useState<"upcoming" | "past">("upcoming");
   const [q, setQ] = useState("");
   const [type, setType] = useState("");
@@ -19,9 +19,9 @@ export default function EventBrowser({ events }: { events: EventItem[] }) {
       if (cat && e.category !== cat) return false;
       return true;
     });
-    if (sort === "popular") list = [...list].sort((a, b) => b.going - a.going);
+    if (sort === "popular") list = [...list].sort((a, b) => (goingCounts[b.id] ?? b.going ?? 0) - (goingCounts[a.id] ?? a.going ?? 0));
     return list;
-  }, [events, when, q, type, cat, sort]);
+  }, [events, when, q, type, cat, sort, goingCounts]);
 
   const sel = "px-3 py-3 rounded-lg border border-slate-200 bg-white font-medium text-navy text-sm focus:ring-2 focus:ring-teal outline-none";
 
@@ -59,7 +59,7 @@ export default function EventBrowser({ events }: { events: EventItem[] }) {
       <p className="text-sm text-slate-500 my-6"><span className="font-semibold text-navy">{results.length}</span> events</p>
       {results.length > 0 ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
-          {results.map((e) => <EventCard key={e.id} event={e} />)}
+          {results.map((e) => <EventCard key={e.id} event={e} liveGoing={goingCounts[e.id]} />)}
         </div>
       ) : (
         <div className="text-center py-20"><p className="font-semibold text-navy">No events found</p><p className="text-slate-500 text-sm mt-1">Try a different filter, or check the Past tab.</p></div>

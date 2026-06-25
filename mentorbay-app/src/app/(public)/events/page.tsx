@@ -3,12 +3,17 @@ export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getEvents } from "@/lib/events";
+import { countRegistrations } from "@/lib/registrations";
 import EventBrowser from "./EventBrowser";
 
 export const metadata: Metadata = { title: "Events — MentorBay" };
 
 export default async function EventsPage() {
   const events = await getEvents();
+  // Live attendee counts per event (the static events.going column is not maintained).
+  const counts = await Promise.all(events.map((e) => countRegistrations(e.id)));
+  const goingCounts: Record<string, number> = {};
+  events.forEach((e, i) => { goingCounts[e.id] = counts[i]; });
   return (
     <div className="bg-slate-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
@@ -20,7 +25,7 @@ export default async function EventsPage() {
         <h1 className="text-3xl lg:text-4xl font-extrabold text-navy">Events</h1>
         <p className="text-slate-500 mt-2">Workshops, summits, and masterclasses with Africa&apos;s leading mentors - online and across Kenya.</p>
       </div>
-      <EventBrowser events={events} />
+      <EventBrowser events={events} goingCounts={goingCounts} />
     </div>
   );
 }

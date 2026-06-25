@@ -804,12 +804,17 @@ export async function registerEventAction(formData: FormData) {
     await supabase.from("event_registrations").upsert({ user_id: user.id, event_slug: slug }, { onConflict: "user_id,event_slug" });
     // Email a confirmation with the event link (best-effort, env-gated).
     const who = await getUserContact(supabase, user.id);
-    const { data: ev } = await supabase.from("events").select("title, date_label, time_label, location").eq("slug", slug).maybeSingle();
+    const { data: ev } = await supabase.from("events").select("title, date_label, time_label, location, format").eq("slug", slug).maybeSingle();
     const title = (ev?.title as string) ?? "the event";
+    const whenLine = `${ev?.date_label ?? ""}${ev?.time_label ? " at " + ev.time_label : ""}`.trim();
+    const whereLine = (ev?.format as string) === "Online" ? "Online event" : (ev?.location as string) || "";
     await sendNotificationEmail({ to: who.email, subject: `You're registered: ${title}`,
-      html: `<p>Hi ${who.name},</p><p>You're registered for <strong>${title}</strong>.</p>` +
-            `<p>${ev?.date_label ?? ""} ${ev?.time_label ? "at " + ev.time_label : ""}<br/>${ev?.location ?? ""}</p>` +
-            `<p><a href="https://mentorbay.vercel.app/events/${slug}">View the event page</a></p>` });
+      html: `<p>Hi ${who.name},</p>` +
+            `<p>You're registered for <strong>${title}</strong>. We've saved your spot.</p>` +
+            `<p><strong>When:</strong> ${whenLine || "To be announced"}<br/>` +
+            `<strong>Where:</strong> ${whereLine || "To be announced"}</p>` +
+            `<p><a href="https://mentorbay.vercel.app/events/${slug}">View the event page</a> - you can also manage or cancel your registration there.</p>` +
+            `<p>See you there\!</p>` });
   }
   revalidatePath(`/events/${slug}`);
 }
