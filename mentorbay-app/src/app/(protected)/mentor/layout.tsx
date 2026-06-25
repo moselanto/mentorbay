@@ -4,6 +4,7 @@ import DashboardShell, { type NavItem } from "@/components/DashboardShell";
 import { requireRole } from "@/lib/dashboard-access";
 import { getUnreadCount } from "@/lib/messages";
 import MessagesRealtime from "@/components/MessagesRealtime";
+import ApprovalGate from "@/components/ApprovalGate";
 
 const NAV: NavItem[] = [
   { label: "Dashboard", href: "/mentor", icon: "home" },
@@ -21,7 +22,7 @@ const NAV: NavItem[] = [
 ];
 
 export default async function MentorLayout({ children }: { children: React.ReactNode }) {
-  const { userId, userName, avatarUrl, approvalStatus } = await requireRole("mentor");
+  const { userId, userName, avatarUrl, approvalStatus, suspended } = await requireRole("mentor");
   const unread = await getUnreadCount();
   const nav = NAV.map((n) => (n.href === "/mentor/messages" ? { ...n, badge: unread } : n));
   return (

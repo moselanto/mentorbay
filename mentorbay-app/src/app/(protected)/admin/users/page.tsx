@@ -1,10 +1,10 @@
 export const dynamic = "force-dynamic";
 
 import { getAllUsers } from "@/lib/admin";
-import { setSuspendedAction, setApprovalAction } from "@/app/actions";
+import { setSuspendedAction, setApprovalAction, deleteUserAction } from "@/app/actions";
 import ConfirmButton from "@/components/ConfirmButton";
 
-export default async function AdminUsersPage() {
+export default async function AdminUsersPage({ searchParams }: { searchParams?: { deleted?: string; delerror?: string } }) {
   const users = await getAllUsers();
   return (
     <div className="space-y-6">
@@ -12,6 +12,8 @@ export default async function AdminUsersPage() {
         <h1 className="text-2xl font-extrabold text-navy">Users</h1>
         <span className="text-sm text-slate-500">{users.length} total</span>
       </div>
+      {searchParams?.deleted && <p className="text-sm text-slate-700 bg-slate-100 px-4 py-2.5 rounded-lg">Member deleted.</p>}
+      {searchParams?.delerror === "self" && <p className="text-sm text-rose-600 bg-rose-50 px-4 py-2.5 rounded-lg">You can&apos;t delete your own admin account.</p>}
 
       {users.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-card p-10 text-center text-slate-500">No users yet.</div>
@@ -50,6 +52,7 @@ export default async function AdminUsersPage() {
                       ) : (
                         <form action={setSuspendedAction}><input type="hidden" name="id" value={u.id} /><input type="hidden" name="suspended" value="true" /><ConfirmButton message="Suspend this user? They will lose access until unsuspended." className="px-3 py-1.5 border border-slate-200 text-slate-500 text-xs font-semibold rounded-lg hover:border-rose-300 hover:text-rose-500 transition">Suspend</ConfirmButton></form>
                       )}
+                      <form action={deleteUserAction}><input type="hidden" name="id" value={u.id} /><ConfirmButton message="Permanently delete this member? This removes their account and all their data and cannot be undone." className="px-3 py-1.5 bg-rose-600 text-white text-xs font-semibold rounded-lg hover:bg-rose-700 transition">Delete</ConfirmButton></form>
                     </div>
                   </td>
                 </tr>

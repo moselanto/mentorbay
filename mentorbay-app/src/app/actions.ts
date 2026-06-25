@@ -232,12 +232,19 @@ export async function setApprovalAction(formData: FormData) {
   if (!id || !["approved", "rejected"].includes(status)) return;
   await supabase.from("profiles").update({ approval_status: status }).eq("id", id);
   const who = await getUserContact(supabase, id);
+  // Role-aware approval/decline email (applies to both mentees and mentors).
+  const { data: prof } = await supabase.from("profiles").select("role").eq("id", id).maybeSingle();
+  const role = (prof?.role as string) ?? "mentee";
+  const dashUrl = role === "mentor" ? "https://mentorbay.vercel.app/mentor" : "https://mentorbay.vercel.app/mentee";
   if (status === "approved") {
-    await sendNotificationEmail({ to: who.email, subject: "Your MentorBay mentor account is approved",
-      html: `<p>Hi ${who.name},</p><p>Good news - your mentor account has been approved. You can now publish programs, events and sessions.</p><p><a href="https://mentorbay.vercel.app/mentor">Go to your dashboard</a></p>` });
+    const what = role === "mentor"
+      ? "You can now publish programs, events and sessions, and connect with mentees."
+      : "You can now browse mentors and programs, apply for mentorship, and join events.";
+    await sendNotificationEmail({ to: who.email, subject: "Your MentorBay account is approved",
+      html: `<p>Hi ${who.name},</p><p>Good news - your MentorBay account has been approved. ${what}</p><p><a href="${dashUrl}">Go to your dashboard</a></p>` });
   } else {
-    await sendNotificationEmail({ to: who.email, subject: "Update on your MentorBay mentor application",
-      html: `<p>Hi ${who.name},</p><p>Thank you for your interest in mentoring on MentorBay. After review, your mentor application was not approved at this time.</p>` });
+    await sendNotificationEmail({ to: who.email, subject: "Update on your MentorBay account",
+      html: `<p>Hi ${who.name},</p><p>Thank you for signing up for MentorBay. After review, your account was not approved at this time. If you believe this is a mistake, please reply to this email to reach our support team.</p>` });
   }
   revalidatePath("/admin/approvals");
   revalidatePath("/admin");
@@ -327,6 +334,36 @@ export async function setSuspendedAction(formData: FormData) {
       html: `<p>Hi ${who.name},</p><p>Your MentorBay account has been suspended and access is temporarily restricted. If you believe this is a mistake, reply to this email to reach our support team.</p>` });
   }
   revalidatePath("/admin/users");
+}
+
+// ---------- Admin: permanently delete a member ----------
+// Hard delete (distinct from suspend). Admin-only. Clears the non-cascading FK
+// references first (programs.created_by / events.created_by have no ON DELETE
+// rule), then deletes the profile row - child rows with ON DELETE CASCADE
+// (enrollments, applications, sessions, messages, event_registrations, etc.)
+// are removed automatically.
+export async function deleteUserAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const { data: me } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  if (me?.role !== "admin") redirect("/admin/users");
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) redirect("/admin/users");
+  if (id === user.id) redirect("/admin/users?delerror=self");  // never delete yourself
+  // Notify the member before removing their record (best-effort).
+  const who = await getUserContact(supabase, id);
+  // Detach content authored by this member so the profile delete is not blocked.
+  await supabase.from("programs").delete().eq("created_by", id);
+  await supabase.from("events").delete().eq("created_by", id);
+  // Remove the profile (cascades to enrollments / applications / sessions / messages / registrations).
+  await supabase.from("profiles").delete().eq("id", id);
+  if (who.email) {
+    await sendNotificationEmail({ to: who.email, subject: "Your MentorBay account has been removed",
+      html: `<p>Hi ${who.name},</p><p>Your MentorBay account has been removed by an administrator. If you believe this is a mistake, please reply to this email to reach our support team.</p>` });
+  }
+  revalidatePath("/admin/users");
+  redirect("/admin/users?deleted=1");
 }
 
 // ---------- Email admins when a new mentor signs up (best-effort) ----------
@@ -814,7 +851,7 @@ export async function registerEventAction(formData: FormData) {
             `<p><strong>When:</strong> ${whenLine || "To be announced"}<br/>` +
             `<strong>Where:</strong> ${whereLine || "To be announced"}</p>` +
             `<p><a href="https://mentorbay.vercel.app/events/${slug}">View the event page</a> - you can also manage or cancel your registration there.</p>` +
-            `<p>See you there\!</p>` });
+            `<p>See you there!</p>` });
   }
   revalidatePath(`/events/${slug}`);
 }

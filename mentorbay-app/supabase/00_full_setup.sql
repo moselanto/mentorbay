@@ -1056,3 +1056,37 @@ alter table public.programs add column if not exists cohort_status text not null
 alter table public.events add column if not exists about text;
 alter table public.events add column if not exists gains text[] not null default '{}';      -- "What you'll gain" bullet list
 alter table public.events add column if not exists agenda jsonb not null default '[]'::jsonb; -- [{ "time": "9:00 AM", "title": "Welcome" }, ...]
+
+
+-- ============================================================
+-- 39_approval_both_roles.sql
+-- ============================================================
+-- MentorBay - require admin approval for BOTH mentees and mentors at signup.
+-- Previously mentees were auto-approved and only mentors started pending.
+-- Now every new non-admin profile starts 'pending' until an admin approves it.
+-- Admins (seeded manually) remain approved. Idempotent (create or replace).
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  r public.user_role := coalesce((new.raw_user_meta_data->>'role')::public.user_role, 'mentee');
+begin
+  insert into public.profiles (id, full_name, email, role, approval_status)
+  values (
+    new.id,
+    new.raw_user_meta_data->>'full_name',
+    new.email,
+    r,
+    case when r = 'admin' then 'approved' else 'pending' end
+  )
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users for each row execute function public.handle_new_user();
