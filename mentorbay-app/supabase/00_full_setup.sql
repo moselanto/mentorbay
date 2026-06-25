@@ -1090,3 +1090,33 @@ $$;
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users for each row execute function public.handle_new_user();
+
+-- 40_public_counts.sql
+-- FIX: enrollment/registration counts on public program/event pages only
+-- reflected the logged-in user's own row, because RLS on enrollments and
+-- event_registrations only allows a user to SELECT their own rows. A count(*)
+-- under RLS therefore sees one row. These SECURITY DEFINER functions run with
+-- the definer's privileges (bypassing RLS) and return ONLY an aggregate count,
+-- never exposing any other person's private row data.
+create or replace function public.public_program_enrollment_count(p_slug text)
+returns integer
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select count(*)::int from public.enrollments where program_slug = p_slug;
+$$;
+
+create or replace function public.public_event_registration_count(p_slug text)
+returns integer
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select count(*)::int from public.event_registrations where event_slug = p_slug;
+$$;
+
+grant execute on function public.public_program_enrollment_count(text) to anon, authenticated;
+grant execute on function public.public_event_registration_count(text) to anon, authenticated;

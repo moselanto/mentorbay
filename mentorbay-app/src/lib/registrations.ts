@@ -71,8 +71,8 @@ export async function getMyMentorApplications(): Promise<MyMentorApplication[]> 
 export async function countRegistrations(slug: string): Promise<number> {
   try {
     const supabase = createClient();
-    const { count } = await supabase.from("event_registrations").select("id", { count: "exact", head: true }).eq("event_slug", slug);
-    return count ?? 0;
+    const { data } = await supabase.rpc("public_event_registration_count", { p_slug: slug });
+    return (typeof data === "number" ? data : 0);
   } catch { return 0; }
 }
 

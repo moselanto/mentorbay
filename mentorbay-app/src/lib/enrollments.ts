@@ -73,8 +73,8 @@ export async function isEnrolledInProgram(slug: string): Promise<boolean> {
 export async function countEnrollments(slug: string): Promise<number> {
   try {
     const supabase = createClient();
-    const { count } = await supabase.from("enrollments").select("id", { count: "exact", head: true }).eq("program_slug", slug);
-    return count ?? 0;
+    const { data } = await supabase.rpc("public_program_enrollment_count", { p_slug: slug });
+    return (typeof data === "number" ? data : 0);
   } catch { return 0; }
 }
 
