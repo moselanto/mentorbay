@@ -18,22 +18,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   return { title: p ? `${p.title} — MentorBay` : "Program — MentorBay" };
 }
 
-const LEARN = [
-  "Lead with clarity and confidence",
-  "Communicate and influence effectively",
-  "Build and motivate high-performing teams",
-  "Give and receive constructive feedback",
-  "Make sound decisions under pressure",
-  "Develop your personal leadership brand",
-];
 
-const CURRICULUM: Module[] = [
-  { title: "Module 1 - Foundations", lessons: ["What makes a great leader", "Leadership styles", "Self-awareness assessment"] },
-  { title: "Module 2 - Communication & Influence", lessons: ["Active listening", "Persuasion & storytelling", "Difficult conversations"] },
-  { title: "Module 3 - Building & Leading Teams", lessons: ["Trust & psychological safety", "Delegation", "Motivating your team"] },
-  { title: "Module 4 - Decision Making", lessons: ["Frameworks for decisions", "Managing risk", "Leading through change"] },
-  { title: "Module 5 - Capstone Project", lessons: ["Action plan", "Peer presentation", "Certification"] },
-];
 
 export default async function ProgramDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string; enrollerror?: string; review?: string } }) {
   const p = await getProgram(params.id, { preview: searchParams?.preview === "1" });
@@ -53,8 +38,10 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
   const reviewedAlready = p && enrolled ? await hasReviewedProgram(p.id) : false;
   if (!p) notFound();
   const all = await getPrograms();
-  const learn = p.learn && p.learn.length ? p.learn : LEARN;
-  const curriculum = p.curriculum && p.curriculum.length ? p.curriculum : CURRICULUM;
+  // Render the program's OWN content only - no placeholder masking, so the public
+  // page matches what the mentor saved (and what the edit form shows).
+  const learn = p.learn ?? [];
+  const curriculum = p.curriculum ?? [];
   const duration = p.durationLabel ?? `${p.weeks} weeks`;
   const about = p.about || p.description;
   const requirements = p.requirements ?? [];
@@ -102,15 +89,19 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
           <div className="bg-white rounded-2xl shadow-card p-6 sm:p-8">
             <h2 className="text-xl font-bold text-navy mb-3">About this program</h2>
             <p className="text-slate-600 leading-relaxed">{about}</p>
-            <h3 className="text-lg font-bold text-navy mt-7 mb-4">What you&apos;ll learn</h3>
-            <div className="grid sm:grid-cols-2 gap-3">
-              {learn.map((l) => (
-                <div key={l} className="flex items-start gap-2 text-sm text-slate-600">
-                  <svg className="w-5 h-5 text-teal shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" /></svg>
-                  <span>{l}</span>
+            {learn.length > 0 && (
+              <>
+                <h3 className="text-lg font-bold text-navy mt-7 mb-4">What you&apos;ll learn</h3>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {learn.map((l) => (
+                    <div key={l} className="flex items-start gap-2 text-sm text-slate-600">
+                      <svg className="w-5 h-5 text-teal shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" /></svg>
+                      <span>{l}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </>
+            )}
           </div>
 
           <div className="bg-white rounded-2xl shadow-card p-6 sm:p-8">
@@ -118,7 +109,9 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
               <h3 className="text-lg font-bold text-navy">Curriculum</h3>
               <span className="text-sm text-slate-500">{p.lessons} lessons</span>
             </div>
-            {enrolled ? <CurriculumTracker slug={p.id} modules={curriculum} completed={completedLessons} /> : <Accordion items={curriculum} />}
+            {curriculum.length > 0
+              ? (enrolled ? <CurriculumTracker slug={p.id} modules={curriculum} completed={completedLessons} /> : <Accordion items={curriculum} />)
+              : <p className="text-sm text-slate-500">The mentor hasn&apos;t published a detailed curriculum for this program yet.</p>}
           </div>
 
           {requirements.length > 0 && (
