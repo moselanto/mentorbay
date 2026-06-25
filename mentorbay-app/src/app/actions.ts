@@ -858,31 +858,24 @@ export async function applyMentorshipAction(formData: FormData) {
       mentee_phone: phone || null, mentee_email: email || null, confirmed_requirements: confirmed,
     }).eq("id", existing.id as string);
   }
-  // Notify admins that a mentee has applied and needs review (best-effort, env-gated).
+  // Notify the MENTOR that a mentee has applied to them (best-effort, env-gated).
   try {
     const applicant = await getUserContact(supabase, user.id);
-    const { data: mentorRow } = await supabase
-      .from("mentors")
-      .select("profile_id, name")
-      .eq("profile_id", mentorId)
-      .maybeSingle();
-    const mentorName = (mentorRow?.name as string | null) ?? "a mentor";
-    const adminEmails = await getAdminEmails(supabase);
-    for (const adminTo of adminEmails) {
-      await sendNotificationEmail({
-        to: adminTo,
-        subject: `New mentorship application from ${applicant.name}`,
-        html:
-          `<p>A mentee has applied for mentorship and is awaiting review.</p>` +
-          `<p><strong>Mentee:</strong> ${applicant.name}` +
-          (applicant.email ? ` (${applicant.email})` : ``) +
-          (email ? `<br/><strong>Contact email:</strong> ${email}` : ``) +
-          (phone ? `<br/><strong>Phone:</strong> ${phone}` : ``) +
-          `<br/><strong>Applied to:</strong> ${mentorName}</p>` +
-          `<p>Log in to review and approve this application: ` +
-          `<a href="https://mentorbay.vercel.app/admin/approvals">Approvals dashboard</a></p>`,
-      });
-    }
+    const mentor = await getUserContact(supabase, mentorId);
+    await sendNotificationEmail({
+      to: mentor.email,
+      subject: `New mentorship application from ${applicant.name}`,
+      html:
+        `<p>Hi ${mentor.name},</p>` +
+        `<p>A mentee has applied to work with you and is awaiting your review.</p>` +
+        `<p><strong>Mentee:</strong> ${applicant.name}` +
+        (applicant.email ? ` (${applicant.email})` : ``) +
+        (email ? `<br/><strong>Contact email:</strong> ${email}` : ``) +
+        (phone ? `<br/><strong>Phone:</strong> ${phone}` : ``) +
+        `</p>` +
+        `<p>Log in to review and approve this application: ` +
+        `<a href="https://mentorbay.vercel.app/mentor/applications">Your applications</a></p>`,
+    });
   } catch {
     // best-effort; never block the application on notification failure
   }
