@@ -79,11 +79,12 @@ type Props = {
   slug: string; price: number; paid: number; balance: number; fullyPaid: boolean;
   maxInstallments: number; approved?: boolean;
   mpesaEnabled?: boolean; pendingIntentId?: string | null; defaultPhone?: string | null;
+  allowSimulated?: boolean;
 };
 
 export default function ProgramPaymentPanel({
   slug, price, paid, balance, fullyPaid, maxInstallments, approved = true,
-  mpesaEnabled = false, pendingIntentId = null, defaultPhone = null,
+  mpesaEnabled = false, pendingIntentId = null, defaultPhone = null, allowSimulated = false,
 }: Props) {
   const [plan, setPlan] = useState(1);
   const [phone, setPhone] = useState(defaultPhone ?? "");
@@ -164,12 +165,15 @@ export default function ProgramPaymentPanel({
         <p className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">M-Pesa payments are not configured yet. Use the test payment below for now.</p>
       )}
 
-      {/* Fallback: simulated test payment (kept for testing without live credentials) */}
-      <form action={payProgramAction}>
-        <input type="hidden" name="slug" value={slug} />
-        <input type="hidden" name="plan" value={plan} />
-        <SimPayBtn label={"Simulate test payment of " + fmt(payNow)} confirmMsg={simConfirm} />
-      </form>
+      {/* Fallback: simulated test payment - hidden unless explicitly enabled via
+          NEXT_PUBLIC_ALLOW_SIMULATED_PAYMENTS so real users only pay via M-Pesa. */}
+      {allowSimulated ? (
+        <form action={payProgramAction}>
+          <input type="hidden" name="slug" value={slug} />
+          <input type="hidden" name="plan" value={plan} />
+          <SimPayBtn label={"Simulate test payment of " + fmt(payNow)} confirmMsg={simConfirm} />
+        </form>
+      ) : null}
 
       <p className="text-xs text-slate-400">The mentor receives their share once the program is fully paid.</p>
     </div>

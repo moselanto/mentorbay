@@ -167,7 +167,7 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
 
         <aside className="lg:sticky lg:top-24 space-y-4">
           {payState && (
-            <ProgramPaymentPanel slug={p.id} price={payState.price} paid={payState.paid} balance={payState.balance} fullyPaid={payState.fullyPaid} maxInstallments={payState.maxInstallments} approved={payState.approved} mpesaEnabled={mpesaConfigured()} pendingIntentId={searchParams?.intent ?? null} />
+            <ProgramPaymentPanel slug={p.id} price={payState.price} paid={payState.paid} balance={payState.balance} fullyPaid={payState.fullyPaid} maxInstallments={payState.maxInstallments} approved={payState.approved} mpesaEnabled={mpesaConfigured()} pendingIntentId={searchParams?.intent ?? null} allowSimulated={process.env.NEXT_PUBLIC_ALLOW_SIMULATED_PAYMENTS === "true"} />
           )}
           {enrolled && progress && (
             <ProgramProgressPanel slug={p.id} pct={progress.pct} status={progress.status} lessons={p.lessons} />
