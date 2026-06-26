@@ -3,6 +3,8 @@ import { FEATURED_MENTORS, UPCOMING_EVENTS, POPULAR_PROGRAMS, SUCCESS_STORIES, S
 import { getMentors } from "@/lib/mentors";
 import { getPrograms } from "@/lib/programs";
 import { getEvents } from "@/lib/events";
+import { countEnrollments } from "@/lib/enrollments";
+import { countRegistrations } from "@/lib/registrations";
 import { getFeaturedStories } from "@/lib/stories";
 
 export default async function HomePage() {
@@ -18,6 +20,15 @@ export default async function HomePage() {
   const programs = (allPrograms.length ? allPrograms : POPULAR_PROGRAMS).slice(0, 4);
   const upcoming = allEvents.filter((e) => e.when === "upcoming");
   const events = (upcoming.length ? upcoming : UPCOMING_EVENTS).slice(0, 4);
+
+  // Live counts (same source the dashboard + public list pages use). Maps keyed
+  // by slug; fall back to any static field when live data is unavailable.
+  const [eventGoing, programEnrolled] = await Promise.all([
+    Promise.all(events.map((e) => countRegistrations(e.id))),
+    Promise.all(programs.map((p) => countEnrollments(p.id))),
+  ]);
+  const goingBySlug = new Map(events.map((e, i) => [e.id, eventGoing[i]]));
+  const enrolledBySlug = new Map(programs.map((p, i) => [p.id, programEnrolled[i]]));
 
   return (
     <>
@@ -153,7 +164,7 @@ export default async function HomePage() {
                     <p className="font-bold text-navy">{e.title}</p>
                     <p className="text-xs text-slate-500 mt-1">{e.date} &middot; {e.time} &middot; {e.loc}</p>
                   </div>
-                  <span className="text-xs font-semibold text-teal-600 whitespace-nowrap">{e.going} Attending</span>
+                  <span className="text-xs font-semibold text-teal-600 whitespace-nowrap">{(goingBySlug.get(e.id) ?? e.going ?? 0)} Attending</span>
                 </Link>
               ))}
             </div>
@@ -181,8 +192,8 @@ export default async function HomePage() {
                     <p className="font-bold text-navy text-sm leading-snug">{p.title}</p>
                     <p className="text-xs text-slate-500 mt-2">{("durationLabel" in p && p.durationLabel) ? p.durationLabel : `${p.weeks} weeks`} &middot; {p.level}</p>
                     <div className="flex items-center justify-between mt-3">
-                      <span className="text-xs font-semibold text-teal-600 bg-teal-50 px-2 py-0.5 rounded">Free</span>
-                      <span className="text-xs font-semibold text-navy">Enroll &rarr;</span>
+                      <span className="text-xs font-semibold text-teal-600 bg-teal-50 px-2 py-0.5 rounded">{("isPaid" in p && p.isPaid && "priceKes" in p && p.priceKes) ? `KES ${Math.round(p.priceKes).toLocaleString("en-KE")}` : "Free"}</span>
+                      <span className="text-xs font-semibold text-slate-500">{(enrolledBySlug.get(p.id) ?? (("enrolled" in p && p.enrolled) ? p.enrolled : 0))} enrolled</span>
                     </div>
                   </div>
                 </Link>
