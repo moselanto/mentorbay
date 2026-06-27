@@ -3,7 +3,10 @@ import { useState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { payProgramAction, startMpesaProgramPaymentAction, getPaymentIntentStatus } from "@/app/actions";
 
-function fmt(n: number) { return "KES " + Math.round(n).toLocaleString("en-KE"); }
+function fmt(n: number) {
+  const v = Number(n);
+  return "KES " + (Number.isFinite(v) ? Math.round(v) : 0).toLocaleString("en-KE");
+}
 
 function PayBtn({ label }: { label: string }) {
   const { pending } = useFormStatus();
@@ -38,12 +41,18 @@ function MpesaWaiting({ intentId }: { intentId: string }) {
     let tries = 0;
     const timer = setInterval(async () => {
       tries += 1;
-      const res = await getPaymentIntentStatus(intentId);
-      if (active && res) {
-        setStatus(res.status);
-        setReceipt(res.receipt);
-        setDesc(res.desc);
-        if (res.status === "success" || res.status === "failed") clearInterval(timer);
+      try {
+        const res = await getPaymentIntentStatus(intentId);
+        if (active && res) {
+          setStatus(res.status);
+          setReceipt(res.receipt);
+          setDesc(res.desc);
+          if (res.status === "success" || res.status === "failed") clearInterval(timer);
+        }
+      } catch {
+        // Swallow polling errors so a transient/server-action failure can never
+        // surface as an "Application error: a client-side exception" on the page.
+        // We simply keep waiting; the safety stop below ends the loop.
       }
       if (tries > 40) clearInterval(timer); // ~2 min safety stop
     }, 3000);
@@ -88,13 +97,19 @@ export default function ProgramPaymentPanel({
 }: Props) {
   const [plan, setPlan] = useState(1);
   const [phone, setPhone] = useState(defaultPhone ?? "");
-  const pct = price > 0 ? Math.min(100, Math.round((paid / price) * 100)) : 0;
+  // Coerce numeric props defensively so a bad/missing value can never throw
+  // during render (which would blank the page with a client-side exception).
+  const priceNum = Number.isFinite(Number(price)) ? Number(price) : 0;
+  const paidNum = Number.isFinite(Number(paid)) ? Number(paid) : 0;
+  const balanceNum = Number.isFinite(Number(balance)) ? Number(balance) : Math.max(0, priceNum - paidNum);
+  const maxInst = Math.max(1, Math.min(4, Number.isFinite(Number(maxInstallments)) ? Number(maxInstallments) : 1));
+  const pct = priceNum > 0 ? Math.min(100, Math.round((paidNum / priceNum) * 100)) : 0;
 
   if (fullyPaid) {
     return (
       <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5">
         <p className="font-semibold text-emerald-800">Payment complete</p>
-        <p className="text-sm text-emerald-700 mt-1">You have paid {fmt(price)} in full. You have full access to this program.</p>
+        <p className="text-sm text-emerald-700 mt-1">You have paid {fmt(priceNum)} in full. You have full access to this program.</p>
       </div>
     );
   }
@@ -103,14 +118,14 @@ export default function ProgramPaymentPanel({
     return (
       <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
         <p className="font-semibold text-amber-800">Awaiting mentor approval</p>
-        <p className="text-sm text-amber-700 mt-1">Once your mentor approves your enrollment you&apos;ll be able to pay {fmt(price)} (in full or in installments) and unlock the program.</p>
+        <p className="text-sm text-amber-700 mt-1">Once your mentor approves your enrollment you&apos;ll be able to pay {fmt(priceNum)} (in full or in installments) and unlock the program.</p>
       </div>
     );
   }
 
-  const perInstallment = plan <= 1 ? balance : Math.ceil(price / plan);
-  const payNow = Math.min(balance, perInstallment);
-  const installmentOptions = Array.from({ length: maxInstallments }, (_, i) => i + 1).filter((n) => n >= 1);
+  const perInstallment = plan <= 1 ? balanceNum : Math.ceil(priceNum / plan);
+  const payNow = Math.min(balanceNum, perInstallment);
+  const installmentOptions = Array.from({ length: maxInst }, (_, i) => i + 1).filter((n) => n >= 1);
   const simConfirm = `Confirm a simulated (test) payment of ${fmt(payNow)}${plan > 1 ? ` (installment 1 of ${plan})` : " (pay in full)"}?`;
 
   return (
@@ -120,16 +135,16 @@ export default function ProgramPaymentPanel({
         <p className="text-sm text-slate-500">Secure your spot by paying for this program.</p>
       </div>
       <div className="space-y-1.5">
-        <div className="flex justify-between text-sm"><span className="text-slate-500">Program price</span><span className="font-medium text-navy">{fmt(price)}</span></div>
-        <div className="flex justify-between text-sm"><span className="text-slate-500">Paid so far</span><span className="font-medium text-navy">{fmt(paid)}</span></div>
-        <div className="flex justify-between text-sm"><span className="text-slate-500">Balance owed</span><span className="font-semibold text-teal">{fmt(balance)}</span></div>
+        <div className="flex justify-between text-sm"><span className="text-slate-500">Program price</span><span className="font-medium text-navy">{fmt(priceNum)}</span></div>
+        <div className="flex justify-between text-sm"><span className="text-slate-500">Paid so far</span><span className="font-medium text-navy">{fmt(paidNum)}</span></div>
+        <div className="flex justify-between text-sm"><span className="text-slate-500">Balance owed</span><span className="font-semibold text-teal">{fmt(balanceNum)}</span></div>
         <div className="h-2 rounded-full bg-slate-100 overflow-hidden mt-2"><div className="h-full bg-teal" style={{ width: pct + "%" }} /></div>
       </div>
 
       {/* Live M-Pesa waiting state, shown after an STK push was started. */}
       {pendingIntentId ? <MpesaWaiting intentId={pendingIntentId} /> : null}
 
-      {maxInstallments > 1 && (
+      {maxInst > 1 && (
         <div>
           <label className="block text-sm font-semibold text-navy mb-1.5">Payment plan</label>
           <div className="grid grid-cols-2 gap-2">

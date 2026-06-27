@@ -1348,12 +1348,18 @@ export async function startMpesaProgramPaymentAction(formData: FormData) {
 // waiting screen can show pending / success / failed. RLS ensures a mentee only
 // reads their own intents.
 export async function getPaymentIntentStatus(intentId: string): Promise<{ status: string; receipt: string | null; desc: string | null } | null> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user || !intentId) return null;
-  const { data } = await supabase.from("payment_intents")
-    .select("status, mpesa_receipt, result_desc")
-    .eq("id", intentId).eq("mentee_id", user.id).maybeSingle();
-  if (!data) return null;
-  return { status: (data.status as string) ?? "pending", receipt: (data.mpesa_receipt as string | null) ?? null, desc: (data.result_desc as string | null) ?? null };
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || !intentId) return null;
+    const { data, error } = await supabase.from("payment_intents")
+      .select("status, mpesa_receipt, result_desc")
+      .eq("id", intentId).eq("mentee_id", user.id).maybeSingle();
+    // Never throw to the polling client (e.g. migration 41 not yet run / table
+    // missing) - returning null keeps the waiting screen in its pending state.
+    if (error || !data) return null;
+    return { status: (data.status as string) ?? "pending", receipt: (data.mpesa_receipt as string | null) ?? null, desc: (data.result_desc as string | null) ?? null };
+  } catch {
+    return null;
+  }
 }
