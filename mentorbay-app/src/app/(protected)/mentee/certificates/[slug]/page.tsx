@@ -14,15 +14,16 @@ export default async function CertificatePage({ params }: { params: { slug: stri
   const cert = certs.find((c) => c.slug === params.slug);
   if (!cert) notFound();
 
-  // Pull the program so the BACK of the certificate can list what was covered
-  // ("What you'll learn"). Falls back gracefully to the curriculum module
-  // titles, then to an empty state, so the back page always renders cleanly.
+  // Pull the program so the BACK of the certificate can list the courses /
+  // modules completed. Primary source is the curriculum module titles; if the
+  // mentor didn't publish a curriculum we fall back to the "What you'll learn"
+  // outcomes, then to a graceful empty state - so the back always renders.
   const program = await getProgram(cert.slug).catch(() => null);
-  const learn: string[] = Array.isArray(program?.learn) ? (program!.learn as string[]) : [];
   const curriculumTitles: string[] = Array.isArray(program?.curriculum)
     ? (program!.curriculum as { title?: string }[]).map((m) => m?.title ?? "").filter(Boolean)
     : [];
-  const courses = (learn.length > 0 ? learn : curriculumTitles).filter(Boolean);
+  const learn: string[] = Array.isArray(program?.learn) ? (program!.learn as string[]) : [];
+  const courses = (curriculumTitles.length > 0 ? curriculumTitles : learn).filter(Boolean);
 
   // A short verification id derived from the slug + issue date, printed on both
   // pages so the front and back are clearly two halves of one document.
@@ -111,17 +112,17 @@ export default async function CertificatePage({ params }: { params: { slug: stri
 
             <div className="flex-1 overflow-hidden mt-6">
               {courses.length > 0 ? (
-                <ul className="grid sm:grid-cols-2 gap-x-10 gap-y-3 max-w-3xl mx-auto">
+                <ol className="grid sm:grid-cols-2 gap-x-10 gap-y-3 max-w-3xl mx-auto list-none">
                   {courses.map((c, i) => (
-                    <li key={`${c}-${i}`} className="flex items-start gap-2.5 text-sm text-slate-700">
-                      <svg className="w-5 h-5 text-teal shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" /></svg>
+                    <li key={`${c}-${i}`} className="flex items-start gap-3 text-sm text-slate-700">
+                      <span className="shrink-0 w-6 h-6 rounded-full bg-teal-50 text-teal-700 text-xs font-bold grid place-items-center mt-0.5">{i + 1}</span>
                       <span>{c}</span>
                     </li>
                   ))}
-                </ul>
+                </ol>
               ) : (
                 <p className="text-center text-sm text-slate-500 mt-10">
-                  A detailed list of covered topics for this program is not available.
+                  A detailed list of courses for this program is not available.
                 </p>
               )}
             </div>
