@@ -4,9 +4,10 @@ import { createServiceClient } from "@/lib/supabase/service";
 // Safaricom Daraja STK Push callback. Safaricom POSTs here after the mentee
 // responds to (or ignores) the PIN prompt. THIS is where money is actually
 // applied: we look up the pending payment_intent by CheckoutRequestID, and on
-// success run the exact same ledger logic as the simulated flow (payments row,
-// enrollment running total, commission split released once). Runs with the
-// service-role client because the mentee is not allowed to mutate these rows.
+// success run the ledger logic (payments row, running total, commission split
+// released once) for EITHER a program enrollment or a paid event ticket,
+// depending on the intent's `kind`. Runs with the service-role client because
+// the mentee is not allowed to mutate these rows.
 //
 // We always return ResultCode 0 to Safaricom (acknowledge receipt) so they do
 // not retry indefinitely; our own status tracking is in payment_intents.
@@ -33,10 +34,11 @@ export async function POST(req: NextRequest) {
   const supabase = createServiceClient();
   if (!supabase) return NextResponse.json({ ResultCode: 0, ResultDesc: "Accepted" });
 
-  // Find the pending intent this callback belongs to.
+  // Find the pending intent this callback belongs to. `kind` + `event_slug`
+  // distinguish a paid-event ticket from a program enrollment.
   const { data: intent } = await supabase
     .from("payment_intents")
-    .select("id, mentee_id, mentor_id, program_slug, amount_kes, plan, status, applied")
+    .select("id, mentee_id, mentor_id, program_slug, event_slug, kind, amount_kes, plan, status, applied")
     .eq("checkout_request_id", checkoutRequestId)
     .maybeSingle();
   if (!intent) return NextResponse.json({ ResultCode: 0, ResultDesc: "Accepted" });
@@ -73,11 +75,61 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ResultCode: 0, ResultDesc: "Accepted" });
   }
 
-  // ---- Apply the payment to the ledger (same logic as payProgramAction) ----
-  const slug = intent.program_slug as string;
   const menteeId = intent.mentee_id as string;
   const mentorId = (intent.mentor_id as string) ?? null;
   const payNow = Number(intent.amount_kes ?? 0);
+  const kind = String(intent.kind ?? "program");
+
+  // ======================= PAID EVENT TICKET =======================
+  // For events the full ticket price is paid in one go: mark the registration
+  // paid (creating it if missing) and release the commission split once.
+  if (kind === "event") {
+    const eventSlug = intent.event_slug as string;
+    if (eventSlug) {
+      const { data: ev } = await supabase.from("events").select("price_kes, created_by").eq("slug", eventSlug).maybeSingle();
+      const price = Number(ev?.price_kes ?? 0);
+
+      // 1) Ledger row.
+      await supabase.from("payments").insert({
+        mentee_id: menteeId,
+        mentor_id: mentorId,
+        event_slug: eventSlug,
+        amount_kes: payNow,
+        kind: "event",
+        provider: "mpesa",
+        reference: mpesaReceipt,
+        payment_intent_id: intent.id,
+      });
+
+      // 2) Confirm/insert the registration as paid (idempotent on user+event).
+      await supabase.from("event_registrations").upsert({
+        user_id: menteeId,
+        event_slug: eventSlug,
+        amount_paid_kes: payNow,
+        paid: true,
+        payment_intent_id: intent.id,
+      }, { onConflict: "user_id,event_slug" });
+
+      // 3) Release the split once (admin commission + mentor wallet share).
+      if (price > 0) {
+        const { data: setRow } = await supabase.from("app_settings").select("commission_pct, admin_balance_kes").eq("id", 1).maybeSingle();
+        const pct = Math.max(0, Math.min(100, Number(setRow?.commission_pct ?? 15)));
+        const adminCut = Math.round((payNow * pct) / 100);
+        const mentorShare = payNow - adminCut;
+        await supabase.from("app_settings").update({ admin_balance_kes: Number(setRow?.admin_balance_kes ?? 0) + adminCut }).eq("id", 1);
+        const ownerId = (ev?.created_by as string) ?? mentorId;
+        if (ownerId) {
+          const { data: mp } = await supabase.from("profiles").select("wallet_balance_kes").eq("id", ownerId).maybeSingle();
+          await supabase.from("profiles").update({ wallet_balance_kes: Number(mp?.wallet_balance_kes ?? 0) + mentorShare }).eq("id", ownerId);
+        }
+      }
+    }
+    return NextResponse.json({ ResultCode: 0, ResultDesc: "Accepted" });
+  }
+
+  // ======================= PROGRAM ENROLLMENT =======================
+  // (same logic as payProgramAction) — supports installments + full payment.
+  const slug = intent.program_slug as string;
   const plan = Number(intent.plan ?? 1);
 
   const { data: enr } = await supabase.from("enrollments")
