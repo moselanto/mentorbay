@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getEvent, getEvents } from "@/lib/events";
 import { isRegisteredForEvent, countRegistrations } from "@/lib/registrations";
-import { MENTORS } from "@/lib/data";
+import { mpesaConfigured } from "@/lib/daraja";
+import { createClient } from "@/lib/supabase/server";
 import EventRegister from "@/components/EventRegister";
 import EventCard from "@/components/EventCard";
 
@@ -31,11 +32,22 @@ const DEFAULT_AGENDA = [
   { t: "4:30 PM", title: "Closing & networking" },
 ];
 
-export default async function EventDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string } }) {
+export default async function EventDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string; mpesa?: string; intent?: string } }) {
   const e = await getEvent(params.id, { preview: searchParams?.preview === "1" });
   const registered = e ? await isRegisteredForEvent(e.id) : false;
   const goingCount = e ? await countRegistrations(e.id) : 0;
   if (!e) notFound();
+
+  // Prefill the M-Pesa phone with the signed-in user's payout phone when we have it.
+  let defaultPhone: string | null = null;
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: prof } = await supabase.from("profiles").select("payout_phone").eq("id", user.id).maybeSingle();
+      defaultPhone = (prof?.payout_phone as string | null) ?? null;
+    }
+  } catch { /* best-effort */ }
 
   // Use the mentor-provided details when present; otherwise fall back to sensible defaults.
   const aboutText = e.about && e.about.trim()
@@ -62,6 +74,7 @@ export default async function EventDetailPage({ params, searchParams }: { params
           <div className="flex flex-wrap gap-2 mb-3">
             <span className="text-xs font-semibold bg-white/15 px-2.5 py-1 rounded-full">{e.category}</span>
             <span className="text-xs font-semibold bg-navy px-2.5 py-1 rounded-full">{e.type}</span>
+            {e.isPaid && (e.priceKes ?? 0) > 0 && <span className="text-xs font-semibold bg-amber-400 text-navy px-2.5 py-1 rounded-full">KES {Math.round(e.priceKes ?? 0).toLocaleString("en-KE")}</span>}
             {e.featured && <span className="text-xs font-semibold bg-teal px-2.5 py-1 rounded-full">Featured</span>}
           </div>
           <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight max-w-3xl">{e.title}</h1>
@@ -127,7 +140,7 @@ export default async function EventDetailPage({ params, searchParams }: { params
         </div>
 
         <aside>
-          <EventRegister event={e} registered={registered} goingCount={goingCount} />
+          <EventRegister event={e} registered={registered} goingCount={goingCount} mpesaEnabled={mpesaConfigured()} paidPending={searchParams?.mpesa === "pending"} defaultPhone={defaultPhone} />
         </aside>
       </div>
 

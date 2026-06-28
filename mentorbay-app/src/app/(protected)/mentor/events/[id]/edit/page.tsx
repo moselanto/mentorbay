@@ -4,6 +4,7 @@ import { updateEventAction } from "@/app/actions";
 import CoverUpload from "@/components/CoverUpload";
 import SpeakersBuilder from "@/components/SpeakersBuilder";
 import AgendaBuilder from "@/components/AgendaBuilder";
+import EventPricingFields from "@/components/EventPricingFields";
 
 export default async function EditEventPage({ params }: { params: { id: string } }) {
   const e = await getMyEventBySlug(params.id);
@@ -27,6 +28,7 @@ export default async function EditEventPage({ params }: { params: { id: string }
             <div className="sm:col-span-2"><SpeakersBuilder initial={(e.speakers && e.speakers.length ? e.speakers : (e.speaker ? [{ name: e.speaker, role: "Speaker" }] : []))} /></div>
           </div>
           <div><label className="block text-sm font-semibold text-navy mb-1">Location / address</label><input name="location" defaultValue={e.loc} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" /></div>
+          <EventPricingFields defaultPaid={e.isPaid ?? false} defaultPrice={e.priceKes ?? 0} />
         </section>
 
         <section className="bg-white rounded-2xl shadow-card p-6 space-y-4">

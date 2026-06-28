@@ -2,6 +2,7 @@ import { createEventAction } from "@/app/actions";
 import CoverUpload from "@/components/CoverUpload";
 import SpeakersBuilder from "@/components/SpeakersBuilder";
 import AgendaBuilder from "@/components/AgendaBuilder";
+import EventPricingFields from "@/components/EventPricingFields";
 
 export default function CreateEventPage({ searchParams }: { searchParams: { error?: string } }) {
   const pending = searchParams.error === "pending";
@@ -26,6 +27,7 @@ export default function CreateEventPage({ searchParams }: { searchParams: { erro
           </div>
           <SpeakersBuilder />
           <div><label className="block text-sm font-semibold text-navy mb-1">Location / address</label><input name="location" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal outline-none" placeholder="Venue name and full address, or 'Online (Zoom)'" /></div>
+          <EventPricingFields />
         </section>
 
         <section className="bg-white rounded-2xl shadow-card p-6 space-y-4">

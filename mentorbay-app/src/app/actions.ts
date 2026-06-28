@@ -157,6 +157,8 @@ export async function createEventAction(formData: FormData) {
     about: String(formData.get("about") ?? "").trim() || null,
     gains: String(formData.get("gains") ?? "").split("\n").map((x) => x.trim()).filter(Boolean),
     agenda: parseAgenda(formData.get("agenda")),
+    is_paid: String(formData.get("is_paid") ?? "false") === "true",
+    price_kes: String(formData.get("is_paid") ?? "false") === "true" ? Math.max(1, Math.round(Number(formData.get("price_kes")) || 0)) : 0,
     status: "published", created_by: user.id,
   });
   if (error) redirect("/mentor/create-event?error=save");
@@ -516,6 +518,8 @@ export async function updateEventAction(formData: FormData) {
     about: String(formData.get("about") ?? "").trim() || null,
     gains: String(formData.get("gains") ?? "").split("\n").map((x) => x.trim()).filter(Boolean),
     agenda: parseAgenda(formData.get("agenda")),
+    is_paid: String(formData.get("is_paid") ?? "false") === "true",
+    price_kes: String(formData.get("is_paid") ?? "false") === "true" ? Math.max(1, Math.round(Number(formData.get("price_kes")) || 0)) : 0,
   }).eq("slug", slug).eq("created_by", user.id);
   revalidatePath("/mentor/events");
   revalidatePath(`/events/${slug}`);
@@ -1348,18 +1352,73 @@ export async function startMpesaProgramPaymentAction(formData: FormData) {
 // waiting screen can show pending / success / failed. RLS ensures a mentee only
 // reads their own intents.
 export async function getPaymentIntentStatus(intentId: string): Promise<{ status: string; receipt: string | null; desc: string | null } | null> {
-  try {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user || !intentId) return null;
-    const { data, error } = await supabase.from("payment_intents")
-      .select("status, mpesa_receipt, result_desc")
-      .eq("id", intentId).eq("mentee_id", user.id).maybeSingle();
-    // Never throw to the polling client (e.g. migration 41 not yet run / table
-    // missing) - returning null keeps the waiting screen in its pending state.
-    if (error || !data) return null;
-    return { status: (data.status as string) ?? "pending", receipt: (data.mpesa_receipt as string | null) ?? null, desc: (data.result_desc as string | null) ?? null };
-  } catch {
-    return null;
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || !intentId) return null;
+  const { data } = await supabase.from("payment_intents")
+    .select("status, mpesa_receipt, result_desc")
+    .eq("id", intentId).eq("mentee_id", user.id).maybeSingle();
+  if (!data) return null;
+  return { status: (data.status as string) ?? "pending", receipt: (data.mpesa_receipt as string | null) ?? null, desc: (data.result_desc as string | null) ?? null };
+}
+
+
+// ---------- Mentee: pay for a PAID event via M-Pesa (Daraja STK Push) ----------
+// Mirrors startMpesaProgramPaymentAction but for events. Records a pending
+// payment_intent (kind 'event'); the /api/mpesa/callback confirms it, marks the
+// event_registration paid, and applies the commission split. Free events keep
+// using registerEventAction.
+export async function startMpesaEventPaymentAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const slug = String(formData.get("slug") ?? "").trim();
+  const redirectTo = String(formData.get("redirect") ?? `/events/${slug}`);
+  if (\!user) redirect(`/login?redirect=${encodeURIComponent(redirectTo)}`);
+  if (\!slug) redirect("/events");
+
+  if (\!mpesaConfigured()) redirect(`${redirectTo}?payerror=mpesa_unconfigured`);
+  const phone = normalizeMpesaPhone(String(formData.get("phone") ?? "").trim());
+  if (\!phone) redirect(`${redirectTo}?payerror=badphone`);
+
+  const { data: ev } = await supabase.from("events").select("title, is_paid, price_kes, created_by").eq("slug", slug).maybeSingle();
+  const price = Math.max(0, Math.round(Number(ev?.price_kes ?? 0)));
+  if (\!ev || ev.is_paid \!== true || price <= 0) redirect(`${redirectTo}?payerror=free`);
+
+  // Already registered? Nothing to pay.
+  const { data: existing } = await supabase.from("event_registrations").select("id, paid").eq("user_id", user.id).eq("event_slug", slug).maybeSingle();
+  if (existing?.paid) redirect(`${redirectTo}?paid=already`);
+
+  const { data: intent, error: intentErr } = await supabase.from("payment_intents").insert({
+    mentee_id: user.id,
+    mentor_id: (ev.created_by as string) ?? null,
+    event_slug: slug,
+    amount_kes: price,
+    plan: 1,
+    phone,
+    provider: "mpesa",
+    kind: "event",
+    status: "pending",
+  }).select("id").maybeSingle();
+  if (intentErr || \!intent) redirect(`${redirectTo}?payerror=intent`);
+
+  const res = await stkPush({
+    phone,
+    amount: price,
+    accountRef: slug,
+    description: `MentorBay ${(ev.title as string) ?? "event"}`.slice(0, 60),
+  });
+
+  if (\!res.ok || \!res.checkoutRequestId) {
+    await supabase.from("payment_intents").update({ status: "failed", result_desc: res.error ?? "stk_failed" }).eq("id", intent.id as string);
+    redirect(`${redirectTo}?payerror=stk`);
   }
+
+  await supabase.from("payment_intents").update({
+    merchant_request_id: res.merchantRequestId ?? null,
+    checkout_request_id: res.checkoutRequestId ?? null,
+    updated_at: new Date().toISOString(),
+  }).eq("id", intent.id as string);
+
+  revalidatePath(`/events/${slug}`);
+  redirect(`${redirectTo}?mpesa=pending&intent=${intent.id}`);
 }
