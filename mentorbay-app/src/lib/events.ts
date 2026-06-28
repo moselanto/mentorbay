@@ -3,7 +3,7 @@ import { EVENTS, type EventItem } from "@/lib/data";
 import { currentUserIsAdmin } from "@/lib/is-admin";
 
 function hasSupabase() {
-  return \!\!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 }
 
 type EventRow = {
@@ -25,24 +25,24 @@ function rowToEvent(r: EventRow): EventItem {
 }
 
 export async function getEvents(): Promise<EventItem[]> {
-  if (\!hasSupabase()) return EVENTS;
+  if (!hasSupabase()) return EVENTS;
   try {
     const supabase = createClient();
     const { data, error } = await supabase.from("events").select("*").eq("status", "published");
-    if (error || \!data || data.length === 0) return EVENTS;
+    if (error || !data || data.length === 0) return EVENTS;
     return (data as EventRow[]).map(rowToEvent);
   } catch { return []; }
 }
 
 export async function getEvent(slug: string, opts?: { preview?: boolean }): Promise<EventItem | null> {
-  if (\!hasSupabase()) return EVENTS.find((e) => e.id === slug) ?? null;
+  if (!hasSupabase()) return EVENTS.find((e) => e.id === slug) ?? null;
   try {
     const supabase = createClient();
     const allowPreview = opts?.preview === true && (await currentUserIsAdmin());
     let q = supabase.from("events").select("*").eq("slug", slug);
-    if (\!allowPreview) q = q.eq("status", "published");
+    if (!allowPreview) q = q.eq("status", "published");
     const { data, error } = await q.maybeSingle();
-    if (error || \!data) return EVENTS.find((e) => e.id === slug) ?? null;
+    if (error || !data) return EVENTS.find((e) => e.id === slug) ?? null;
     return rowToEvent(data as EventRow);
   } catch { return null; }
 }
@@ -52,9 +52,9 @@ export async function getMyEvents(): Promise<MyEvent[]> {
   try {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (\!user) return [];
+    if (!user) return [];
     const { data, error } = await supabase.from("events").select("*").eq("created_by", user.id).order("created_at", { ascending: false });
-    if (error || \!data) return [];
+    if (error || !data) return [];
     return (data as (EventRow & { approval_status: string | null })[]).map((r) => ({ ...rowToEvent(r), approvalStatus: r.approval_status ?? "approved" }));
   } catch { return []; }
 }
@@ -63,9 +63,9 @@ export async function getMyEventBySlug(slug: string): Promise<MyEvent | null> {
   try {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (\!user) return null;
+    if (!user) return null;
     const { data, error } = await supabase.from("events").select("*").eq("slug", slug).eq("created_by", user.id).maybeSingle();
-    if (error || \!data) return null;
+    if (error || !data) return null;
     const r = data as (EventRow & { approval_status: string | null });
     return { ...rowToEvent(r), approvalStatus: r.approval_status ?? "approved" };
   } catch { return null; }

@@ -1373,16 +1373,16 @@ export async function startMpesaEventPaymentAction(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   const slug = String(formData.get("slug") ?? "").trim();
   const redirectTo = String(formData.get("redirect") ?? `/events/${slug}`);
-  if (\!user) redirect(`/login?redirect=${encodeURIComponent(redirectTo)}`);
-  if (\!slug) redirect("/events");
+  if (!user) redirect(`/login?redirect=${encodeURIComponent(redirectTo)}`);
+  if (!slug) redirect("/events");
 
-  if (\!mpesaConfigured()) redirect(`${redirectTo}?payerror=mpesa_unconfigured`);
+  if (!mpesaConfigured()) redirect(`${redirectTo}?payerror=mpesa_unconfigured`);
   const phone = normalizeMpesaPhone(String(formData.get("phone") ?? "").trim());
-  if (\!phone) redirect(`${redirectTo}?payerror=badphone`);
+  if (!phone) redirect(`${redirectTo}?payerror=badphone`);
 
   const { data: ev } = await supabase.from("events").select("title, is_paid, price_kes, created_by").eq("slug", slug).maybeSingle();
   const price = Math.max(0, Math.round(Number(ev?.price_kes ?? 0)));
-  if (\!ev || ev.is_paid \!== true || price <= 0) redirect(`${redirectTo}?payerror=free`);
+  if (!ev || ev.is_paid !== true || price <= 0) redirect(`${redirectTo}?payerror=free`);
 
   // Already registered? Nothing to pay.
   const { data: existing } = await supabase.from("event_registrations").select("id, paid").eq("user_id", user.id).eq("event_slug", slug).maybeSingle();
@@ -1399,7 +1399,7 @@ export async function startMpesaEventPaymentAction(formData: FormData) {
     kind: "event",
     status: "pending",
   }).select("id").maybeSingle();
-  if (intentErr || \!intent) redirect(`${redirectTo}?payerror=intent`);
+  if (intentErr || !intent) redirect(`${redirectTo}?payerror=intent`);
 
   const res = await stkPush({
     phone,
@@ -1408,7 +1408,7 @@ export async function startMpesaEventPaymentAction(formData: FormData) {
     description: `MentorBay ${(ev.title as string) ?? "event"}`.slice(0, 60),
   });
 
-  if (\!res.ok || \!res.checkoutRequestId) {
+  if (!res.ok || !res.checkoutRequestId) {
     await supabase.from("payment_intents").update({ status: "failed", result_desc: res.error ?? "stk_failed" }).eq("id", intent.id as string);
     redirect(`${redirectTo}?payerror=stk`);
   }
