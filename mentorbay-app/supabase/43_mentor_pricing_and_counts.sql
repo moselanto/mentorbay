@@ -4,10 +4,15 @@
 -- 1) LIVE MENTEE COUNT
 --    The mentors.mentees column is a static stored number that defaults to 0,
 --    so real mentors show "0 mentees" on /mentors. This adds a SECURITY DEFINER
---    RPC that computes the real count from source-of-truth tables, mirroring the
---    existing public_program_enrollment_count() pattern. A mentee is counted once
---    per mentor if they have an accepted application OR an active enrollment in
---    one of that mentor's programs.
+--    RPC that computes the real count from source-of-truth tables. A mentee is
+--    counted once per mentor if they have an accepted application OR an active
+--    enrollment in one of that mentor's programs.
+--
+--    Column mapping verified against 00_full_setup.sql:
+--      - applications(mentee_id, mentor_id, status)  -- mentor_id -> profiles.id
+--      - mentors(slug, profile_id)                   -- profile_id -> profiles.id
+--      - enrollments(user_id, program_slug, status)  -- user_id is the mentee
+--      - programs(slug, mentor_slug)
 --
 -- 2) PAID MENTORS
 --    Mentors can charge a recurring rate (per week or month). Free is the default,
@@ -59,7 +64,7 @@ create policy "mentorships_select_own" on public.mentorships
   );
 
 -- ---------------------------------------------------------------------------
--- 2) Live mentee count RPC (SECURITY DEFINER, mirrors program enrollment count)
+-- 2) Live mentee count RPC (SECURITY DEFINER)
 -- ---------------------------------------------------------------------------
 -- Returns the number of DISTINCT mentees for a mentor, counting anyone who has
 -- an accepted application to that mentor OR an active enrollment in one of that
@@ -73,13 +78,15 @@ as $$
   select count(distinct mentee_id)::int
   from (
     -- accepted applications to this mentor
+    -- applications.mentor_id is a profiles.id; mentors links to it via profile_id.
     select a.mentee_id
-    from public.mentor_applications a
-    where a.mentor_slug = p_mentor_slug
+    from public.applications a
+    join public.mentors m on m.profile_id = a.mentor_id
+    where m.slug = p_mentor_slug
       and a.status = 'accepted'
     union
-    -- active enrollments in this mentor's programs
-    select e.mentee_id
+    -- active enrollments in this mentor's programs (enrollments.user_id is the mentee)
+    select e.user_id as mentee_id
     from public.enrollments e
     join public.programs p on p.slug = e.program_slug
     where p.mentor_slug = p_mentor_slug
