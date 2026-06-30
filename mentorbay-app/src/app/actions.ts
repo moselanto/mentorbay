@@ -1422,3 +1422,69 @@ export async function startMpesaEventPaymentAction(formData: FormData) {
   revalidatePath(`/events/${slug}`);
   redirect(`${redirectTo}?mpesa=pending&intent=${intent.id}`);
 }
+
+
+// ---------- Mentee: pay a mentor's per-period rate via M-Pesa (Daraja STK Push) ----------
+// Mirrors startMpesaEventPaymentAction but for paid mentors. The mentee pays the
+// mentor's rate for ONE period (week or month) up front; recurring auto-billing
+// is out of scope. Records a pending payment_intent (kind 'mentorship'); the
+// /api/mpesa/callback confirms it, opens a mentorships access window, and applies
+// the commission split. Free mentors keep using the normal apply flow.
+export async function startMpesaMentorshipPaymentAction(formData: FormData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const slug = String(formData.get("slug") ?? "").trim();
+  const redirectTo = String(formData.get("redirect") ?? `/mentors/${slug}`);
+  if (!user) redirect(`/login?redirect=${encodeURIComponent(redirectTo)}`);
+  if (!slug) redirect("/mentors");
+
+  if (!mpesaConfigured()) redirect(`${redirectTo}?payerror=mpesa_unconfigured`);
+  const phone = normalizeMpesaPhone(String(formData.get("phone") ?? "").trim());
+  if (!phone) redirect(`${redirectTo}?payerror=badphone`);
+
+  const { data: m } = await supabase.from("mentors").select("name, is_paid, rate_kes, billing_interval, profile_id").eq("slug", slug).maybeSingle();
+  const rate = Math.max(0, Math.round(Number(m?.rate_kes ?? 0)));
+  if (!m || m.is_paid !== true || rate <= 0) redirect(`${redirectTo}?payerror=free`);
+
+  // Already have an active paid mentorship window? Nothing to pay right now.
+  const { data: existing } = await supabase.from("mentorships")
+    .select("id, period_end, active").eq("mentee_id", user.id).eq("mentor_slug", slug)
+    .eq("active", true).order("period_end", { ascending: false }).maybeSingle();
+  if (existing?.period_end && new Date(existing.period_end as string) > new Date()) {
+    redirect(`${redirectTo}?paid=already`);
+  }
+
+  const { data: intent, error: intentErr } = await supabase.from("payment_intents").insert({
+    mentee_id: user.id,
+    mentor_id: (m.profile_id as string) ?? null,
+    mentor_slug: slug,
+    amount_kes: rate,
+    plan: 1,
+    phone,
+    provider: "mpesa",
+    kind: "mentorship",
+    status: "pending",
+  }).select("id").maybeSingle();
+  if (intentErr || !intent) redirect(`${redirectTo}?payerror=intent`);
+
+  const res = await stkPush({
+    phone,
+    amount: rate,
+    accountRef: slug,
+    description: `MentorBay mentorship ${(m.name as string) ?? ""}`.slice(0, 60),
+  });
+
+  if (!res.ok || !res.checkoutRequestId) {
+    await supabase.from("payment_intents").update({ status: "failed", result_desc: res.error ?? "stk_failed" }).eq("id", intent.id as string);
+    redirect(`${redirectTo}?payerror=stk`);
+  }
+
+  await supabase.from("payment_intents").update({
+    merchant_request_id: res.merchantRequestId ?? null,
+    checkout_request_id: res.checkoutRequestId ?? null,
+    updated_at: new Date().toISOString(),
+  }).eq("id", intent.id as string);
+
+  revalidatePath(`/mentors/${slug}`);
+  redirect(`${redirectTo}?mpesa=pending&intent=${intent.id}`);
+}
