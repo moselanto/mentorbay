@@ -1,8 +1,15 @@
 import Link from "next/link";
 import type { Mentor } from "@/lib/data";
 
+function priceLabel(mentor: Mentor): string {
+  if (!mentor.isPaid || !mentor.rateKes) return "Free";
+  const per = mentor.billingInterval === "week" ? "wk" : "mo";
+  return `KES ${Number(mentor.rateKes).toLocaleString()} / ${per}`;
+}
+
 export default function MentorCard({ mentor }: { mentor: Mentor }) {
   const available = mentor.avail === "Available";
+  const paid = !!mentor.isPaid && !!mentor.rateKes;
   return (
     <div className="bg-white rounded-2xl shadow-card overflow-hidden hover:-translate-y-1 transition">
       <div className="relative">
@@ -41,13 +48,13 @@ export default function MentorCard({ mentor }: { mentor: Mentor }) {
             <span className="text-slate-400">({mentor.reviews})</span>
           </span>
           <span className="text-slate-300">|</span>
-          <span>{mentor.mentees} mentees</span>
+          <span>{mentor.mentees} {mentor.mentees === 1 ? "mentee" : "mentees"}</span>
         </div>
         <div className="flex items-center justify-between mt-3 text-xs text-slate-400">
           <span>
             {mentor.exp}+ yrs · {mentor.city}, {mentor.country}
           </span>
-          <span className="font-semibold text-teal-600">Free</span>
+          <span className={`font-semibold ${paid ? "text-navy" : "text-teal-600"}`}>{priceLabel(mentor)}</span>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-2">
           <Link
