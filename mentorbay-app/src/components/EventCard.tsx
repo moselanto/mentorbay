@@ -1,9 +1,16 @@
 import Link from "next/link";
 import type { EventItem } from "@/lib/data";
 
+function priceLabel(e: EventItem) {
+  return e.isPaid && (e.priceKes ?? 0) > 0
+    ? "KES " + Math.round(e.priceKes ?? 0).toLocaleString("en-KE")
+    : "Free";
+}
+
 export default function EventCard({ event: e, liveGoing }: { event: EventItem; liveGoing?: number }) {
   const going = typeof liveGoing === "number" ? liveGoing : (e.going ?? 0);
   const past = e.when === "past";
+  const paid = e.isPaid && (e.priceKes ?? 0) > 0;
   return (
     <Link href={`/events/${e.id}`} className="bg-white rounded-2xl shadow-card overflow-hidden hover:-translate-y-1 transition block">
       <div className="relative">
@@ -15,6 +22,10 @@ export default function EventCard({ event: e, liveGoing }: { event: EventItem; l
         </div>
         <span className={`absolute top-3 right-3 text-xs font-semibold text-white px-2.5 py-1 rounded-full ${e.type === "Online" ? "bg-teal" : "bg-navy"}`}>
           {e.type}
+        </span>
+        {/* Free / Paid badge */}
+        <span className={`absolute bottom-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full shadow ${paid ? "bg-amber-400 text-navy" : "bg-white text-teal-600"}`}>
+          {priceLabel(e)}
         </span>
       </div>
       <div className="p-5">
@@ -34,7 +45,7 @@ export default function EventCard({ event: e, liveGoing }: { event: EventItem; l
         <p className="text-xs text-slate-500 mt-3">{e.time} · {e.loc}</p>
         <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
           <span className="text-xs text-slate-500">{going} {past ? "attended" : "attending"}</span>
-          {past ? <span className="text-xs font-semibold text-slate-400">Ended</span> : <span className="text-sm font-semibold text-teal-600">Register →</span>}
+          {past ? <span className="text-xs font-semibold text-slate-400">Ended</span> : <span className="text-sm font-semibold text-teal-600">{paid ? "Get ticket →" : "Register →"}</span>}
         </div>
       </div>
     </Link>

@@ -63,7 +63,77 @@ This makes email-confirmation and password-reset links return to the live site.
 
 ---
 
-## 5. Smoke test the live site
+## 5. (Optional) M-Pesa payments via Safaricom Daraja
+
+Program payments are **env-gated**: if the M-Pesa variables below are unset, the
+app hides the M-Pesa form and falls back to the simulated test button. Set them
+to enable the real STK Push ("green button") flow. Start on **sandbox**, then
+swap the same variables for **production** later - no code change needed.
+
+### 5a. Environment variables
+Add these in **Vercel -> Project -> Settings -> Environment Variables**. For
+testing on a Preview deployment, apply them to the **Preview** scope (and to
+Production when you go live).
+
+| Name | Sandbox value | Notes |
+| --- | --- | --- |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase -> Settings -> API -> service_role | **Server-only secret.** Never prefix with `NEXT_PUBLIC_`. Required - the callback uses it to apply payments past RLS. |
+| `MPESA_ENV` | `sandbox` | `sandbox` or `production`. |
+| `MPESA_CONSUMER_KEY` | from your Daraja app | developer.safaricom.co.ke -> My Apps. |
+| `MPESA_CONSUMER_SECRET` | from your Daraja app | |
+| `MPESA_SHORTCODE` | `174379` | Sandbox shortcode. Production = your Paybill/Till. |
+| `MPESA_PASSKEY` | sandbox passkey | Lipa na M-Pesa Online passkey from the Daraja portal. |
+| `MPESA_CALLBACK_URL` | see below | Public HTTPS URL Safaricom POSTs to. |
+| `NEXT_PUBLIC_ALLOW_SIMULATED_PAYMENTS` | leave unset | Set to `true` only for internal testing to show the fake-payment button. |
+
+### 5b. Callback URL - use the stable branch alias
+`MPESA_CALLBACK_URL` must point at this app's callback route:
+
+```
+https://<your-domain>/api/mpesa/callback
+```
+
+On Vercel, prefer the **stable branch alias** over a per-deployment hash URL, so
+the value survives every redeploy. For the `feature/mpesa-payments` branch:
+
+```
+https://mentorbay-git-feature-mpesa-payments-<scope>.vercel.app/api/mpesa/callback
+```
+
+Do NOT use a per-deployment URL like `https://mentorbay-<random-hash>-<scope>.vercel.app`
+- that changes on every push and the callback will break.
+
+### 5c. Make the callback publicly reachable
+Safaricom calls the callback server-to-server with no login session. Two
+requirements:
+- The URL must be reachable from the public internet - **`localhost` cannot work**,
+  so M-Pesa can only be tested on a deployed Vercel URL, not local dev.
+- If **Deployment Protection** (Vercel Authentication) is enabled on Preview, it
+  returns a login page to outside callers and blocks the callback. Disable
+  protection for Preview, or add a Protection Bypass, so `/api/mpesa/callback`
+  (and `/auth/callback`) are reachable.
+
+### 5d. How the sandbox test behaves
+- In Daraja **sandbox**, the STK prompt is driven by the sandbox test MSISDN
+  **`254708374149`** (enter `0708374149` / `254708374149` in the phone field) -
+  you won't get a prompt on your real SIM.
+- The mentee must have an **approved** enrollment in a **paid** program
+  (`price_kes > 0`) before the M-Pesa form appears.
+- On confirmed success the callback writes a `payments` row (`provider: mpesa`),
+  bumps `enrollments.amount_paid_kes`, and on full payment releases the
+  commission split once. The waiting screen flips to "Payment received".
+
+> If the STK prompt succeeds on the phone but nothing is applied and the waiting
+> screen never resolves, the usual cause is a missing `SUPABASE_SERVICE_ROLE_KEY`
+> or an unreachable/protected `MPESA_CALLBACK_URL`.
+
+### 5e. Migration
+The M-Pesa flow needs the `payment_intents` table. Run migration **41** (and any
+intervening migrations) in the Supabase SQL Editor before testing.
+
+---
+
+## 6. Smoke test the live site
 - [ ] Public pages load: `/`, `/mentors`, `/programs`, `/events`.
 - [ ] Sign up at `/signup`, confirm (or disable "Confirm email" in Supabase for quick tests),
       land on onboarding -> your dashboard.
@@ -71,10 +141,13 @@ This makes email-confirmation and password-reset links return to the live site.
 - [ ] Settings save; Create Program (as a mentor) adds a program.
 - [ ] Run `seed_my_dashboard.sql` with your user id to populate sample
       enrollments/sessions/applications, then refresh the dashboard.
+- [ ] (If M-Pesa enabled) On an approved, paid program: enter `254708374149`,
+      tap the green "Pay with M-Pesa" button, complete the sandbox prompt, and
+      confirm the waiting screen resolves to "Payment received".
 
 ---
 
-## 6. (Optional) Google sign-in
+## 7. (Optional) Google sign-in
 The Google button calls Supabase OAuth. To make it work:
 1. Supabase **Authentication -> Providers -> Google** -> enable, add your Google OAuth
    client id/secret.

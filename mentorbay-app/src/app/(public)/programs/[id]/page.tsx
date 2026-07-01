@@ -12,6 +12,7 @@ import CurriculumTracker from "@/components/CurriculumTracker";
 import { getCompletedLessons, getMyPaymentState } from "@/lib/enrollments";
 import ProgramPaymentPanel from "@/components/ProgramPaymentPanel";
 import ProgramCard from "@/components/ProgramCard";
+import { mpesaConfigured } from "@/lib/daraja";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const p = await getProgram(params.id);
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
 
 
-export default async function ProgramDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string; enrollerror?: string; review?: string } }) {
+export default async function ProgramDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { preview?: string; enrollerror?: string; review?: string; mpesa?: string; intent?: string } }) {
   const p = await getProgram(params.id, { preview: searchParams?.preview === "1" });
   const role = await currentUserRole();
   const isMentee = role === "mentee" || role === null; // logged-out visitors are treated as prospective mentees
@@ -166,7 +167,7 @@ export default async function ProgramDetailPage({ params, searchParams }: { para
 
         <aside className="lg:sticky lg:top-24 space-y-4">
           {payState && (
-            <ProgramPaymentPanel slug={p.id} price={payState.price} paid={payState.paid} balance={payState.balance} fullyPaid={payState.fullyPaid} maxInstallments={payState.maxInstallments} approved={payState.approved} />
+            <ProgramPaymentPanel slug={p.id} price={payState.price} paid={payState.paid} balance={payState.balance} fullyPaid={payState.fullyPaid} maxInstallments={payState.maxInstallments} approved={payState.approved} mpesaEnabled={mpesaConfigured()} pendingIntentId={searchParams?.intent ?? null} allowSimulated={process.env.NEXT_PUBLIC_ALLOW_SIMULATED_PAYMENTS === "true"} />
           )}
           {enrolled && progress && (
             <ProgramProgressPanel slug={p.id} pct={progress.pct} status={progress.status} lessons={p.lessons} />

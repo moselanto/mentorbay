@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { registerEventAction } from "@/app/actions";
+import { registerEventAction, startMpesaEventPaymentAction } from "@/app/actions";
 import { googleCalendarUrl } from "@/lib/gcal";
 import type { EventItem } from "@/lib/data";
 
@@ -33,12 +33,31 @@ function FakeQR() {
   );
 }
 
-export default function EventRegister({ event, registered, goingCount = 0 }: { event: EventItem; registered: boolean; goingCount?: number }) {
+function fmt(n: number) {
+  const v = Number(n);
+  return "KES " + (Number.isFinite(v) ? Math.round(v) : 0).toLocaleString("en-KE");
+}
+
+export default function EventRegister({
+  event, registered, goingCount = 0,
+  mpesaEnabled = false, paidPending = false, defaultPhone = null,
+}: {
+  event: EventItem; registered: boolean; goingCount?: number;
+  mpesaEnabled?: boolean; paidPending?: boolean; defaultPhone?: string | null;
+}) {
+  const paid = !!event.isPaid && (event.priceKes ?? 0) > 0;
+  const price = event.priceKes ?? 0;
+  const past = event.when === "past";
+
   return (
     <div className="bg-white rounded-2xl shadow-card p-6 lg:sticky lg:top-24">
       <div className="flex items-end gap-2">
-        <span className="text-3xl font-extrabold text-navy">Free</span>
-        <span className="text-sm text-slate-400 mb-1">&middot; entry</span>
+        {paid ? (
+          <span className="text-3xl font-extrabold text-navy">{fmt(price)}</span>
+        ) : (
+          <span className="text-3xl font-extrabold text-navy">Free</span>
+        )}
+        <span className="text-sm text-slate-400 mb-1">&middot; {paid ? "ticket" : "entry"}</span>
       </div>
       <p className="text-xs text-teal-600 font-medium mt-1">{goingCount} registered so far</p>
       <ul className="mt-4 space-y-3 text-sm">
@@ -47,16 +66,46 @@ export default function EventRegister({ event, registered, goingCount = 0 }: { e
         <li className="flex items-center gap-3"><span className="text-teal">&#128205;</span><span>{event.loc}</span></li>
       </ul>
 
-      <form action={registerEventAction} className="mt-5">
-        <input type="hidden" name="slug" value={event.id} />
-        <input type="hidden" name="action" value={registered ? "unregister" : "register"} />
-        <input type="hidden" name="redirect" value={`/events/${event.id}`} />
-        <button
-          className={`w-full py-3 text-white font-semibold rounded-lg transition ${registered ? "bg-teal hover:bg-teal-600" : "bg-navy hover:bg-navy-700"}`}
-        >
-          {registered ? "Registered \u2713 - Cancel registration" : "Register Now"}
-        </button>
-      </form>
+      {/* PAID + not yet registered -> pay with M-Pesa to confirm the spot. */}
+      {paid && !registered && !past ? (
+        mpesaEnabled ? (
+          <form action={startMpesaEventPaymentAction} className="mt-5 space-y-2">
+            <input type="hidden" name="slug" value={event.id} />
+            <input type="hidden" name="redirect" value={`/events/${event.id}`} />
+            <label className="block text-sm font-semibold text-navy">Pay with M-Pesa to register</label>
+            <input name="phone" defaultValue={defaultPhone ?? ""} inputMode="tel" placeholder="07XX XXX XXX" required
+              className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-teal outline-none" />
+            <button className="w-full py-3 bg-navy text-white font-semibold rounded-lg hover:bg-navy-700 transition">
+              Pay {fmt(price)} &amp; register
+            </button>
+            <p className="text-xs text-slate-400">You&apos;ll get an M-Pesa prompt on this phone. Enter your PIN to confirm your ticket.</p>
+          </form>
+        ) : (
+          <p className="mt-5 text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">M-Pesa payments are not configured yet, so paid registration is temporarily unavailable.</p>
+        )
+      ) : (
+        /* FREE event (or already registered) -> simple register / cancel. */
+        !past && (
+          <form action={registerEventAction} className="mt-5">
+            <input type="hidden" name="slug" value={event.id} />
+            <input type="hidden" name="action" value={registered ? "unregister" : "register"} />
+            <input type="hidden" name="redirect" value={`/events/${event.id}`} />
+            <button
+              className={`w-full py-3 text-white font-semibold rounded-lg transition ${registered ? "bg-teal hover:bg-teal-600" : "bg-navy hover:bg-navy-700"}`}
+            >
+              {registered ? "Registered \u2713 - Cancel registration" : "Register Now"}
+            </button>
+          </form>
+        )
+      )}
+
+      {/* Waiting on M-Pesa confirmation for a paid event. */}
+      {paidPending && !registered && (
+        <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <p className="font-semibold text-amber-800 text-sm">Check your phone</p>
+          <p className="text-xs text-amber-700 mt-1">We sent an M-Pesa request for your ticket. Enter your PIN to confirm; refresh this page once paid and your ticket will appear here.</p>
+        </div>
+      )}
 
       {registered && (
         <div className="mt-5 pt-5 border-t border-slate-100">

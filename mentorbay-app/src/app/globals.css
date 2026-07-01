@@ -16,8 +16,14 @@ html {
 
 /* ---------- Certificate print isolation ----------
    When printing a certificate, show ONLY the .cert-print-area and drop the
-   dashboard chrome / margins so the certificate alone fills the page. */
+   dashboard chrome / margins so the certificate alone fills the page. The
+   certificate has two pages (.cert-page): the front and the back. Each is
+   forced onto its own physical sheet, in landscape, with no page break inside. */
 @media print {
+  @page {
+    size: A4 landscape;
+    margin: 12mm;
+  }
   body * {
     visibility: hidden !important;
   }
@@ -33,5 +39,26 @@ html {
     max-width: 100% !important;
     margin: 0 !important;
     box-shadow: none !important;
+  }
+  /* Each page fills its own sheet and never splits across pages. */
+  .cert-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    aspect-ratio: auto !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  /* Force the back of the certificate onto a fresh sheet after the front. */
+  .cert-page-back {
+    break-before: page !important;
+    page-break-before: always !important;
+  }
+  /* Make sure decorative borders / brand colors actually print. */
+  .cert-print-area * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
